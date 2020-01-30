@@ -9,7 +9,7 @@ import Foundation
 #if canImport(SpriteKit)
 import SpriteKit
 class Scene: SKScene {
-    private(set) var deltaTime: CGFloat = 0.0
+    private(set) var deltaTime: CGFloat = 0.0 //TODO: Should this be static?
     private var lastUpdateTime: TimeInterval = 0.0
     
     override func update(_ currentTime: TimeInterval) {

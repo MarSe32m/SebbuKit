@@ -1,5 +1,3 @@
-struct SebbuKit {
-    var text = "Hello, World!"
+public class SomeClass {
+    
 }
-
-
