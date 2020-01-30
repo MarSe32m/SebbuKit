@@ -30,8 +30,15 @@ public struct FloatCompressor {
         string.appendUInt32(bitPattern, numberOfBits: bits)
     }
 
-    
+    public func read(from string: inout ReadableBitStream) throws -> Float {
+        let bitPattern = try string.readUInt32(numberOfBits: bits)
+
+        let ratio = Float(Double(bitPattern) / maxBitValue)
+        return  ratio * (maxValue - minValue) + minValue
+    }
+
     #if canImport(CoreGraphics)
+    import CoreGraphics
     func write(_ value: CGFloat, to string: inout WritableBitStream) {
         write(Float(value), to: &string)
     }
@@ -56,16 +63,7 @@ public struct FloatCompressor {
         write(value.y, to: &string)
         write(value.z, to: &string)
     }
-    #endif
     
-    public func read(from string: inout ReadableBitStream) throws -> Float {
-        let bitPattern = try string.readUInt32(numberOfBits: bits)
-
-        let ratio = Float(Double(bitPattern) / maxBitValue)
-        return  ratio * (maxValue - minValue) + minValue
-    }
-
-    #if canImport(CoreGraphics)
     func readCG(from string: inout ReadableBitStream) throws -> CGFloat {
         return CGFloat(try read(from: &string))
     }
@@ -128,6 +126,7 @@ public struct WritableBitStream {
         appendUInt32(value.rawValue, numberOfBits: type(of: value).bits)
     }
     #if canImport(CoreGraphics)
+    import CoreGraphics
     public mutating func appendCGFloat(_ value: CGFloat) {
         appendFloat(Float(value))
     }
@@ -212,6 +211,7 @@ public struct ReadableBitStream {
 
     
     #if canImport(CoreGraphics)
+    import CoreGraphics
     public mutating func readCGFloat() throws -> CGFloat {
         return CGFloat(try readFloat())
     }

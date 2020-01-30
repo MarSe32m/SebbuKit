@@ -6,7 +6,6 @@ Protocols for defining types that can encode to bit streams.
 */
 
 import Foundation
-import CoreGraphics
 
 public protocol BitStreamEncodable {
     func encode(to bitStream: inout WritableBitStream) -> Bool
@@ -73,7 +72,6 @@ extension UInt32: BitStreamCodable {
         return true
     }
 }
-
 extension Float: BitStreamCodable {
     public init?(from bitStream: inout ReadableBitStream) {
         do {
@@ -93,6 +91,7 @@ extension Float: BitStreamCodable {
 
 
 #if canImport(CoreGraphics)
+import CoreGraphics
 extension CGFloat: BitStreamCodable {
     public init?(from bitStream: inout ReadableBitStream) {
         do {
