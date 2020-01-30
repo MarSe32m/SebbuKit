@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct WritableBitStream {
+public struct WritableBitStream {
     
 }

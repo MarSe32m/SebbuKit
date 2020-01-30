@@ -1,3 +1,3 @@
-public class SomeClass {
+public struct SebbunStruct {
     
 }
