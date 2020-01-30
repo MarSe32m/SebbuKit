@@ -5,3 +5,8 @@ public struct SebbunStruct {
         modified = true
     }
 }
+
+public func someFunction() -> Int {
+    print("Hello gello")
+    return 42
+}
