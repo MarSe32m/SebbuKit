@@ -57,6 +57,7 @@ public struct CRC {
 }
 
 #if canImport(UIKit)
+import UIKit
 public extension UIDevice {
     
     var modelName: String {

@@ -187,7 +187,7 @@ public extension SKSpriteNode {
     }
 }
 
-
+@available(iOS 9.0, *)
 public extension SKCameraNode {
     func followNode(target: SKNode, offset: CGVector, smoothTime: CGFloat, currentVelocity: inout CGVector, dt: CGFloat) {
         position = smoothDamp(currentPosition: position, targetPosition: target.position + offset, currentVelocity: &currentVelocity, smoothTime: smoothTime, deltaTime: dt)
