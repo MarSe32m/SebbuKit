@@ -221,6 +221,7 @@ public extension SKLabelNode {
     
 }
 
+@available(iOS 9.0, *)
 public extension SKTexture {
     func getPixelColor(pos: CGPoint) -> SKColor {
         let pixelData = self.cgImage().dataProvider!.data
