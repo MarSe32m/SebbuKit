@@ -395,4 +395,234 @@ class GridNode: SKSpriteNode {
         return CGPoint(x:x, y:y)
     }
 }
+
+public extension SKAttributeValue {
+
+    /**
+     Convenience initializer to create an attribute value from a CGSize.
+     - Parameter size: The input size; this is usually your node's size.
+    */
+    convenience init(size: CGSize) {
+        let size = vector_float2(Float(size.width), Float(size.height))
+        self.init(vectorFloat2: size)
+    }
+}
+
+public extension SKShader {
+    /**
+     Convience initializer to create a shader from a filename by way of a string.
+     Although this approach is less efficient than loading directly from disk, it enables
+     shader errors to be printed in the Xcode console.
+
+     - Parameter filename: A filename in your bundle, including extension.
+     - Parameter uniforms: An array of SKUniforms to apply to the shader. Defaults to nil.
+     - Parameter attributes: An array of SKAttributes to apply to the shader. Defaults to nil.
+    */
+    convenience init(fromFile filename: String, uniforms: [SKUniform]? = nil, attributes: [SKAttribute]? = nil) {
+        // it is a fatal error to attempt to load a missing or corrupted shader
+        guard let path = Bundle.main.path(forResource: filename, ofType: "fsh") else {
+            fatalError("Unable to find shader \(filename).fsh in bundle")
+        }
+
+        guard let source = try? String(contentsOfFile: path) else {
+            fatalError("Unable to load shader \(filename).fsh")
+        }
+
+        // if we were sent any uniforms then apply them immediately
+        if let uniforms = uniforms {
+            self.init(source: source as String, uniforms: uniforms)
+        } else {
+            self.init(source: source as String)
+        }
+
+        // if we were sent any attributes then apply those too
+        if let attributes = attributes {
+            self.attributes = attributes
+        }
+    }
+}
+
+public extension SKUniform {
+    /**
+    Convenience initializer to create an SKUniform from an SKColor.
+    - Parameter name: The name of the uniform inside the shader, e.g. u_color.
+    - Parameter color: The SKColor to set.
+    */
+    convenience init(name: String, color: SKColor) {
+        #if os(macOS)
+            guard let converted = color.usingColorSpace(.deviceRGB) else {
+                fatalError("Attempted to use a color that is not expressible in RGB.")
+            }
+
+            let colors = vector_float4([Float(converted.redComponent), Float(converted.greenComponent), Float(converted.blueComponent), Float(converted.alphaComponent)])
+        #else
+            var r: CGFloat = 0
+            var g: CGFloat = 0
+            var b: CGFloat = 0
+            var a: CGFloat = 0
+
+            color.getRed(&r, green: &g, blue: &b, alpha: &a)
+            let colors = vector_float4([Float(r), Float(g), Float(b), Float(a)])
+        #endif
+
+        self.init(name: name, vectorFloat4: colors)
+    }
+
+    /**
+     Convenience initializer to create an SKUniform from a CGSize.
+     - Parameter name: The name of the uniform inside the shader, e.g. u_size.
+     - Parameter color: The CGSize to set.
+     */
+    convenience init(name: String, size: CGSize) {
+        let size = vector_float2(Float(size.width), Float(size.height))
+        self.init(name: name, vectorFloat2: size)
+    }
+
+    /**
+     Convenience initializer to create an SKUniform from a CGPoint.
+     - Parameter name: The name of the uniform inside the shader, e.g. u_center.
+     - Parameter color: The CGPoint to set.
+     */
+    convenience init(name: String, point: CGPoint) {
+        let point = vector_float2(Float(point.x), Float(point.y))
+        self.init(name: name, vectorFloat2: point)
+    }
+}
+
+/// Relay control events though `ThumbStickNodeDelegate`.
+public protocol ThumbStickNodeDelegate: class {
+    /// Called when `touchPad` is moved. Values are normalized between [-1.0, 1.0].
+    func thumbStickNode(thumbStickNode: ThumbStickNode, didUpdateXValue xValue: CGFloat, yValue: CGFloat)
+    
+    /// Called to indicate when the `touchPad` is initially pressed, and when it is released.
+    func thumbStickNode(thumbStickNode: ThumbStickNode, isPressed: Bool)
+}
+
+/// Touch representation of a classic analog stick.
+public class ThumbStickNode: SKSpriteNode {
+    // MARK: Properties
+    
+    /// The actual thumb pad that moves with touch.
+    var touchPad: SKSpriteNode
+    
+    public weak var delegate: ThumbStickNodeDelegate?
+    
+    /// The center point of this `ThumbStickNode`.
+    let center: CGPoint
+    
+    /// The distance that `touchPad` can move from the `touchPadAnchorPoint`.
+    let trackingDistance: CGFloat
+    
+    /// Styling settings for the thumbstick's nodes.
+    let normalAlpha: CGFloat = 0.5
+    let selectedAlpha: CGFloat = 0.85
+    
+    
+    override var alpha: CGFloat {
+        didSet {
+            touchPad.alpha = alpha
+        }
+    }
+    
+    // MARK: Initialization
+    
+    public init(size: CGSize) {
+        trackingDistance = size.width / 2
+        
+        let touchPadLength = size.width / 2.2
+        center = CGPoint(x: size.width / 2 - touchPadLength, y: size.height / 2 - touchPadLength)
+        
+        let touchPadSize = CGSize(width: touchPadLength, height: touchPadLength)
+        let touchPadTexture = SKTexture(imageNamed: "control_pad")
+        
+        // `touchPad` is the inner touch pad that follows the user's thumb.
+        touchPad = SKSpriteNode(texture: touchPadTexture, color: UIColor.darkGray, size: touchPadSize)
+        
+        super.init(texture: touchPadTexture, color: UIColor.darkGray, size: size)
+        colorBlendFactor = 1.0
+        touchPad.colorBlendFactor = 1.0
+        alpha = normalAlpha
+        
+        addChild(touchPad)
+        isUserInteractionEnabled = true
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: UIResponder
+    
+    override var canBecomeFirstResponder: Bool { true }
+    
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        // Highlight that the control is being used by adjusting the alpha.
+        alpha = selectedAlpha
+        
+        // Inform the delegate that the control is being pressed.
+        delegate?.thumbStickNode(thumbStickNode: self, isPressed: true)
+    }
+    
+    public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesMoved(touches, with: event)
+        
+        // For each touch, calculate the movement of the touchPad.
+        for touch in touches {
+            let touchLocation = touch.location(in: self)
+            
+            var dx = touchLocation.x - center.x
+            var dy = touchLocation.y - center.y
+            
+            // Calculate the distance from the `touchPadAnchorPoint` to the current location.
+            let distance = hypot(dx, dy)
+            
+            /*
+                If the distance is greater than our allowed `trackingDistance`,
+                create a unit vector and multiply by max displacement
+                (`trackingDistance`).
+            */
+            if distance > trackingDistance {
+                dx = (dx / distance) * trackingDistance
+                dy = (dy / distance) * trackingDistance
+            }
+            
+            // Position the touchPad to match the touch's movement.
+            touchPad.position = CGPoint(x: center.x + dx, y: center.y + dy)
+            
+            // Normalize the displacements between [-1.0, 1.0].
+            let normalizedDx = CGFloat(dx / trackingDistance)
+            let normalizedDy = CGFloat(dy / trackingDistance)
+            delegate?.thumbStickNode(thumbStickNode: self, didUpdateXValue: normalizedDx, yValue: normalizedDy)
+        }
+    }
+    
+    public override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        
+        // If the touches set is empty, return immediately.
+        guard !touches.isEmpty else { return }
+        
+        resetTouchPad()
+   }
+    
+    public override func touchesCancelled(_ touches: Set<UITouch>?, with event: UIEvent?) {
+        super.touchesCancelled(touches!, with: event)
+        resetTouchPad()
+    }
+    
+    /// When touches end, reset the `touchPad` to the center of the control.
+    internal func resetTouchPad() {
+        alpha = normalAlpha
+        
+        let restoreToCenter = SKAction.move(to: CGPoint.zero, duration: 0.2)
+        restoreToCenter.timingMode = .easeInEaseOut
+        touchPad.run(restoreToCenter)
+        
+        delegate?.thumbStickNode(thumbStickNode: self, isPressed: false)
+        delegate?.thumbStickNode(thumbStickNode: self, didUpdateXValue: 0, yValue: 0)
+    }
+}
+
+
 #endif
