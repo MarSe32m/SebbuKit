@@ -22,6 +22,15 @@ public class Scene: SKScene {
         deltaTime = dt < 1.0 ? dt : 0.0
         lastUpdateTime = currentTime
     }
+    
+    open class func create(fileNamed: String, view: SKView) -> Self {
+        guard let scene = SKScene(fileNamed: fileNamed) as? Self else {
+            fatalError("Couldn't load scene")
+        }
+        scene.scaleMode = .aspectFit
+        scene.size = view.frame.size.aspectFill(CGSize(width: 750, height: 1334))
+        return scene
+    }
 }
 
 public extension SKNode {
@@ -396,6 +405,7 @@ class GridNode: SKSpriteNode {
     }
 }
 
+@available(iOS 9.0, *)
 public extension SKAttributeValue {
 
     /**
@@ -408,6 +418,7 @@ public extension SKAttributeValue {
     }
 }
 
+@available(iOS 9.0, *)
 public extension SKShader {
     /**
      Convience initializer to create a shader from a filename by way of a string.
@@ -448,6 +459,7 @@ public extension SKUniform {
     - Parameter name: The name of the uniform inside the shader, e.g. u_color.
     - Parameter color: The SKColor to set.
     */
+    @available(iOS 10.0, *)
     convenience init(name: String, color: SKColor) {
         #if os(macOS)
             guard let converted = color.usingColorSpace(.deviceRGB) else {
@@ -473,6 +485,7 @@ public extension SKUniform {
      - Parameter name: The name of the uniform inside the shader, e.g. u_size.
      - Parameter color: The CGSize to set.
      */
+    @available(iOS 10.0, *)
     convenience init(name: String, size: CGSize) {
         let size = vector_float2(Float(size.width), Float(size.height))
         self.init(name: name, vectorFloat2: size)
@@ -483,6 +496,7 @@ public extension SKUniform {
      - Parameter name: The name of the uniform inside the shader, e.g. u_center.
      - Parameter color: The CGPoint to set.
      */
+    @available(iOS 10.0, *)
     convenience init(name: String, point: CGPoint) {
         let point = vector_float2(Float(point.x), Float(point.y))
         self.init(name: name, vectorFloat2: point)
@@ -518,7 +532,7 @@ public class ThumbStickNode: SKSpriteNode {
     let selectedAlpha: CGFloat = 0.85
     
     
-    override var alpha: CGFloat {
+    override public var alpha: CGFloat {
         didSet {
             touchPad.alpha = alpha
         }
@@ -553,7 +567,7 @@ public class ThumbStickNode: SKSpriteNode {
 
     // MARK: UIResponder
     
-    override var canBecomeFirstResponder: Bool { true }
+    override public var canBecomeFirstResponder: Bool { true }
     
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
