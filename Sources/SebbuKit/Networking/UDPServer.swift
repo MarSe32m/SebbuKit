@@ -1,6 +1,5 @@
 //
-//  Server.swift
-//  Prime testing
+//  UDPServer.swift
 //
 //  Created by Sebastian Toivonen on 24.12.2019.
 //  Copyright © 2019 Sebastian Toivonen. All rights reserved.

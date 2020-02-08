@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  WebSocketClient.swift
 //  
 //
 //  Created by Sebastian Toivonen on 8.2.2020.
+//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
 
 import Foundation

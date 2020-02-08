@@ -1,8 +1,9 @@
 //
-//  File.swift
+//  FloatingPointExtensions.swift
 //  
 //
 //  Created by Sebastian Toivonen on 31.1.2020.
+//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
 import Foundation
 

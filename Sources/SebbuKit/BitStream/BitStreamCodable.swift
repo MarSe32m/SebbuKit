@@ -1,9 +1,8 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-Protocols for defining types that can encode to bit streams.
-*/
+//
+//  BitStreamCodable.swift
+//
+//  Created by Sebastian Toivonen on 24.12.2019.
+//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 
 import Foundation
 
