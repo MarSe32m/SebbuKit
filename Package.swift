@@ -12,6 +12,7 @@ let package = Package(
             targets: ["SebbuKit"]),
     ],
     dependencies: [
+    .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         // .package(url: "package url", .branch("master"))
@@ -21,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "SebbuKit",
-            dependencies: []),
+            dependencies: ["NIO", "NIOHTTP1", "NIOWebSocket"]),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),
