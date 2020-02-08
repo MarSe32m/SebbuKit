@@ -193,8 +193,8 @@ fileprivate final class WebSocketReceiveHandler: ChannelInboundHandler {
             self.webSocket?.textClosure?(text)
         case .binary:
             let unmasked = frame.unmaskedData
-            if let data = unmasked.getData(at: 0, length: unmasked.readableBytes) {
-                self.webSocket?.dataClosure?(data)
+            if let data = unmasked.getBytes(at: 0, length: unmasked.readableBytes) {
+                self.webSocket?.dataClosure?(Data(data))
             } else {
                 print("Failed to read data from byte buffer")
             }

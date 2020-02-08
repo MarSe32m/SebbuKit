@@ -39,7 +39,7 @@ public final class WebSocketClient {
                 
                 let httpHandler = HTTPInitialRequestHandler()
                 
-                let websocketUpgrader = NIOWebClientSocketUpgrader(requestKey: "OfS0wDaT5NoxF2gqm7Zj2YtetzM=",
+                let websocketUpgrader = NIOWebSocketClientUpgrader(requestKey: "OfS0wDaT5NoxF2gqm7Zj2YtetzM=",
                                                                    upgradePipelineHandler: { (channel: Channel, _: HTTPResponseHead) in
                                         channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketClient: self))
                 })
@@ -218,8 +218,8 @@ private final class WebSocketReceiveHandler: ChannelInboundHandler {
             print("Continuation opcode not handled on WebSocketClient yet")
         case .binary:
             let unmasked = frame.unmaskedData
-            if let data = unmasked.getData(at: 0, length: unmasked.readableBytes) {
-                webSocketClient.received(data: data)
+            if let data = unmasked.getBytes(at: 0, length: unmasked.readableBytes) {
+                webSocketClient.received(data: Data(data))
             } else {
                 print("Failed to get data from bytebuffer")
             }
