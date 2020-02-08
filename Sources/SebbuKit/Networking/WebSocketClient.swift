@@ -32,7 +32,7 @@ public final class WebSocketClient {
         self.hostname = hostname
     }
     
-    func start() {
+    public final func start() {
         let bootstrap = ClientBootstrap(group: group)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .channelInitializer { channel in
@@ -108,7 +108,7 @@ public final class WebSocketClient {
         channel.writeAndFlush(frame, promise: nil)
     }
     
-    func shutdown() {
+    public final func shutdown() {
         var data = channel.allocator.buffer(capacity: 2)
         data.write(webSocketErrorCode: .normalClosure)
         let frame = WebSocketFrame(fin: true, opcode: .connectionClose, data: data)

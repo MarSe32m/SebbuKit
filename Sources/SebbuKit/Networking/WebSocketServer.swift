@@ -19,7 +19,7 @@ public final class WebSocketServer {
     private let group: EventLoopGroup
     private let port: Int
     private var channel: Channel!
-    weak var delegate: WebSocketServerProtocol?
+    public weak var delegate: WebSocketServerProtocol?
     
     public init(port: Int, numberOfThreads: Int = 1, delegate: WebSocketServerProtocol? = nil) {
         self.port = port
@@ -167,7 +167,7 @@ fileprivate final class WebSocketReceiveHandler: ChannelInboundHandler {
     private let uuid = UUID()
     private var webSocket: WebSocket?
     
-    init(webSocketServer: WebSocketServer) {
+    internal init(webSocketServer: WebSocketServer) {
         self.webSocketServer = webSocketServer
     }
     

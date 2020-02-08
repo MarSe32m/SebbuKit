@@ -17,7 +17,7 @@ public final class UDPServer {
     private let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     private var channel: Channel!
     
-   public weak var delegate: UDPServerProtocol?
+    public weak var delegate: UDPServerProtocol?
     
     public init(port: Int, delegate: UDPServerProtocol? = nil) {
         self.port = port
@@ -56,7 +56,7 @@ public final class UDPServer {
         }
     }
     
-    func send(data: Data, address: SocketAddress) {
+    public final func send(data: Data, address: SocketAddress) {
         var buffer = channel.allocator.buffer(capacity: data.count)
         buffer.writeBytes(data)
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
