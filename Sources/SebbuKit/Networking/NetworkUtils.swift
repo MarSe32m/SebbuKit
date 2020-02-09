@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 public struct NetworkUtils {
     public static func publicIP() -> String? {
         do {

@@ -68,14 +68,11 @@ private final class UDPInboundHandler: ChannelInboundHandler {
     public typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
     private unowned var server: UDPServer
-    private var packetsReceived = 0
     init(server: UDPServer) {
         self.server = server
     }
     
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        packetsReceived += 1
-        print(packetsReceived)
         server.received(envelope: self.unwrapInboundIn(data))
     }
 
