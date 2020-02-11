@@ -38,7 +38,7 @@ public final class WebSocketClient {
     }
     
     public final func start() throws {
-        let configuration = TLSConfiguration.forClient(certificateVerification: .noHostnameVerification) //TODO: Change this in prod!
+        let configuration = TLSConfiguration.forClient(certificateVerification: .none) //TODO: Change this in prod!
         let sslContext = try NIOSSLContext(configuration: configuration)
         
         let bootstrap = ClientBootstrap(group: group)
