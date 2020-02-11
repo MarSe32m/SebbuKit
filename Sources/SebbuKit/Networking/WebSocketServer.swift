@@ -47,7 +47,7 @@ public final class WebSocketServer {
                         )
             
             return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: config).flatMap {
-                channel.pipeline.addHandler(httpHandler)
+                return channel.pipeline.addHandler(httpHandler)
             }
         }
 

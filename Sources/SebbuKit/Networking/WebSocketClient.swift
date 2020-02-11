@@ -10,6 +10,8 @@ import Foundation
 import NIO
 import NIOWebSocket
 import NIOHTTP1
+import NIOSSL
+import NIOTLS
 
 public protocol WebSocketClientDelegate: class {
     func received(text: String)
@@ -19,6 +21,7 @@ public protocol WebSocketClientDelegate: class {
 public final class WebSocketClient {
     public private(set) var lastPong = Date()
     private let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    private let tls: Bool
     public let port: Int
     public let hostname: String
     private var channel: Channel!
@@ -28,12 +31,16 @@ public final class WebSocketClient {
     private var textClosure: ((_ text: String) -> Void)?
     private var dataClosure: ((_ data: Data) -> Void)?
     
-    public init(port: Int, hostname: String) {
+    public init(port: Int, hostname: String, tls: Bool = false) {
         self.port = port
         self.hostname = hostname
+        self.tls = tls
     }
     
-    public final func start() {
+    public final func start() throws {
+        let configuration = TLSConfiguration.forClient()
+        let sslContext = try NIOSSLContext(configuration: configuration)
+        
         let bootstrap = ClientBootstrap(group: group)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .channelInitializer { channel in
@@ -42,7 +49,8 @@ public final class WebSocketClient {
                 
                 let websocketUpgrader = NIOWebSocketClientUpgrader(requestKey: "OfS0wDaT5NoxF2gqm7Zj2YtetzM=",
                                                                    upgradePipelineHandler: { (channel: Channel, _: HTTPResponseHead) in
-                                        channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketClient: self))
+                                                                    
+                                                                    channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketClient: self))
                 })
                 
                 let config: NIOHTTPClientUpgradeConfiguration = (
@@ -50,7 +58,17 @@ public final class WebSocketClient {
                     completionHandler: { _ in
                         channel.pipeline.removeHandler(httpHandler, promise: nil)
                 })
-
+                
+                if self.tls {
+                    let future = channel.pipeline.addHTTPClientHandlers(withClientUpgrade: config).flatMap {_ -> EventLoopFuture<Void> in
+                        let clientHandler = try! NIOSSLClientHandler(context: sslContext, serverHostname: nil)
+                        return channel.pipeline.addHandler(clientHandler)
+                    }.flatMap {
+                        channel.pipeline.addHandler(httpHandler)
+                    }
+                    return future
+                }
+                
                 return channel.pipeline.addHTTPClientHandlers(withClientUpgrade: config).flatMap {
                     channel.pipeline.addHandler(httpHandler)
                 }
