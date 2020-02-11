@@ -48,12 +48,12 @@ public final class WebSocketServer {
                                 channel.pipeline.removeHandler(httpHandler, promise: nil)
                             }
                         )
-            if tls {
+            if self.tls {
                 let configuration = TLSConfiguration.forServer(certificateChain: try! NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) },
                                                                privateKey: .file("key.pem"))
                 let sslContext = try! NIOSSLContext(configuration: configuration)
                 let handler = try! NIOSSLServerHandler(context: sslContext)
-                channel.pipeline.addHandler(handler)
+                _ = channel.pipeline.addHandler(handler)
             }
             
             return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: config).flatMap {
