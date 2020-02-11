@@ -10,6 +10,7 @@ import Foundation
 import NIO
 import NIOHTTP1
 import NIOWebSocket
+import NIOSSL
 
 public protocol WebSocketServerProtocol: class {
     func connected(socket: WebSocket)
@@ -21,11 +22,13 @@ public final class WebSocketServer {
     private let port: Int
     private var channel: Channel!
     public weak var delegate: WebSocketServerProtocol?
+    private let tls: Bool
     
-    public init(port: Int, numberOfThreads: Int = 1, delegate: WebSocketServerProtocol? = nil) {
+    public init(port: Int, numberOfThreads: Int = 1, delegate: WebSocketServerProtocol? = nil, tls: Bool = false) {
         self.port = port
         self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         self.delegate = delegate
+        self.tls = tls
     }
     
     public func start() {
@@ -45,6 +48,13 @@ public final class WebSocketServer {
                                 channel.pipeline.removeHandler(httpHandler, promise: nil)
                             }
                         )
+            if tls {
+                let configuration = TLSConfiguration.forServer(certificateChain: try! NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) },
+                                                               privateKey: .file("key.pem"))
+                let sslContext = try! NIOSSLContext(configuration: configuration)
+                let handler = try! NIOSSLServerHandler(context: sslContext)
+                channel.pipeline.addHandler(handler)
+            }
             
             return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: config).flatMap {
                 return channel.pipeline.addHandler(httpHandler)
