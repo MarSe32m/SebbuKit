@@ -50,7 +50,7 @@ public final class WebSocketClient {
                 let websocketUpgrader = NIOWebSocketClientUpgrader(requestKey: "OfS0wDaT5NoxF2gqm7Zj2YtetzM=",
                                                                    upgradePipelineHandler: { (channel: Channel, _: HTTPResponseHead) in
                                                                     
-                                                                    channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketClient: self))
+                                                                    return channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketClient: self))
                 })
                 
                 let config: NIOHTTPClientUpgradeConfiguration = (
@@ -58,17 +58,11 @@ public final class WebSocketClient {
                     completionHandler: { _ in
                         channel.pipeline.removeHandler(httpHandler, promise: nil)
                 })
-                
                 if self.tls {
-                    let future = channel.pipeline.addHTTPClientHandlers(withClientUpgrade: config).flatMap {_ -> EventLoopFuture<Void> in
-                        let clientHandler = try! NIOSSLClientHandler(context: sslContext, serverHostname: nil)
-                        return channel.pipeline.addHandler(clientHandler)
-                    }.flatMap {
-                        channel.pipeline.addHandler(httpHandler)
-                    }
-                    return future
+                    let clientHandler = try! NIOSSLClientHandler(context: sslContext, serverHostname: nil)
+                    print("Adding tls")
+                    _ = channel.pipeline.addHandler(clientHandler)
                 }
-                
                 return channel.pipeline.addHTTPClientHandlers(withClientUpgrade: config).flatMap {
                     channel.pipeline.addHandler(httpHandler)
                 }
