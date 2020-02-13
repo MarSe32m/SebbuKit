@@ -13,7 +13,7 @@ open class Scene: SKScene {
     private(set) var deltaTime: CGFloat = 0.0
     private var lastUpdateTime: TimeInterval = 0.0
     
-    public override func update(_ currentTime: TimeInterval) {
+    open override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
         assignDT(currentTime)
     }
