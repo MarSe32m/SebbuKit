@@ -9,7 +9,7 @@
 import Foundation
 #if canImport(UIKit)
 import SpriteKit
-public class Scene: SKScene {
+open class Scene: SKScene {
     private(set) var deltaTime: CGFloat = 0.0
     private var lastUpdateTime: TimeInterval = 0.0
     
