@@ -22,7 +22,7 @@ public final class UDPServer {
         self.port = port
     }
 
-    public func start() {
+    public func start() throws {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
         .channelInitializer { channel in
@@ -32,10 +32,11 @@ public final class UDPServer {
             channel = try bootstrap.bind(host: "0", port: port).wait()
         } catch let error {
             print("Error binding to port: \(port)")
-            print(error)
+            throw error
         }
-        
-        print("UDP Server started and listening on \(channel.localAddress!)")
+        if let localAddress = channel.localAddress {
+            print("UDP Server started and listening on \(localAddress)")
+        }
     }
     
     public func shutdown() {

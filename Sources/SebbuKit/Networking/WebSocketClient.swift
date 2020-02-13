@@ -38,9 +38,11 @@ public final class WebSocketClient {
     }
     
     public final func start() throws {
-        let configuration = TLSConfiguration.forClient(certificateVerification: .none) //TODO: Change this in prod!
-        let sslContext = try NIOSSLContext(configuration: configuration)
-        
+        let configuration:TLSConfiguration = TLSConfiguration.forClient(certificateVerification: .none) //TODO: Change this in prod!
+        var sslContext: NIOSSLContext?
+        if tls {
+            sslContext = try NIOSSLContext(configuration: configuration)
+        }
         let bootstrap = ClientBootstrap(group: group)
             .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .channelInitializer { channel in
@@ -58,9 +60,8 @@ public final class WebSocketClient {
                     completionHandler: { _ in
                         channel.pipeline.removeHandler(httpHandler, promise: nil)
                 })
-                if self.tls {
+                if let sslContext = sslContext, self.tls {
                     let clientHandler = try! NIOSSLClientHandler(context: sslContext, serverHostname: nil)
-                    print("Adding tls")
                     _ = channel.pipeline.addHandler(clientHandler)
                 }
                 return channel.pipeline.addHTTPClientHandlers(withClientUpgrade: config).flatMap {
@@ -71,11 +72,12 @@ public final class WebSocketClient {
             channel = try bootstrap.connect(host: hostname, port: port).wait()
         } catch let error {
             print("Error binding to host: \(hostname), port: \(port)")
-            print(error)
+            throw error
         }
         
         guard let localAddress = channel.localAddress else {
-            fatalError("Couldn't bind to local address, please check the code!")
+            print("Couldn't bind to local address, please check the code!")
+            return
         }
         
         print("Client started on \(localAddress)")

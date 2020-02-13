@@ -31,7 +31,13 @@ public final class WebSocketServer {
         self.tls = tls
     }
     
-    public func start() {
+    public func start() throws {
+        var sslContext: NIOSSLContext?
+        if tls {
+            let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
+            sslContext = try NIOSSLContext(configuration: configuration)
+            
+        }
         let upgrader = NIOWebSocketServerUpgrader(shouldUpgrade: { (channel: Channel, head: HTTPRequestHead) in channel.eventLoop.makeSucceededFuture(HTTPHeaders()) },
         upgradePipelineHandler: { [unowned self] (channel: Channel, _: HTTPRequestHead) in
             channel.pipeline.addHandler(WebSocketReceiveHandler(webSocketServer: self))
@@ -48,10 +54,7 @@ public final class WebSocketServer {
                                 channel.pipeline.removeHandler(httpHandler, promise: nil)
                             }
                         )
-            if self.tls {
-                let configuration = TLSConfiguration.forServer(certificateChain: try! NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) },
-                                                               privateKey: .file("key.pem"))
-                let sslContext = try! NIOSSLContext(configuration: configuration)
+            if let sslContext = sslContext, self.tls {
                 let handler = try! NIOSSLServerHandler(context: sslContext)
                 _ = channel.pipeline.addHandler(handler)
             }
@@ -68,7 +71,7 @@ public final class WebSocketServer {
             channel = try bootstrap.bind(host: "0", port: port).wait()
         } catch let error {
             print("Error binding to port: \(port)")
-            print(error)
+            throw error
         }
         
         guard let localAddress = channel.localAddress else {
