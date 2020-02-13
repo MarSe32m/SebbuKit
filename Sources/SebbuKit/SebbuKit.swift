@@ -6,3 +6,4 @@
 @_exported import Dispatch
 @_exported import Glibc
 #endif
+@_exported import VectorMath
