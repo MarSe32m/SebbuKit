@@ -16,6 +16,7 @@ import NIOTLS
 public protocol WebSocketClientDelegate: class {
     func received(text: String)
     func received(data: Data)
+    func disconnected()
 }
 
 public final class WebSocketClient {
@@ -30,6 +31,7 @@ public final class WebSocketClient {
     
     private var textClosure: ((_ text: String) -> Void)?
     private var dataClosure: ((_ data: Data) -> Void)?
+    private var disconnectClosure: (() -> Void)?
     
     public init(port: Int, hostname: String, tls: Bool = false) {
         self.port = port
@@ -91,6 +93,10 @@ public final class WebSocketClient {
         self.dataClosure = closure
     }
     
+    public final func onDisconnect(closure: @escaping () -> Void) {
+        self.disconnectClosure = closure
+    }
+    
     fileprivate final func received(text: String) {
         delegate?.received(text: text)
         textClosure?(text)
@@ -99,6 +105,11 @@ public final class WebSocketClient {
     fileprivate final func received(data: Data) {
         delegate?.received(data: data)
         dataClosure?(data)
+    }
+    
+    fileprivate final func disconnected() {
+        delegate?.disconnected()
+        disconnectClosure?()
     }
     
     public final func send(data: Data) {
@@ -251,6 +262,7 @@ private final class WebSocketReceiveHandler: ChannelInboundHandler {
 
     private func receivedClose(context: ChannelHandlerContext, frame: WebSocketFrame) {
         context.close(promise: nil)
+        webSocketClient.disconnected()
     }
     /// Send a ping
     private func ping(context: ChannelHandlerContext) {
@@ -274,6 +286,7 @@ private final class WebSocketReceiveHandler: ChannelInboundHandler {
     }
     
     private func closeOnError(context: ChannelHandlerContext) {
+        webSocketClient.disconnected()
         // We have hit an error, we want to close. We do that by sending a close frame and then
         // shutting down the write side of the connection. The server will respond with a close of its own.
         var data = context.channel.allocator.buffer(capacity: 2)
