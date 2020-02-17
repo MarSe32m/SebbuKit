@@ -141,6 +141,7 @@ public final class WebSocketClient {
         channel.writeAndFlush(frame).whenComplete { (_: Result<Void, Error>) in
             self.channel.close(mode: .all, promise: nil)
         }
+        disconnected()
         do {
             try group.syncShutdownGracefully()
         } catch let error {
@@ -149,6 +150,7 @@ public final class WebSocketClient {
         }
         textClosure = nil
         dataClosure = nil
+        disconnectClosure = nil
     }
     
 }

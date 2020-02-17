@@ -65,6 +65,14 @@ public extension CGPoint {
                         y: x * sin(by) + y * cos(by))
     }
     
+    static func random<T>(xRange: Range<CGFloat>, yRange: Range<CGFloat>, using generator: inout T) -> CGPoint where T : RandomNumberGenerator {
+        CGPoint(x: .random(in: xRange, using: &generator), y: .random(in: yRange, using: &generator))
+    }
+    
+    static func random<T>(xRange: ClosedRange<CGFloat>, yRange: ClosedRange<CGFloat>, using generator: inout T) -> CGPoint where T : RandomNumberGenerator {
+        CGPoint(x: .random(in: xRange, using: &generator), y: .random(in: yRange, using: &generator))
+    }
+    
     static func random(xRange: Range<CGFloat>, yRange: Range<CGFloat>) -> CGPoint {
         return CGPoint(x: CGFloat.random(in: xRange), y: CGFloat.random(in: yRange))
     }
