@@ -40,7 +40,7 @@ public final class WebSocketClient {
     }
     
     public final func start() throws {
-        let configuration:TLSConfiguration = TLSConfiguration.forClient() //TODO: Change this in prod!
+        let configuration:TLSConfiguration = TLSConfiguration.forClient(certificateVerification: .noHostnameVerification) //TODO: Change this in prod!
         var sslContext: NIOSSLContext?
         if tls {
             sslContext = try NIOSSLContext(configuration: configuration)
