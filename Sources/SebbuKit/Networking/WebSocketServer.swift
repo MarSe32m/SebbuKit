@@ -100,7 +100,7 @@ fileprivate let websocketResponse = """
     <meta charset="utf-8">
     <title>WebSockets?</title>
     <script>
-        var wsconnection = new WebSocket("ws://80.221.64.248:10020");
+        var wsconnection = new WebSocket("wss://gamebastian-development.com:80");
         wsconnection.onmessage = function (msg) {
             var element = document.createElement("p");
             element.innerHTML = msg.data;
