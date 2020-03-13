@@ -6,16 +6,16 @@
 
 import Foundation
 
-public protocol BitStreamEncodable {
-    func encode(to bitStream: inout WritableBitStream) -> Bool
+protocol BitStreamEncodable {
+    func encode(to bitStream: inout WritableBitStream) throws
 }
 
-public protocol BitStreamDecodable {
-    init?(from bitStream: inout ReadableBitStream)
+protocol BitStreamDecodable {
+    init(from bitStream: inout ReadableBitStream) throws
 }
 
 /// - Tag: BitStreamCodable
-public typealias BitStreamCodable = BitStreamDecodable & BitStreamEncodable
+typealias BitStreamCodable = BitStreamEncodable & BitStreamDecodable
 
 extension BitStreamEncodable where Self: Encodable {
     func encode(to bitStream: inout WritableBitStream) throws {
@@ -32,12 +32,6 @@ extension BitStreamDecodable where Self: Decodable {
         let decoder = PropertyListDecoder()
         self = try decoder.decode(Self.self, from: data)
     }
-}
-
-public func bitStreamCodableByteSize(_ object: BitStreamCodable) -> Int {
-    var writeStream = WritableBitStream()
-    _ = object.encode(to: &writeStream)
-    return writeStream.packData().count
 }
 
 extension UInt32: BitStreamCodable {
