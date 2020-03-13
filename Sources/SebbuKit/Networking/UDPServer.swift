@@ -13,13 +13,14 @@ public protocol UDPServerProtocol: class {
 
 public final class UDPServer {
     public let port: Int
-    private let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+    public let group: MultiThreadedEventLoopGroup
     private var channel: Channel!
     
     public weak var delegate: UDPServerProtocol?
     
-    public init(port: Int, delegate: UDPServerProtocol? = nil) {
+    public init(port: Int, delegate: UDPServerProtocol? = nil, numberOfThreads: Int = 1) {
         self.port = port
+        self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
     }
 
     public func start() throws {

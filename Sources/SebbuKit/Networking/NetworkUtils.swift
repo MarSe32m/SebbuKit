@@ -9,16 +9,19 @@
 import Foundation
 
 public struct NetworkUtils {
+    private static let ipAddressProviders = ["http://checkip.amazonaws.com/", "http://myexternalip.com/raw", "https://ipv4.icanhazip.com/"]
     public static func publicIP() -> String? {
-        do {
-            guard let url = URL(string: "http://checkip.amazonaws.com") else {
-                print("Error creating url")
-                return nil
+        for address in ipAddressProviders {
+            do {
+                if let url = URL(string: address) {
+                    return try String(contentsOf: url)
+                } else {
+                    print("Error creating url from: \(address)", #file, #line)
+                }
+            } catch let error {
+                print("Error retreiving IP address from: \(address)")
+                print(error)
             }
-            return try String(contentsOf: url)
-        } catch let error {
-            print("Error getting IP Address")
-            print(error)
         }
         return nil
     }
