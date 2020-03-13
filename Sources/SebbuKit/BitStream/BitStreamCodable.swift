@@ -34,6 +34,25 @@ public extension BitStreamDecodable where Self: Decodable {
     }
 }
 
+extension String: BitStreamCodable {
+    public init(from bitStream: inout ReadableBitStream) throws {
+        let data = try bitStream.readData()
+        if let value = String(data: data, encoding: .utf8) {
+            self = value
+        } else {
+            throw BitStreamError.encodingError
+        }
+    }
+
+    public func encode(to bitStream: inout WritableBitStream) throws {
+        if let data = data(using: .utf8) {
+            bitStream.append(data)
+        } else {
+            throw BitStreamError.encodingError
+        }
+    }
+}
+
 extension UInt32: BitStreamCodable {
     init?(from bitStream: inout ReadableBitStream, numberOfBits: Int) {
         do {
@@ -58,6 +77,7 @@ extension UInt32: BitStreamCodable {
         bitStream.appendUInt32(self)
     }
 }
+
 extension Float: BitStreamCodable {
     public init(from bitStream: inout ReadableBitStream) throws {
         self = try bitStream.readFloat()
