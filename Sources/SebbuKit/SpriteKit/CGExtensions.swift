@@ -382,39 +382,29 @@ public func /= (left: inout CGVector, right: CGFloat) {
 
 extension CGPoint: BitStreamCodable {
     
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            let x = try bitStream.readCGFloat()
-            let y = try bitStream.readCGFloat()
-            self.init(x: x, y: y)
-        } catch {
-            return nil
-        }
+    public init(from bitStream: inout ReadableBitStream) throws {
+        let x = try bitStream.readCGFloat()
+        let y = try bitStream.readCGFloat()
+        self.init(x: x, y: y)
     }
     
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) throws {
         bitStream.appendCGFloat(x)
         bitStream.appendCGFloat(y)
-        return true
     }
     
 }
 
 extension CGVector: BitStreamCodable {
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            let dx = try bitStream.readCGFloat()
-            let dy = try bitStream.readCGFloat()
-            self.init(dx: dx, dy: dy)
-        } catch {
-            return nil
-        }
+    public init(from bitStream: inout ReadableBitStream) throws {
+        let dx = try bitStream.readCGFloat()
+        let dy = try bitStream.readCGFloat()
+        self.init(dx: dx, dy: dy)
     }
     
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) throws {
         bitStream.appendCGFloat(dx)
         bitStream.appendCGFloat(dy)
-        return true
     }
     
 }

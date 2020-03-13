@@ -45,14 +45,8 @@ extension UInt32: BitStreamCodable {
         }
     }
     
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            self = try bitStream.readUInt32()
-        } catch let error {
-            print("Error decoding UInt32")
-            print(error)
-            return nil
-        }
+    public init(from bitStream: inout ReadableBitStream) throws {
+        self = try bitStream.readUInt32()
     }
     
     func encode(to bitStream: inout WritableBitStream, numberOfBits: Int) -> Bool {
@@ -60,25 +54,17 @@ extension UInt32: BitStreamCodable {
         return true
     }
     
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) throws {
         bitStream.appendUInt32(self)
-        return true
     }
 }
 extension Float: BitStreamCodable {
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            self = try bitStream.readFloat()
-        } catch let error {
-            print("Error decoding Float")
-            print(error)
-            return nil
-        }
+    public init(from bitStream: inout ReadableBitStream) throws {
+        self = try bitStream.readFloat()
     }
     
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) throws {
         bitStream.appendFloat(self)
-        return true
     }
 }
 
@@ -86,19 +72,12 @@ extension Float: BitStreamCodable {
 #if canImport(CoreGraphics)
 import CoreGraphics
 extension CGFloat: BitStreamCodable {
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            self = try bitStream.readCGFloat()
-        } catch let error {
-            print("Error decoding CGFloat.")
-            print(error)
-            return nil
-        }
+    public init(from bitStream: inout ReadableBitStream) throws {
+        self = try bitStream.readCGFloat()
     }
     
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) throws {
         bitStream.appendCGFloat(self)
-        return true
     }
 }
 #endif

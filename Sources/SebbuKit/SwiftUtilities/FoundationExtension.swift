@@ -15,32 +15,6 @@ public extension Data {
     }
 }
 
-extension String: BitStreamCodable {
-    public init?(from bitStream: inout ReadableBitStream) {
-        do {
-            let data = try bitStream.readData()
-            if let string = String(data: data, encoding: .utf8) {
-                self.init(string)
-            } else {
-                return nil
-            }
-        } catch {
-            print("Error decoding a String")
-            return nil
-        }
-        
-    }
-    
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
-        if let data = data(using: .utf8) {
-            bitStream.append(data)
-            return true
-        } else {
-            return false
-        }
-    }
-}
-
 public struct CRC {
     private static let table: [UInt32] = {
         return (0...255).map { i -> UInt32 in
