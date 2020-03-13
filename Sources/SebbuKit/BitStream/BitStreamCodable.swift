@@ -15,7 +15,7 @@ public protocol BitStreamDecodable {
 }
 
 /// - Tag: BitStreamCodable
-typealias BitStreamCodable = BitStreamEncodable & BitStreamDecodable
+public typealias BitStreamCodable = BitStreamEncodable & BitStreamDecodable
 
 public extension BitStreamEncodable where Self: Encodable {
     func encode(to bitStream: inout WritableBitStream) throws {
