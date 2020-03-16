@@ -15,6 +15,18 @@ public extension Data {
     }
 }
 
+public func isPrime(number: UInt64) -> Bool {
+    if number <= 3 { return number > 1 }
+    if number % 2 == 0 || number % 3 == 0 { return false }
+    
+    var i: UInt64 = 5;
+    while(i * i <= number) {
+        if number % i == 0 || number % (i + 2) == 0 { return false }
+        i+=6
+    }
+    return true
+}
+
 public struct CRC {
     private static let table: [UInt32] = {
         return (0...255).map { i -> UInt32 in
