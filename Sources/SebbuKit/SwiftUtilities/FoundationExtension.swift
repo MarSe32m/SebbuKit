@@ -15,6 +15,10 @@ public extension Data {
     }
 }
 
+public extension Array {
+    var pointer: UnsafeMutablePointer<Element> { get {return UnsafeMutablePointer(mutating: self)}}
+}
+
 public func isPrime(number: UInt64) -> Bool {
     if number <= 3 { return number > 1 }
     if number % 2 == 0 || number % 3 == 0 { return false }
