@@ -10,7 +10,7 @@ import Foundation
 #if canImport(UIKit)
 import SpriteKit
 open class Scene: SKScene {
-    public private(set) var deltaTime: CGFloat = 0.0
+    public private(set) var deltaTime: CGFloat = 1.0 / 60.0
     private var lastUpdateTime: TimeInterval = 0.0
     
     open override func update(_ currentTime: TimeInterval) {
@@ -20,7 +20,7 @@ open class Scene: SKScene {
     
     private func assignDT(_ currentTime: TimeInterval) {
         let dt = CGFloat(currentTime - lastUpdateTime)
-        deltaTime = dt < 1.0 ? dt : 0.0
+        deltaTime = dt < 1.0 ? dt : 0.016 //This is a hack, since the game starts with 0 delta time, forces applied to it aren't calculated properly
         lastUpdateTime = currentTime
     }
     
