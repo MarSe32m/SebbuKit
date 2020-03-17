@@ -20,7 +20,7 @@ open class Scene: SKScene {
     
     private func assignDT(_ currentTime: TimeInterval) {
         let dt = CGFloat(currentTime - lastUpdateTime)
-        deltaTime = dt < 1.0 ? dt : 0.016 //This is a hack, since the game starts with 0 delta time, forces applied to it aren't calculated properly
+        deltaTime = dt < 1.0 ? dt : 0.017 //This is a hack, since the game starts with 0 delta time, forces applied to it aren't calculated properly
         lastUpdateTime = currentTime
     }
     
