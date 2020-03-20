@@ -112,9 +112,26 @@ public extension Matrix4 {
         lhs = lhs * rhs
     }
 }
-
+/// Returns the parameter on the given line. To determine the closest point: p = p1 + t * (p2 - p1), where t is the result of this function
 public func closestPointOnLine(start p1: Vector2, end p2: Vector2, point: Vector2) -> Float {
     let s = p2 - p1
     let q = Vector2(s.y, -s.x).normalized()
     return (q.cross(p1 - point)) / s.cross(q)
+}
+
+/// Returns the parameters for the intersection points. To determine the points: p1 = start + t1 * (end - start) and p2 = start + t2 * (end - start) where t1 and t2 are the values of the returned tuple
+public func intersectionPointLineCircle(start a: Vector2, end b: Vector2, circlePoint c: Vector2, radius r: Float) -> (t1: Float, t2: Float) {
+    let s = b - a
+    let q = a - c
+    let alpha = -2 * s.dot(q)
+    let ss = s.lengthSquared
+    let discriminant = alpha * alpha - 4 * ss * (q.lengthSquared - r * r)
+    if discriminant < 0 {
+        return (t1: Float.nan, t2: Float.nan)
+    } else if discriminant == 0 {
+        return (t1: alpha / (2 * ss), t2: Float.nan)
+    } else {
+        let sqrtDisc = sqrt(discriminant)
+        return (t1: (alpha + sqrtDisc) / (2 * ss), t2: (alpha - sqrtDisc) / (2 * ss))
+    }
 }
