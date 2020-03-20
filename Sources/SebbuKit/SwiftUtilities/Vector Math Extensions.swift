@@ -112,3 +112,9 @@ public extension Matrix4 {
         lhs = lhs * rhs
     }
 }
+
+public func closestPointOnLine(start p1: Vector2, end p2: Vector2, point: Vector2) -> Float {
+    let s = p2 - p1
+    let q = Vector2(s.y, -s.x).normalized()
+    return (q.cross(p1 - point)) / s.cross(q)
+}
