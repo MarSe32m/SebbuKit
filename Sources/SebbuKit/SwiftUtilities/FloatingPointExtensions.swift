@@ -7,6 +7,10 @@
 //
 import Foundation
 
+public func fmod(_ a: Float, _ b: Float) -> Float {
+    a - Float(Int(a / b)) * b
+}
+
 public func invSqrt(x: Double) -> Double {
     let halfx = 0.5 * x
     var i = x.bitPattern

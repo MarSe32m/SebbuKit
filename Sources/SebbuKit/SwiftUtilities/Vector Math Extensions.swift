@@ -135,3 +135,8 @@ public func intersectionPointLineCircle(start a: Vector2, end b: Vector2, circle
         return (t1: (alpha + sqrtDisc) / (2 * ss), t2: (alpha - sqrtDisc) / (2 * ss))
     }
 }
+
+public func lineIntersectsCircle(start a: Vector2, end b: Vector2, circlePoint c: Vector2, radius r: Float) -> Bool {
+    let parameters = intersectionPointLineCircle(start: a, end: b, circlePoint: c, radius: r)
+    return (parameters.t1 >= 0 && parameters.t1 <= 1) || (parameters.t2 >= 0 && parameters.t2 <= 1)
+}
