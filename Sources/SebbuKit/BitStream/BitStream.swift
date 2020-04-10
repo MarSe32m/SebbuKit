@@ -38,6 +38,17 @@ public struct FloatCompressor {
     }
 }
 
+public extension FloatCompressor {
+    func write(_ value: Vector2, to string: inout WritableBitStream) {
+        write(value.x, to: &string)
+        write(value.y, to: &string)
+    }
+    
+    func readVector2(from string: inout ReadableBitStream) throws -> Vector2 {
+        return Vector2(try read(from: &string), try read(from: &string))
+    }
+}
+
 /// Gets the number of bits required to encode an enum case.
 public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
     static var bits: Int {
@@ -270,15 +281,6 @@ public extension FloatCompressor {
         write(value.x, to: &string)
         write(value.y, to: &string)
         write(value.z, to: &string)
-    }
-    
-    func write(_ value: Vector2, to string: inout WritableBitStream) {
-        write(value.x, to: &string)
-        write(value.y, to: &string)
-    }
-    
-    func readVector2(from string: inout ReadableBitStream) -> Vector2 {
-        return Vector2(try read(from: &string), try read(from: &string))
     }
     
     func readCG(from string: inout ReadableBitStream) throws -> CGFloat {
