@@ -272,6 +272,15 @@ public extension FloatCompressor {
         write(value.z, to: &string)
     }
     
+    func write(_ value: Vector2, to string: inout WritableBitStream) {
+        write(value.x, to: &string)
+        write(value.y, to: &string)
+    }
+    
+    func readVector2(from string: inout ReadableBitStream) -> Vector2 {
+        return Vector2(try read(from: &string), try read(from: &string))
+    }
+    
     func readCG(from string: inout ReadableBitStream) throws -> CGFloat {
         return CGFloat(try read(from: &string))
     }
@@ -280,7 +289,7 @@ public extension FloatCompressor {
         return CGPoint(x: try readCG(from: &string), y: try readCG(from: &string))
     }
     
-    func readVector(from string: inout ReadableBitStream) throws -> CGVector {
+    func readCGVector(from string: inout ReadableBitStream) throws -> CGVector {
         return CGVector(dx: try readCG(from: &string), dy: try readCG(from: &string))
     }
     
