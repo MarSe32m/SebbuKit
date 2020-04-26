@@ -17,7 +17,7 @@ public protocol WebSocketServerProtocol: class {
 
 public class WebSocketServer {
     public let eventLoopGroup: MultiThreadedEventLoopGroup
-    public weak var delegate: WSServerProtocol?
+    public weak var delegate: WebSocketServerProtocol?
     
     private var serverChannel: Channel?
     private var sslContext: NIOSSLContext?
