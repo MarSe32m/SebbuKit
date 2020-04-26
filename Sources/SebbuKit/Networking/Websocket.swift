@@ -11,12 +11,11 @@ import NIOWebSocket
 import NIO
 import NIOSSL
 
-public protocol WSServerProtocol: class {
-    func onConnection(webSocket: WebSocketKit.WebSocket)
-    func onDisconnect(webSocket: WebSocketKit.WebSocket)
+public protocol WebSocketServerProtocol: class {
+    func onConnection(webSocket: WebSocket)
 }
 
-public class WSServer {
+public class WebSocketServer {
     public let eventLoopGroup: MultiThreadedEventLoopGroup
     public weak var delegate: WSServerProtocol?
     
@@ -70,7 +69,7 @@ public class WSServer {
             )
             }
         .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .bind(host: "0.0.0.0", port: port).wait()
+            .bind(host: "0", port: port).wait()
     }
     
     public func stop() {
