@@ -18,8 +18,8 @@ public protocol WebSocketClientDelegate: class {
     func received(data: Data)
     func disconnected()
 }
-
-public final class WebSocketClient {
+/*
+public final class WebSocketClient2 {
     public private(set) var lastPong = Date()
     private let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
     private let tls: Bool
@@ -299,3 +299,4 @@ private final class WebSocketReceiveHandler: ChannelInboundHandler {
         }
     }
 }
+*/

@@ -1,30 +1,34 @@
-// swift-tools-version:5.1
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:5.2
 import PackageDescription
 
 let package = Package(
     name: "SebbuKit",
+    platforms: [
+       .macOS(.v10_15),
+       .iOS(.v13),
+    ],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
-        .library(
-            name: "SebbuKit",
-            targets: ["SebbuKit"]),
+        .library(name: "SebbuKit", targets: ["SebbuKit"]),
     ],
+    
     dependencies: [
-    .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
-    .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
-    .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-        // .package(url: "package url", .branch("master"))
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
+        .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
+        .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-        .target(
-            name: "SebbuKit",
-            dependencies: ["NIO", "NIOHTTP1", "NIOWebSocket", "NIOSSL", "VectorMath"]),
+        .target(name: "SebbuKit", dependencies: [
+                .product(name: "NIO",package: "swift-nio"),
+                .product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
+                .product(name: "NIOFoundationCompat", package: "swift-nio"),
+                .product(name: "NIOSSL", package: "swift-nio-ssl"),
+                .product(name: "WebSocketKit", package: "websocket-kit"),
+                .product(name: "VectorMath", package: "VectorMath"),
+        ]),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),
