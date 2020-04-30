@@ -58,7 +58,7 @@ public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
 }
 
 public struct WritableBitStream {
-    var bytes = [UInt8]()
+    public private(set) var bytes = [UInt8]()
     var endBitIndex = 0
 
     public init() {}
@@ -139,7 +139,7 @@ public struct WritableBitStream {
 }
 
 public struct ReadableBitStream {
-    var bytes = [UInt8]()
+    public private(set) var bytes = [UInt8]()
     var endBitIndex: Int
     var currentBit = 0
     var isAtEnd: Bool { return currentBit == endBitIndex }
