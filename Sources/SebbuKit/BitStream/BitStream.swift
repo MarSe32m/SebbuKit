@@ -61,7 +61,9 @@ public struct WritableBitStream {
     public private(set) var bytes = [UInt8]()
     var endBitIndex = 0
 
-    public init() {}
+    public init(size: Int? = nil) {
+        if let size = size { bytes.reserveCapacity(size) }
+    }
 
     public var description: String {
         var result = "bitStream \(endBitIndex): "
