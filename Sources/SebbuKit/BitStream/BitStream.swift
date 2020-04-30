@@ -125,12 +125,7 @@ public struct WritableBitStream {
     // MARK: - Pack/Unpack Data
 
     public func packData() -> Data {
-        let endBitIndex32 = UInt32(endBitIndex)
-        let endBitIndexBytes = [UInt8(truncatingIfNeeded: endBitIndex32),
-                                UInt8(truncatingIfNeeded: endBitIndex32 >> 8),
-                                UInt8(truncatingIfNeeded: endBitIndex32 >> 16),
-                                UInt8(truncatingIfNeeded: endBitIndex32 >> 24)]
-        return Data(endBitIndexBytes + bytes)
+        return Data(packBytes())
     }
     
     public func packBytes() -> [UInt8] {
