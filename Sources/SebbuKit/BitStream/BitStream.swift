@@ -132,6 +132,15 @@ public struct WritableBitStream {
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 24)]
         return Data(endBitIndexBytes + bytes)
     }
+    
+    public func packBytes() -> [UInt8] {
+        let endBitIndex32 = UInt32(endBitIndex)
+        let endBitIndexBytes = [UInt8(truncatingIfNeeded: endBitIndex32),
+                                UInt8(truncatingIfNeeded: endBitIndex32 >> 8),
+                                UInt8(truncatingIfNeeded: endBitIndex32 >> 16),
+                                UInt8(truncatingIfNeeded: endBitIndex32 >> 24)]
+        return endBitIndexBytes + bytes
+    }
 }
 
 public struct ReadableBitStream {
