@@ -21,7 +21,6 @@ public class IsoCountryCodes {
         let countries = IsoCountries.allCountries.filter({
             $0.name.folding(options: options, locale: .current) == name
         })
-        // If we cannot find a full name match, try a partial match
         return countries.count == 1 ? countries.first : searchByPartialName(name)
     }
 
@@ -34,8 +33,6 @@ public class IsoCountryCodes {
         let countries = IsoCountries.allCountries.filter({
             $0.name.folding(options: options, locale: .current).contains(name)
         })
-        // It is possible that the results are ambiguous, in that case return nothing
-        // (e.g., there are two Koreas and two Congos)
         guard countries.count == 1 else {
             return nil
         }

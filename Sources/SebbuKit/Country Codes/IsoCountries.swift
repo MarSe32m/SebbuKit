@@ -40,7 +40,7 @@ public class IsoCountries {
     }
 
     // swiftlint:disable line_length
-    static let allCountries: [IsoCountryInfo] = [
+    public static let allCountries: [IsoCountryInfo] = [
         IsoCountryInfo(name: "Afghanistan", numeric: "004", alpha2: "AF", alpha3: "AFG", calling: "+93", currency: "AFN", continent: "AS" ),
         IsoCountryInfo(name: "Åland Islands", numeric: "248", alpha2: "AX", alpha3: "ALA", calling: "+358", currency: "FIM", continent: "EU" ),
         IsoCountryInfo(name: "Albania", numeric: "008", alpha2: "AL", alpha3: "ALB", calling: "+355", currency: "ALL", continent: "EU" ),
