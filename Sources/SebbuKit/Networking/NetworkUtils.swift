@@ -14,7 +14,7 @@ public struct NetworkUtils {
         for address in ipAddressProviders {
             do {
                 if let url = URL(string: address) {
-                    return try String(contentsOf: url)
+                    return try String(contentsOf: url).trimmingCharacters(in: .newlines)
                 } else {
                     print("Error creating url from: \(address)", #file, #line)
                 }
