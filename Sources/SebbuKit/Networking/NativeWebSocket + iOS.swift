@@ -53,5 +53,17 @@ public final class NativeWebSocket: WebSocketDelegate {
     public func websocketDidReceiveData(socket: WebSocketClient, data: Data) {
         delegate?.received(webSocket: self, data: data)
     }
+    
+    public func send(data: Data) {
+        webSocket.write(data: data)
+    }
+    
+    public func send(bytes: [UInt8]) {
+        webSocket.write(data: Data(bytes))
+    }
+    
+    public func send(text: String) {
+        webSocket.write(string: text)
+    }
 }
 #endif
