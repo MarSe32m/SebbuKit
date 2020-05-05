@@ -9,12 +9,12 @@
 import Foundation
 
 public struct NetworkUtils {
-    private static let ipAddressProviders = ["http://checkip.amazonaws.com/", "http://myexternalip.com/raw", "https://ipv4.icanhazip.com/"]
+    private static let ipAddressProviders = ["http://myexternalip.com/raw", "http://checkip.amazonaws.com/", "https://ipv4.icanhazip.com/"]
     public static func publicIP() -> String? {
         for address in ipAddressProviders {
             do {
                 if let url = URL(string: address) {
-                    return try String(contentsOf: url).trimmingCharacters(in: .newlines)
+                    return try String(contentsOf: url, encoding: .utf8).trimmingCharacters(in: .newlines)
                 } else {
                     print("Error creating url from: \(address)", #file, #line)
                 }
