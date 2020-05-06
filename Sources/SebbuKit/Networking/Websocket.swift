@@ -12,7 +12,7 @@ import NIO
 import NIOSSL
 
 public protocol WebSocketServerProtocol: class {
-    func onConnection(webSocket: WebSocket)
+    func onConnection(webSocket: WebSocket, channel: Channel)
 }
 
 public class WebSocketServer {
@@ -46,7 +46,7 @@ public class WebSocketServer {
                 },
                 upgradePipelineHandler: { channel, req in
                     return WebSocketKit.WebSocket.server(on: channel) { ws in
-                        self.delegate?.onConnection(webSocket: ws)
+                        self.delegate?.onConnection(webSocket: ws, channel: channel)
                     }
                 }
             )
