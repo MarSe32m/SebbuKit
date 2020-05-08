@@ -9,7 +9,7 @@
 import Foundation
 
 public struct NetworkUtils {
-    private static let ipAddressProviders = ["http://myexternalip.com/raw", "http://checkip.amazonaws.com/", "https://ipv4.icanhazip.com/"]
+    private static let ipAddressProviders = ["https://ipv4.icanhazip.com/", "http://myexternalip.com/raw", "http://checkip.amazonaws.com/"]
     public static func publicIP() -> String? {
         for address in ipAddressProviders {
             do {
