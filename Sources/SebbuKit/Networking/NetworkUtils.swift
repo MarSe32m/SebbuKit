@@ -7,16 +7,21 @@
 //
 
 import Foundation
+import AsyncHTTPClient
 
 public struct NetworkUtils {
     private static let ipAddressProviders = ["https://ipv4.icanhazip.com/", "http://myexternalip.com/raw", "http://checkip.amazonaws.com/"]
     public static func publicIP() -> String? {
+        let httpClient = HTTPClient.init(eventLoopGroupProvider: .createNew)
+        defer { try! httpClient.syncShutdown() }
+        
         for address in ipAddressProviders {
             do {
-                if let url = URL(string: address) {
-                    return try String(contentsOf: url, encoding: .utf8).trimmingCharacters(in: .newlines)
-                } else {
-                    print("Error creating url from: \(address)", #file, #line)
+                let response = try httpClient.get(url: address).wait()
+                if var body = response.body {
+                    if let ipAddress = body.readString(length: body.readableBytes)?.trimmingCharacters(in: .newlines) {
+                        return ipAddress
+                    }
                 }
             } catch let error {
                 print("Error retreiving IP address from: \(address)")
