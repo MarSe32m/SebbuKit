@@ -28,9 +28,8 @@ public class WebSocketServer {
         self.port = port
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         
-        
         if let tls = tls {
-            //let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
+            let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
             self.sslContext = try NIOSSLContext(configuration: tls)
         }
     }
@@ -64,9 +63,7 @@ public class WebSocketServer {
                     upgraders: [webSocket],
                     completionHandler: { ctx in
                         // complete
-                    }
-                )
-            )
+                    }))
             }
         .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .bind(host: "0", port: port).wait()
