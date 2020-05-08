@@ -8,18 +8,19 @@
 
 import Foundation
 import AsyncHTTPClient
+import NIO
 
 public struct NetworkUtils {
     private static let ipAddressProviders = ["https://ipv4.icanhazip.com/", "http://myexternalip.com/raw", "http://checkip.amazonaws.com/"]
-    public static func publicIP() -> String? {
+    public static let publicIP: String? = {
         let httpClient = HTTPClient.init(eventLoopGroupProvider: .createNew)
-        defer { try! httpClient.syncShutdown() }
         
         for address in ipAddressProviders {
             do {
-                let response = try httpClient.get(url: address).wait()
+                let response = try httpClient.get(url: address, deadline: .now() + .seconds(5)).wait()
                 if var body = response.body {
                     if let ipAddress = body.readString(length: body.readableBytes)?.trimmingCharacters(in: .newlines) {
+                        try! httpClient.syncShutdown()
                         return ipAddress
                     }
                 }
@@ -28,7 +29,8 @@ public struct NetworkUtils {
                 print(error)
             }
         }
+        try! httpClient.syncShutdown()
         return nil
-    }
+    }()
 
 }
