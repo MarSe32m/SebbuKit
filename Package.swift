@@ -5,7 +5,8 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
     .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
     .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
-    .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0")]
+    .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
+    .package(url: "https://github.com/daltoniam/Starscream.git", from: "3.1.1")]
 
 var targetDependencies: [Target.Dependency] = [
 .product(name: "NIO",package: "swift-nio"),
@@ -13,12 +14,8 @@ var targetDependencies: [Target.Dependency] = [
 .product(name: "NIOFoundationCompat", package: "swift-nio"),
 .product(name: "NIOSSL", package: "swift-nio-ssl"),
 .product(name: "WebSocketKit", package: "websocket-kit"),
-.product(name: "VectorMath", package: "VectorMath")]
-
-#if os(iOS) || os(macOS) || os(tvOS) || os(watchOS)
-packageDependencies.append(.package(url: "https://github.com/daltoniam/Starscream.git", from: "3.1.1"))
-targetDependencies.append(.product(name: "Starscream", package: "Starscream"))
-#endif
+.product(name: "VectorMath", package: "VectorMath"),
+.product(name: "Starscream", package: "Starscream")]
 
 let package = Package(
     name: "SebbuKit",
