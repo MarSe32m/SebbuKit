@@ -6,7 +6,8 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
     .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
     .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
-    .package(url: "https://github.com/daltoniam/Starscream.git", from: "3.1.1")]
+    .package(url: "https://github.com/daltoniam/Starscream.git", from: "3.1.1"),
+    .package(url: "https://github.com/apple/swift-nio-zlib-support.git", from: "1.0.0")]
 
 var targetDependencies: [Target.Dependency] = [
 .product(name: "NIO",package: "swift-nio"),
