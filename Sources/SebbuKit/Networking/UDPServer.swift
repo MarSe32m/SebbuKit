@@ -17,6 +17,7 @@ public final class UDPServer {
     private var channel: Channel?
     private let isSharedEventLoopGroup: Bool
     public weak var delegate: UDPServerProtocol?
+    public private(set) var started = false
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
@@ -30,22 +31,22 @@ public final class UDPServer {
         self.isSharedEventLoopGroup = true
     }
     
-    public func start() throws {
+    public func start() {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000) // Is this ok on all platforms?
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000) // Is this ok on all platforms?
         .channelInitializer { channel in
             channel.pipeline.addHandler(UDPInboundHandler(server: self))
         }
         do {
-            channel = try bootstrap.bind(host: "0", port: port).wait()
+            channel = try bootstrap.bind(host: "0.0.0.0", port: port).wait()
+            started = true
         } catch let error {
             print("Error binding to port: \(port)")
-            throw error
+            print(error)
+            delegate = nil
         }
         if let localAddress = channel?.localAddress {
-            print("UDP Server started and listening on \(localAddress)")
+            print("UDP Server started on \(localAddress)")
         }
     }
     
