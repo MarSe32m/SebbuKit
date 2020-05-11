@@ -15,17 +15,19 @@ public final class UDPServer {
     public let port: Int
     public let group: EventLoopGroup
     private var channel: Channel!
-    
+    private let isSharedEventLoopGroup: Bool
     public weak var delegate: UDPServerProtocol?
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
         self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
+        self.isSharedEventLoopGroup = false
     }
 
     public init(port: Int, eventLoopGroup: EventLoopGroup) {
         self.port = port
         self.group = eventLoopGroup
+        self.isSharedEventLoopGroup = true
     }
     
     public func start() throws {
@@ -48,11 +50,13 @@ public final class UDPServer {
     }
     
     public func shutdown() {
-        do {
-            try group.syncShutdownGracefully()
-        } catch let error {
-            print("Error shutting down eventloop group")
-            print(error)
+        if !isSharedEventLoopGroup {
+            do {
+                try group.syncShutdownGracefully()
+            } catch let error {
+                print("Error shutting down eventloop group")
+                print(error)
+            }
         }
         channel.close(mode: .all, promise: nil)
     }
