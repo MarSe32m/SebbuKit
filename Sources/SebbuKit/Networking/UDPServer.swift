@@ -32,10 +32,13 @@ public final class UDPServer {
     }
     
     public func start() {
+        let inboundHandler = UDPInboundHandler(server: self)
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000)
         .channelInitializer { channel in
-            channel.pipeline.addHandler(UDPInboundHandler(server: self))
+            channel.pipeline.addHandler(inboundHandler)
         }
         do {
             channel = try bootstrap.bind(host: "0.0.0.0", port: port).wait()
