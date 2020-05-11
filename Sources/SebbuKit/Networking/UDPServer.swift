@@ -14,7 +14,7 @@ public protocol UDPServerProtocol: class {
 public final class UDPServer {
     public let port: Int
     public let group: EventLoopGroup
-    private var channel: Channel!
+    private var channel: Channel?
     private let isSharedEventLoopGroup: Bool
     public weak var delegate: UDPServerProtocol?
     
@@ -44,7 +44,7 @@ public final class UDPServer {
             print("Error binding to port: \(port)")
             throw error
         }
-        if let localAddress = channel.localAddress {
+        if let localAddress = channel?.localAddress {
             print("UDP Server started and listening on \(localAddress)")
         }
     }
@@ -58,7 +58,7 @@ public final class UDPServer {
                 print(error)
             }
         }
-        channel.close(mode: .all, promise: nil)
+        channel?.close(mode: .all, promise: nil)
     }
     
     fileprivate func received(envelope: AddressedEnvelope<ByteBuffer>) {
@@ -69,10 +69,10 @@ public final class UDPServer {
     }
     
     public final func send(data: Data, address: SocketAddress) {
-        var buffer = channel.allocator.buffer(capacity: data.count)
+        guard var buffer = channel?.allocator.buffer(capacity: data.count) else { return }
         buffer.writeBytes(data)
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
-        _ = channel.writeAndFlush(envelope)
+        _ = channel?.writeAndFlush(envelope)
     }
 }
 
