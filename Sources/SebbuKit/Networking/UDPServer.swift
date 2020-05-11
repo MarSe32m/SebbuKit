@@ -31,6 +31,8 @@ public final class UDPServer {
     public func start() throws {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000) // Is this ok on all platforms?
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000) // Is this ok on all platforms?
         .channelInitializer { channel in
             channel.pipeline.addHandler(UDPInboundHandler(server: self))
         }
