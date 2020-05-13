@@ -65,6 +65,15 @@ public final class UDPServer {
                 print(error)
             }
         }
+        channel?.closeFuture.always({ (result) in
+            switch result {
+            case .success(_):
+                print("UDP Server closed successfully")
+            case .failure(let error):
+                print("Error upon closing UDP Server")
+                print(error)
+            }
+        })
         channel?.close(mode: .all, promise: nil)
     }
     
