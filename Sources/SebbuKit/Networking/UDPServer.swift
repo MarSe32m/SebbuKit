@@ -16,8 +16,13 @@ public final class UDPServer {
     public let group: EventLoopGroup
     private var channel: Channel?
     private let isSharedEventLoopGroup: Bool
-    public weak var delegate: UDPServerProtocol?
+    public weak var delegate: UDPServerProtocol? {
+        didSet {
+            inboundHandler.udpServerProtocol = delegate
+        }
+    }
     public private(set) var started = false
+    private let inboundHandler = UDPInboundHandler()
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
@@ -32,13 +37,12 @@ public final class UDPServer {
     }
     
     public func start() {
-        let inboundHandler = UDPInboundHandler(server: self)
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000)
         .channelInitializer { channel in
-            channel.pipeline.addHandler(inboundHandler)
+            channel.pipeline.addHandler(self.inboundHandler)
         }
         do {
             channel = try bootstrap.bind(host: "0.0.0.0", port: port).wait()
@@ -46,7 +50,6 @@ public final class UDPServer {
         } catch let error {
             print("Error binding to port: \(port)")
             print(error)
-            delegate = nil
         }
         if let localAddress = channel?.localAddress {
             print("UDP Server started on \(localAddress)")
@@ -65,13 +68,6 @@ public final class UDPServer {
         channel?.close(mode: .all, promise: nil)
     }
     
-    fileprivate func received(envelope: AddressedEnvelope<ByteBuffer>) {
-        let address = envelope.remoteAddress
-        if let bytes = envelope.data.getBytes(at: 0, length: envelope.data.readableBytes) {
-            self.delegate?.received(data: Data(bytes), address: address)
-        }
-    }
-    
     public final func send(data: Data, address: SocketAddress) {
         guard var buffer = channel?.allocator.buffer(capacity: data.count) else { return }
         buffer.writeBytes(data)
@@ -84,13 +80,13 @@ private final class UDPInboundHandler: ChannelInboundHandler {
     public typealias InboundIn = AddressedEnvelope<ByteBuffer>
     public typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
-    private unowned var server: UDPServer
-    init(server: UDPServer) {
-        self.server = server
-    }
+    fileprivate weak var udpServerProtocol: UDPServerProtocol?
     
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        server.received(envelope: self.unwrapInboundIn(data))
+        let envelope = self.unwrapInboundIn(data)
+        if let data = envelope.data.getData(at: 0, length: envelope.data.readableBytes, byteTransferStrategy: .noCopy) {
+            udpServerProtocol?.received(data: data, address: envelope.remoteAddress)
+        }
     }
 
     public func channelReadComplete(context: ChannelHandlerContext) {
