@@ -16,17 +16,29 @@ public protocol WebSocketServerProtocol: class {
 }
 
 public class WebSocketServer {
-    public let eventLoopGroup: MultiThreadedEventLoopGroup
+    public let eventLoopGroup: EventLoopGroup
     public weak var delegate: WebSocketServerProtocol?
     
     private var serverChannel: Channel?
     private var sslContext: NIOSSLContext?
-    
+    private var isSharedEventLoopGroup: Bool
     public let port: Int
     
     public init(port: Int, tls: TLSConfiguration? = nil, numberOfThreads: Int) throws {
         self.port = port
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
+        self.isSharedEventLoopGroup = false
+        
+        if let tls = tls {
+            //let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
+            self.sslContext = try NIOSSLContext(configuration: tls)
+        }
+    }
+    
+    public init(port: Int, tls: TLSConfiguration? = nil, eventLoopGroup: EventLoopGroup) throws {
+        self.port = port
+        self.eventLoopGroup = eventLoopGroup
+        self.isSharedEventLoopGroup = true
         
         if let tls = tls {
             //let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
@@ -80,13 +92,15 @@ public class WebSocketServer {
         }
         })
         serverChannel?.close(mode: .all, promise: nil)
-        do {
-            try eventLoopGroup.syncShutdownGracefully()
-        } catch let error {
-            print("Failed to stop eventloopgroup")
-            print(error)
-        }
         
+        if !isSharedEventLoopGroup {
+            do {
+                try eventLoopGroup.syncShutdownGracefully()
+            } catch let error {
+                print("Failed to stop WebSocket Server eventloopgroup")
+                print(error)
+            }
+        }
     }
     
 }
