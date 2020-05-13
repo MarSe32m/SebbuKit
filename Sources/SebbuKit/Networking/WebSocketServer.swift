@@ -70,6 +70,16 @@ public class WebSocketServer {
     }
     
     public func stop() {
+        serverChannel?.closeFuture.always({ (result) in
+        switch result {
+        case .success(_):
+            print("WebSocket Server closed successfully")
+        case .failure(let error):
+            print("Error upon closing WebSocket Server")
+            print(error)
+        }
+        })
+        serverChannel?.close(mode: .all, promise: nil)
         do {
             try eventLoopGroup.syncShutdownGracefully()
         } catch let error {
@@ -77,7 +87,6 @@ public class WebSocketServer {
             print(error)
         }
         
-        serverChannel?.close(mode: .all, promise: nil)
     }
     
 }

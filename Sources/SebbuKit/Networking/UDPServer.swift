@@ -57,14 +57,6 @@ public final class UDPServer {
     }
     
     public func shutdown() {
-        if !isSharedEventLoopGroup {
-            do {
-                try group.syncShutdownGracefully()
-            } catch let error {
-                print("Error shutting down eventloop group")
-                print(error)
-            }
-        }
         channel?.closeFuture.always({ (result) in
             switch result {
             case .success(_):
@@ -75,6 +67,14 @@ public final class UDPServer {
             }
             })
         channel?.close(mode: .all, promise: nil)
+        if !isSharedEventLoopGroup {
+            do {
+                try group.syncShutdownGracefully()
+            } catch let error {
+                print("Error shutting down eventloop group")
+                print(error)
+            }
+        }
     }
     
     public final func send(data: Data, address: SocketAddress) {
