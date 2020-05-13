@@ -73,7 +73,7 @@ public final class UDPServer {
                 print("Error upon closing UDP Server")
                 print(error)
             }
-        })
+            })
         channel?.close(mode: .all, promise: nil)
     }
     
