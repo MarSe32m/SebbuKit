@@ -16,7 +16,7 @@ public class RepeatingTimer {
     public let timeInterval: DispatchTimeInterval
     private let queue: DispatchQueue?
     
-    init(timeInterval:  DispatchTimeInterval, queue: DispatchQueue? = nil) {
+    public init(timeInterval:  DispatchTimeInterval, queue: DispatchQueue? = nil) {
         self.timeInterval = timeInterval
         self.queue = queue
     }
