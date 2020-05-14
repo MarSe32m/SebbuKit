@@ -82,7 +82,7 @@ public class WebSocketServer {
     }
     
     public func stop() {
-        serverChannel?.closeFuture.always({ (result) in
+        _ = serverChannel?.closeFuture.always({ (result) in
         switch result {
         case .success(_):
             print("WebSocket Server closed successfully")

@@ -57,7 +57,7 @@ public final class UDPServer {
     }
     
     public func shutdown() {
-        channel?.closeFuture.always({ (result) in
+        _ = channel?.closeFuture.always({ (result) in
             switch result {
             case .success(_):
                 print("UDP Server closed successfully")
