@@ -9,13 +9,13 @@ import Foundation
 import Crypto
 
 @inlinable
-func encrypt(input: [UInt8], key: SymmetricKey) throws -> Data? {
+public func encryptAES(input: [UInt8], key: SymmetricKey) throws -> Data? {
     let sealedBox = try AES.GCM.seal(input, using: key)
     return sealedBox.combined
 }
 
 @inlinable
-func decrypt(input: Data, key: SymmetricKey) throws -> Data {
+public func decryptAES(input: Data, key: SymmetricKey) throws -> Data {
     let k = try AES.GCM.SealedBox(combined: input)
     return try AES.GCM.open(k, using: key)
 }
