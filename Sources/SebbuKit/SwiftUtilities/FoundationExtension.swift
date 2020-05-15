@@ -47,6 +47,24 @@ public struct CRC {
     }
 }
 
+fileprivate var standardError = FileHandle.standardError
+fileprivate var standardOut = FileHandle.standardOutput
+
+extension FileHandle: TextOutputStream {
+  public func write(_ string: String) {
+    guard let data = string.data(using: .utf8) else { return }
+    self.write(data)
+  }
+}
+
+public func printStdOut(items: Any...) {
+    print(items, to: &standardOut)
+}
+
+public func printStdErr(items: Any...) {
+    print(items, to: &standardError)
+}
+
 #if canImport(UIKit)
 import UIKit
 public extension UIDevice {
