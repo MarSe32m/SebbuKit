@@ -48,7 +48,6 @@ public struct CRC {
 }
 
 fileprivate var standardError = FileHandle.standardError
-fileprivate var standardOut = FileHandle.standardOutput
 
 extension FileHandle: TextOutputStream {
   public func write(_ string: String) {
@@ -57,12 +56,12 @@ extension FileHandle: TextOutputStream {
   }
 }
 
-public func print_stdout(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-    print(items, separator: separator, terminator: terminator, to: &standardOut)
-}
-
-public func print_stderr(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-    print(items, separator: separator, terminator: terminator, to: &standardError)
+public func printError(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+    for item in items {
+        print(item, terminator: "", to: &standardError)
+        print(separator, terminator: "", to: &standardError)
+    }
+    print(terminator: terminator, to: &standardError)
 }
 
 #if canImport(UIKit)
