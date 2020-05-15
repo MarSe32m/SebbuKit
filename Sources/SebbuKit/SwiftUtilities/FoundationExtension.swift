@@ -57,11 +57,11 @@ extension FileHandle: TextOutputStream {
   }
 }
 
-public func printStdOut(items: Any...) {
+public func printStdOut(_ items: Any...) {
     print(items, to: &standardOut)
 }
 
-public func printStdErr(items: Any...) {
+public func printStdErr(_ items: Any...) {
     print(items, to: &standardError)
 }
 
