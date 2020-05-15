@@ -57,12 +57,12 @@ extension FileHandle: TextOutputStream {
   }
 }
 
-public func printStdOut(_ items: Any...) {
-    print(items, to: &standardOut)
+public func print_stdout(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+    print(items, separator: separator, terminator: terminator, to: &standardOut)
 }
 
-public func printStdErr(_ items: Any...) {
-    print(items, to: &standardError)
+public func print_stderr(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+    print(items, separator: separator, terminator: terminator, to: &standardError)
 }
 
 #if canImport(UIKit)
