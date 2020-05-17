@@ -7,8 +7,16 @@
 //
 import Foundation
 
-public func fmod(_ a: Float, _ b: Float) -> Float {
+public func fmodSebbu(_ a: Float, _ b: Float) -> Float {
     a - Float(Int(a / b)) * b
+}
+
+public func wrapMax<T>(_ x: T, max: T) -> T where T: FloatingPoint {
+    return fmod(max + fmod(x, max), max)
+}
+
+public func wrapMinMax<T>(_ x: T, min: T, max: T) -> T where T: FloatingPoint {
+    return min + wrapMax(x - min, max: max - min)
 }
 
 public func invSqrt(x: Double) -> Double {
