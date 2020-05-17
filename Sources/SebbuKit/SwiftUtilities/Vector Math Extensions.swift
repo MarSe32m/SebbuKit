@@ -141,10 +141,10 @@ public func lineIntersectsCircle(start a: Vector2, end b: Vector2, circlePoint c
     return (parameters.t1 >= 0 && parameters.t1 <= 1) || (parameters.t2 >= 0 && parameters.t2 <= 1)
 }
 
-public func lerp(start: Vector2, end: Vector2, t: Float) -> Vector2 {
+public func lerp(_ start: Vector2, end: Vector2, t: Float) -> Vector2 {
     return Vector2(lerp(start.x, end: end.x, t: t), lerp(start.y, end: end.y, t: t))
 }
 
-public func lerp(start: Vector3, end: Vector3, t: Float) -> Vector2 {
-    return Vector2(lerp(start.x, end: end.x, t: t), lerp(start.y, end: end.y, t: t), lerp(start.z, end: end.y, t: t))
+public func lerp(_ start: Vector3, end: Vector3, t: Float) -> Vector3 {
+    return Vector3(lerp(start.x, end: end.x, t: t), lerp(start.y, end: end.y, t: t), lerp(start.z, end: end.y, t: t))
 }
