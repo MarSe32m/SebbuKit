@@ -45,8 +45,6 @@ public final class UDPServer {
         #if canImport(Network)
         let bootstrap = NIOTSListenerBootstrap(group: group)
         .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-        .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
-        .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000)
         .serverChannelInitializer { channel in
             channel.pipeline.addHandler(self.inboundHandler)
         }
