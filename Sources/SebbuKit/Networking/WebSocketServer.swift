@@ -10,7 +10,6 @@ import WebSocketKit
 import NIOWebSocket
 import NIO
 import NIOSSL
-import NIOTransportServices
 
 public protocol WebSocketServerProtocol: class {
     func onConnection(webSocket: WebSocket, channel: Channel)
@@ -27,11 +26,7 @@ public class WebSocketServer {
     
     public init(port: Int, tls: TLSConfiguration? = nil, numberOfThreads: Int) throws {
         self.port = port
-        #if canImport(Network)
-        self.eventLoopGroup = NIOTSEventLoopGroup(loopCount: numberOfThreads, defaultQoS: .default)
-        #else
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
-        #endif
         self.isSharedEventLoopGroup = false
         
         if let tls = tls {
@@ -52,12 +47,7 @@ public class WebSocketServer {
     }
     
     public func start() throws {
-        #if canImport(Network)
-        let bootstrap = NIOTSListenerBootstrap(group: eventLoopGroup)
-        #else
-        let bootstrap = try ServerBootstrap(group: eventLoopGroup)
-        #endif
-            serverChannel = try bootstrap
+            serverChannel = try ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelInitializer { [unowned self] (channel) in
