@@ -6,6 +6,7 @@
 //
 import Foundation
 import NIO
+import NIOTransportServices
 
 public protocol UDPServerProtocol: class {
     func received(data: Data, address: SocketAddress)
@@ -26,7 +27,11 @@ public final class UDPServer {
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
+        #if canImport(Netowork)
+        self.group = NIOTSEventLoopGroup()
+        #else
         self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
+        #endif
         self.isSharedEventLoopGroup = false
     }
 
@@ -37,6 +42,15 @@ public final class UDPServer {
     }
     
     public func start() {
+        #if canImport(Network)
+        let bootstrap = NIOTSListenerBootstrap(group: group)
+        .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+        .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
+        .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000)
+        .serverChannelInitializer { channel in
+            channel.pipeline.addHandler(self.inboundHandler)
+        }
+        #else
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
@@ -44,6 +58,7 @@ public final class UDPServer {
         .channelInitializer { channel in
             channel.pipeline.addHandler(self.inboundHandler)
         }
+        #endif
         do {
             channel = try bootstrap.bind(host: "0.0.0.0", port: port).wait()
             started = true
@@ -103,7 +118,7 @@ private final class UDPInboundHandler: ChannelInboundHandler {
     }
     
     public func errorCaught(context: ChannelHandlerContext, error: Error) {
-        print("error in \(#function): ", error)
+        print("error in \(#file):\(#function):\(#line): ", error)
         context.close(promise: nil)
     }
 }

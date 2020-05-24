@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "swift-nio-transport-services",
+        "repositoryURL": "https://github.com/apple/swift-nio-transport-services.git",
+        "state": {
+          "branch": null,
+          "revision": "85a67aea7caf5396ed599543dd23cffeb6dbbf96",
+          "version": "1.5.1"
+        }
+      },
+      {
         "package": "VectorMath",
         "repositoryURL": "https://github.com/nicklockwood/VectorMath.git",
         "state": {

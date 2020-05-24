@@ -7,7 +7,9 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
     .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.0.0"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0")]
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.0.0")
+]
 
 var targetDependencies: [Target.Dependency] = [
 .product(name: "NIO",package: "swift-nio"),
@@ -17,7 +19,8 @@ var targetDependencies: [Target.Dependency] = [
 .product(name: "WebSocketKit", package: "websocket-kit"),
 .product(name: "VectorMath", package: "VectorMath"),
 .product(name: "AsyncHTTPClient", package: "async-http-client"),
-.product(name: "Crypto", package: "swift-crypto")]
+.product(name: "Crypto", package: "swift-crypto"),
+.product(name: "NIOTransportServices", package: "swift-nio-transport-services")]
 
 let package = Package(
     name: "SebbuKit",
