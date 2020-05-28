@@ -11,10 +11,10 @@ public enum BitStreamError: Error {
 }
 
 public struct FloatCompressor {
-    var minValue: Float
-    var maxValue: Float
-    var bits: Int
-    private var maxBitValue: Double
+    public let minValue: Float
+    public let maxValue: Float
+    public let bits: Int
+    public let maxBitValue: Double
 
     public init(minValue: Float, maxValue: Float, bits: Int) {
         self.minValue = minValue
@@ -23,6 +23,7 @@ public struct FloatCompressor {
         self.maxBitValue = pow(2.0, Double(bits)) - 1 // for 8 bits, highest value is 255, not 256
     }
 
+    @inlinable
     public func write(_ value: Float, to string: inout WritableBitStream) {
         let ratio = Double((value - minValue) / (maxValue - minValue))
         let clampedRatio = max(0.0, min(1.0, ratio))
@@ -30,6 +31,7 @@ public struct FloatCompressor {
         string.appendUInt32(bitPattern, numberOfBits: bits)
     }
 
+    @inlinable
     public func read(from string: inout ReadableBitStream) throws -> Float {
         let bitPattern = try string.readUInt32(numberOfBits: bits)
 
