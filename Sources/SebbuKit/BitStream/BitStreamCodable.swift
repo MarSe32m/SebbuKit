@@ -85,43 +85,51 @@ public struct BitArray<Value> where Value: BitStreamCodable {
 public extension WritableBitStream {
     
     /// Boolean encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: Bool) {
         bitStream.appendBool(value)
     }
     
     /// Enum encoding
+    @inlinable
     static func << <T>(bitStream: inout WritableBitStream, value: T) where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
         bitStream.appendEnum(value)
     }
     
     /// BitFloat encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitFloat) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         floatCompressor.write(value.wrappedValue, to: &bitStream)
     }
     
     /// BitVector2 encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitVector2) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         floatCompressor.write(value.wrappedValue, to: &bitStream)
     }
     
     /// BitUnsigned encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitUnsigned) {
         bitStream.appendUInt32(value.wrappedValue, numberOfBits: value.bits)
     }
     
     /// Generic BitStreamEncodable encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitStreamEncodable) throws {
         try value.encode(to: &bitStream)
     }
     
     /// Data encoding
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: Data) throws {
         bitStream.append(value)
     }
     
     /// BitArray with chosen bit value for count encoding
+    @inlinable
     static func << <T>(bitStream: inout WritableBitStream, value: BitArray<T>) throws where T: BitStreamCodable {
         bitStream.appendUInt32(UInt32(value.wrappedValue.count), numberOfBits: value.bits)
         for element in value.wrappedValue {
@@ -132,43 +140,51 @@ public extension WritableBitStream {
 
 public extension ReadableBitStream {
     /// Boolean decoding
+    @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: Bool.Type) throws -> Bool {
         return try bitStream.readBool()
     }
     
     /// Enum decoding
+    @inlinable
     static func >> <T>(bitStream: inout ReadableBitStream, value: T.Type) throws -> T where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
         try bitStream.readEnum()
     }
     
     /// BitFloat decoding
+    @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: inout BitFloat) throws {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         value.wrappedValue = try floatCompressor.read(from: &bitStream)
     }
     
     /// BitVector2 decoding
+    @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2) throws {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         value.wrappedValue = try floatCompressor.readVector2(from: &bitStream)
     }
     
     /// BitUnsigned decoding
+    @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: inout BitUnsigned) throws {
         value.wrappedValue = try bitStream.readUInt32(numberOfBits: value.bits)
     }
     
     /// Generic BitStreamCodable type decoding
+    @inlinable
     static func >> <T>(bitStream: inout ReadableBitStream, value: T.Type) throws -> T where T: BitStreamDecodable {
         return try T.init(from: &bitStream)
     }
     
     /// Data decoding
+    @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: Data.Type) throws  -> Data {
         return try bitStream.readData()
     }
     
     /// Array with chosen bit value for count decoding
+    @inlinable
     static func >> <T>(bitStream: inout ReadableBitStream, value: inout BitArray<T>) throws where T: BitStreamCodable {
         let count = Int(try bitStream.readUInt32(numberOfBits: value.bits))
         value.wrappedValue.removeAll(keepingCapacity: true)
