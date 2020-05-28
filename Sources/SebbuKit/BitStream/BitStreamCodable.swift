@@ -34,6 +34,138 @@ public extension BitStreamDecodable where Self: Decodable {
     }
 }
 
+@propertyWrapper
+public struct BitFloat {
+    public var wrappedValue: Float = 0
+    public let minValue: Float
+    public let maxValue: Float
+    public let bits: Int
+}
+
+@propertyWrapper
+public struct BitVector2 {
+    public var wrappedValue: Vector2 = .zero
+    public let minValue: Float
+    public let maxValue: Float
+    public let bits: Int
+}
+
+@propertyWrapper
+public struct BitUnsigned {
+    public var wrappedValue: UInt32 = 0
+    public let bits: Int
+    
+    public init(bits: Int = 32) {
+        self.bits = bits
+    }
+}
+
+@propertyWrapper
+public struct BitArray<Value> where Value: BitStreamCodable {
+    public var wrappedValue: Array<Value> = []
+    public let bits: Int
+    
+    public init(bits: Int) {
+        self.bits = bits
+    }
+}
+
+public extension WritableBitStream {
+    
+    /// Boolean encoding
+    static func << (bitStream: inout WritableBitStream, value: Bool) {
+        bitStream.appendBool(value)
+    }
+    
+    /// Enum encoding
+    static func << <T>(bitStream: inout WritableBitStream, value: T) where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
+        bitStream.appendEnum(value)
+    }
+    
+    /// BitFloat encoding
+    static func << (bitStream: inout WritableBitStream, value: BitFloat) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    /// BitVector2 encoding
+    static func << (bitStream: inout WritableBitStream, value: BitVector2) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    /// BitUnsigned encoding
+    static func << (bitStream: inout WritableBitStream, value: BitUnsigned) {
+        bitStream.appendUInt32(value.wrappedValue, numberOfBits: value.bits)
+    }
+    
+    /// Generic BitStreamEncodable encoding
+    static func << (bitStream: inout WritableBitStream, value: BitStreamEncodable) throws {
+        try value.encode(to: &bitStream)
+    }
+    
+    /// Data encoding
+    static func << (bitStream: inout WritableBitStream, value: Data) throws {
+        bitStream.append(value)
+    }
+    
+    /// BitArray with chosen bit value for count encoding
+    static func << <T>(bitStream: inout WritableBitStream, value: BitArray<T>) throws where T: BitStreamCodable {
+        bitStream.appendUInt32(UInt32(value.wrappedValue.count), numberOfBits: value.bits)
+        for element in value.wrappedValue {
+            try bitStream << element
+        }
+    }
+}
+
+public extension ReadableBitStream {
+    /// Boolean decoding
+    static func >> (bitStream: inout ReadableBitStream, value: Bool.Type) throws -> Bool {
+        return try bitStream.readBool()
+    }
+    
+    /// Enum decoding
+    static func >> <T>(bitStream: inout ReadableBitStream, value: T.Type) throws -> T where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
+        try bitStream.readEnum()
+    }
+    
+    /// BitFloat decoding
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitFloat) throws {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try floatCompressor.read(from: &bitStream)
+    }
+    
+    /// BitVector2 decoding
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2) throws {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try floatCompressor.readVector2(from: &bitStream)
+    }
+    
+    /// BitUnsigned decoding
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitUnsigned) throws {
+        value.wrappedValue = try bitStream.readUInt32(numberOfBits: value.bits)
+    }
+    
+    /// Generic BitStreamCodable type decoding
+    static func >> <T>(bitStream: inout ReadableBitStream, value: T.Type) throws -> T where T: BitStreamDecodable {
+        return try T.init(from: &bitStream)
+    }
+    
+    /// Data decoding
+    static func >> (bitStream: inout ReadableBitStream, value: Data.Type) throws  -> Data {
+        return try bitStream.readData()
+    }
+    
+    /// Array with chosen bit value for count decoding
+    static func >> <T>(bitStream: inout ReadableBitStream, value: inout BitArray<T>) throws where T: BitStreamCodable {
+        let count = Int(try bitStream.readUInt32(numberOfBits: value.bits))
+        value.wrappedValue.removeAll(keepingCapacity: true)
+        for _ in 0..<count {
+            value.wrappedValue.append(try bitStream >> T.self)
+        }
+    }
+}
+
 extension String: BitStreamCodable {
     public init(from bitStream: inout ReadableBitStream) throws {
         let data = try bitStream.readData()

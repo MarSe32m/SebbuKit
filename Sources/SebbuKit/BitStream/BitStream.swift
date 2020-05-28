@@ -41,11 +41,13 @@ public struct FloatCompressor {
 }
 
 public extension FloatCompressor {
+    @inlinable
     func write(_ value: Vector2, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
     }
     
+    @inlinable
     func readVector2(from string: inout ReadableBitStream) throws -> Vector2 {
         return Vector2(try read(from: &string), try read(from: &string))
     }
@@ -266,47 +268,57 @@ public extension ReadableBitStream {
 }
 
 public extension FloatCompressor {
+    @inlinable
     func write(_ value: CGFloat, to string: inout WritableBitStream) {
         write(Float(value), to: &string)
     }
     
+    @inlinable
     func write(_ value: CGPoint, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
     }
     
+    @inlinable
     func write(_ value: CGVector, to string: inout WritableBitStream) {
         write(value.dx, to: &string)
         write(value.dy, to: &string)
     }
     
+    @inlinable
     func write(_ value: SIMD2<Float>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
     }
     
+    @inlinable
     func write(_ value: SIMD3<Float>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
         write(value.z, to: &string)
     }
     
+    @inlinable
     func readCG(from string: inout ReadableBitStream) throws -> CGFloat {
         return CGFloat(try read(from: &string))
     }
     
+    @inlinable
     func readPoint(from string: inout ReadableBitStream) throws -> CGPoint {
         return CGPoint(x: try readCG(from: &string), y: try readCG(from: &string))
     }
     
+    @inlinable
     func readCGVector(from string: inout ReadableBitStream) throws -> CGVector {
         return CGVector(dx: try readCG(from: &string), dy: try readCG(from: &string))
     }
     
+    @inlinable
     func readFloat2(from string: inout ReadableBitStream) throws -> SIMD2<Float> {
         return SIMD2<Float>(x: try read(from: &string), y: try read(from: &string))
     }
     
+    @inlinable
     func readFloat3(from string: inout ReadableBitStream) throws -> SIMD3<Float> {
         return SIMD3<Float>(
             x: try read(from: &string),
