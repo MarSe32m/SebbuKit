@@ -40,6 +40,12 @@ public struct BitFloat {
     public let minValue: Float
     public let maxValue: Float
     public let bits: Int
+    
+    public init(minValue: Float, maxValue: Float, bits: Int) {
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.bits = bits
+    }
 }
 
 @propertyWrapper
@@ -48,6 +54,12 @@ public struct BitVector2 {
     public let minValue: Float
     public let maxValue: Float
     public let bits: Int
+    
+    public init(minValue: Float, maxValue: Float, bits: Int) {
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.bits = bits
+    }
 }
 
 @propertyWrapper
