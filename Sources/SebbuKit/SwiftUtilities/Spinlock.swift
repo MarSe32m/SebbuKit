@@ -12,6 +12,8 @@ public final class Spinlock {
     #warning("TODO: Replace with Swift native atomics when they are out")
     private let flag = NIOAtomic.makeAtomic(value: false)
     
+    public init() {}
+    
     public func lock() {
         while flag.compareAndExchange(expected: false, desired: true) {}
     }
