@@ -25,7 +25,7 @@ open class Scene: SKScene {
     }
     
     open class func createLandscape(view: SKView) -> Self {
-        createLandscape(fileNamed: String(describing: Self), view: view)
+        createLandscape(fileNamed: String(describing: Self.self), view: view)
     }
     
     open class func createLandscape(fileNamed: String, view: SKView) -> Self {
@@ -38,7 +38,7 @@ open class Scene: SKScene {
     }
     
     open class func createPortrait(view: SKView) -> Self {
-        createPortrait(fileNamed: String(describing: Self), view: view)
+        createPortrait(fileNamed: String(describing: Self.self), view: view)
     }
     
     open class func createPortrait(fileNamed: String, view: SKView) -> Self {
@@ -51,7 +51,7 @@ open class Scene: SKScene {
     }
     
     open class func create(with size: CGSize, view: SKView) -> Self {
-        create(with: size, fileName: String(describing: Self), view: view)
+        create(with: size, fileName: String(describing: Self.self), view: view)
     }
     
     open class func create(with size: CGSize, fileName: String, view: SKView) -> Self {
