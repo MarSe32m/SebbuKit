@@ -38,7 +38,7 @@ open class Scene: SKScene {
     }
     
     open class func createPortrait(view: SKView) -> Self {
-        createPortrait(fileNamed: String(describing: self), view: view)
+        createPortrait(fileNamed: String(describing: Self), view: view)
     }
     
     open class func createPortrait(fileNamed: String, view: SKView) -> Self {
@@ -47,6 +47,19 @@ open class Scene: SKScene {
         }
         scene.scaleMode = .aspectFit
         scene.size = view.frame.size.aspectFill(CGSize(width: 750, height: 1334))
+        return scene
+    }
+    
+    open class func create(with size: CGSize, view: SKView) -> Self {
+        create(with: size, fileName: String(describing: Self), view: view)
+    }
+    
+    open class func create(with size: CGSize, fileName: String, view: SKView) -> Self {
+        guard let scene = SKScene(fileNamed: fileName) as? Self else {
+            fatalError("Couldn't load scene, wrong file name")
+        }
+        scene.scaleMode = .aspectFit
+        scene.size = view.frame.size.aspectFill(size)
         return scene
     }
 }
