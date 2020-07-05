@@ -24,6 +24,10 @@ open class Scene: SKScene {
         lastUpdateTime = currentTime
     }
     
+    open class func createLandscape(view: SKView) -> Self {
+        createLandscape(fileNamed: String(describing: Self), view: view)
+    }
+    
     open class func createLandscape(fileNamed: String, view: SKView) -> Self {
         guard let scene = SKScene(fileNamed: fileNamed) as? Self else {
             fatalError("Couldn't load scene")
@@ -31,6 +35,10 @@ open class Scene: SKScene {
         scene.scaleMode = .aspectFit
         scene.size = view.frame.size.aspectFill(CGSize(width: 1334, height: 750))
         return scene
+    }
+    
+    open class func createPortrait(view: SKView) -> Self {
+        createPortrait(fileNamed: String(describing: self), view: view)
     }
     
     open class func createPortrait(fileNamed: String, view: SKView) -> Self {
