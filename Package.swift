@@ -32,7 +32,10 @@ let package = Package(
     
     dependencies: packageDependencies,
     targets: [
-        .target(name: "SebbuKit", dependencies: targetDependencies),
+        .target(name: "SebbuKit",
+                dependencies: targetDependencies,
+                swiftSettings: [.unsafeFlags(["-cross-module-optimization"],
+                                             .when( configuration: .release))]),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),
