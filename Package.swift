@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.3
 import PackageDescription
 
 var packageDependencies: [Package.Dependency] = [
@@ -29,13 +29,12 @@ let package = Package(
     products: [
         .library(name: "SebbuKit", targets: ["SebbuKit"]),
     ],
-    
     dependencies: packageDependencies,
     targets: [
         .target(name: "SebbuKit",
                 dependencies: targetDependencies,
                 swiftSettings: [.unsafeFlags(["-cross-module-optimization"],
-                                             .when( configuration: .release))]),
+                                             .when(configuration: .release))]),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),

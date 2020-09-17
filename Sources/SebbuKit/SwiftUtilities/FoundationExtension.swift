@@ -17,11 +17,22 @@ public extension Data {
 
 public struct CRC {
     private static let table: [UInt32] = {
-        return (0...255).map { i -> UInt32 in
-            (0..<8).reduce(UInt32(i), {c, _ in
-                (c % 2 == 0) ? (c >> 1) : (0xEDB88320 ^ (c >> 1))
-            })
+        var result = [UInt32]()
+        for i: UInt32 in 0...255 {
+            var k = i
+            for c: UInt32 in 0..<8 {
+                k += (c % 2 == 0) ? (c >> 1) : (0xEDB88320 ^ (c >> 1))
+            }
+            result.append(k)
         }
+        return result
+        /*
+         return (UInt32(0)...UInt32(255)).map { i -> UInt32 in
+             (0..<8).reduce(UInt32(i), {c, _ in
+                 (c % 2 == 0) ? (c >> 1) : (0xEDB88320 ^ (c >> 1))
+             })
+         }
+         */
     }()
     
     public static func checksum(bytes: [UInt8]) -> UInt32 {
