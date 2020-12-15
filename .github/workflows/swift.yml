@@ -51,7 +51,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Install swift-DEVELOPMENT-SNAPSHOT-2020-11-26
+    - name: Install swift-DEVELOPMENT-SNAPSHOT-2020-12-12
       run: |
           Install-Binary -Url "https://swift.org/builds/development/windows10/swift-DEVELOPMENT-SNAPSHOT-2020-12-12-a/swift-DEVELOPMENT-SNAPSHOT-2020-12-12-a-windows10.exe" -Name "installer.exe" -ArgumentList ("-q")
     - name: Set Environment Variables
