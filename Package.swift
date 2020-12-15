@@ -3,7 +3,7 @@ import PackageDescription
 
 var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
-    .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.0.0"),
+    .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.10.1"),
     .package(url: "https://github.com/nicklockwood/VectorMath.git", from: "0.4.1"),
     .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.0.0"),

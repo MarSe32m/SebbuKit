@@ -160,9 +160,7 @@ public struct MersenneTwister: RandomNumberGenerator {
     private static let stateCount: Int = 312
     
     public init() {
-        var dr = DevRandom()
-        dr.randomize(value: &state_internal)
-        index = MersenneTwister.stateCount
+        self.init(seed: UInt64.random(in: UInt64.min ... UInt64.max))
     }
     
     public init(seed: UInt64) {
