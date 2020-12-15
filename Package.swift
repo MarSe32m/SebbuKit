@@ -32,7 +32,7 @@ packageDependencies = [
     //.package(url: "https://github.com/swift-server/async-http-client.git", from: "1.0.0"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0")
 ]
-targetDependecies = [
+targetDependencies = [
     //.product(name: "NIO",package: "swift-nio"),
     //.product(name: "NIOConcurrencyHelpers", package: "swift-nio"),
     //.product(name: "NIOFoundationCompat", package: "swift-nio"),
