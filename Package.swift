@@ -4,7 +4,7 @@ import PackageDescription
 var packageDependencies: [Package.Dependency] = []
 var targetDependencies: [Target.Dependency] = []
 
-#if !os(Windows)
+#if !os(Windows) // Linux and Apple platform dependecies
 packageDependencies = [
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
     .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.10.1"),
@@ -23,7 +23,7 @@ targetDependencies = [
     .product(name: "AsyncHTTPClient", package: "async-http-client"),
     .product(name: "Crypto", package: "swift-crypto")
 ]
-#else
+#else // Windows dependecies
 packageDependencies = [
     //.package(url: "https://github.com/apple/swift-nio.git", from: "2.0.0"),
     //.package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.10.1"),
