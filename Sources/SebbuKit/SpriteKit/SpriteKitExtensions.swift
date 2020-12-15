@@ -6,8 +6,8 @@
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
 
-import Foundation
 #if canImport(UIKit)
+import Foundation
 import SpriteKit
 open class Scene: SKScene {
     public private(set) var deltaTime: CGFloat = 1.0 / 60.0

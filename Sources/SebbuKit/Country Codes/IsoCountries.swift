@@ -5,7 +5,6 @@
 //  Created by Sebastian Toivonen on 2.5.2020.
 //
 
-import Foundation
 
 public struct IsoCountryInfo {
 

@@ -5,7 +5,6 @@
 //  Created by Sebastian Toivonen on 31.1.2020.
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
-import Foundation
 
 public func fmodSebbu(_ a: Float, _ b: Float) -> Float {
     a - Float(Int(a / b)) * b

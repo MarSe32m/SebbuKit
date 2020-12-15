@@ -3,7 +3,6 @@
 //
 //  Created by Sebastian Toivonen on 24.12.2019.
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
-
 import Foundation
 
 public protocol BitStreamEncodable {

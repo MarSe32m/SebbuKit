@@ -5,6 +5,9 @@
 //  Created by Sebastian Toivonen on 7.2.2020.
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
+
+//TODO: Implement on Windows
+#if !os(Windows)
 import Foundation
 import WebSocketKit
 import NIOWebSocket
@@ -102,5 +105,5 @@ public class WebSocketServer {
             }
         }
     }
-    
 }
+#endif

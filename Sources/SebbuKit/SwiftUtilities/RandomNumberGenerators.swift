@@ -7,20 +7,6 @@
 
 import Foundation
 
-#if !swift(>=4.2)
-    public protocol RandomNumberGenerator {
-        mutating func next() -> UInt64
-    }
-    public struct SystemRandomNumberGenerator: RandomNumberGenerator {
-        public init() {}
-        public mutating func next() -> UInt64 {
-            var value: UInt64 = 0
-            arc4random_buf(&value, MemoryLayout<UInt64>.size)
-            return value
-        }
-    }
-#endif
-
 public protocol RandomGenerator: RandomNumberGenerator {
     mutating func randomize(buffer: UnsafeMutableRawBufferPointer)
 }
@@ -33,45 +19,16 @@ extension RandomGenerator {
     }
 }
 
-public struct DevRandom: RandomGenerator {
-    class FileDescriptor {
-        let value: CInt
-        init() {
-            value = open("/dev/urandom", O_RDONLY)
-            precondition(value >= 0)
-        }
-        deinit {
-            close(value)
-        }
-    }
-    
-    let fd: FileDescriptor
-    public init() {
-        fd = FileDescriptor()
-    }
-    
-    public mutating func randomize(buffer: UnsafeMutableRawBufferPointer) {
-        let result = read(fd.value, buffer.baseAddress, buffer.count)
-        precondition(result == buffer.count)
-    }
-    
-    public mutating func next() -> UInt64 {
-        var bits: UInt64 = 0
-        withUnsafeMutablePointer(to: &bits) { ptr in
-            self.randomize(buffer: UnsafeMutableRawBufferPointer(start: ptr, count: MemoryLayout<UInt64>.size))
-        }
-        return bits
-    }
-}
-
 public struct Xoshiro: RandomNumberGenerator {
     public typealias StateType = (UInt64, UInt64, UInt64, UInt64)
 
     private var state: StateType = (0, 0, 0, 0)
 
     public init() {
-        var dr = DevRandom()
-        dr.randomize(value: &state)
+        state.0 = UInt64.random(in: 0...UInt64.max)
+        state.1 = UInt64.random(in: 0...UInt64.max)
+        state.2 = UInt64.random(in: 0...UInt64.max)
+        state.3 = UInt64.random(in: 0...UInt64.max)
     }
     
     public init(seed: StateType) {

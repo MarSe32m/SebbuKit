@@ -6,6 +6,8 @@
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
 
+//TODO: Implement this with URLSession
+#if os(Windows)
 import Foundation
 import AsyncHTTPClient
 import NIO
@@ -34,3 +36,4 @@ public struct NetworkUtils {
     }()
 
 }
+#endif

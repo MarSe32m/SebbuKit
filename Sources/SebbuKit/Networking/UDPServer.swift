@@ -4,6 +4,9 @@
 //  Created by Sebastian Toivonen on 24.12.2019.
 //  Copyright © 2019 Sebastian Toivonen. All rights reserved.
 //
+
+//TODO: Remove #if when NIO is available on Windows
+#if !os(Windows)
 import Foundation
 import NIO
 
@@ -107,3 +110,4 @@ private final class UDPInboundHandler: ChannelInboundHandler {
         context.close(promise: nil)
     }
 }
+#endif

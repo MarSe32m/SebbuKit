@@ -23,7 +23,6 @@ public extension Vector2 {
     }
 }
 
-
 //MARK: Vector3 arithmetics
 public extension Vector3 {
     static func += (lhs: inout Vector3, rhs: Vector3) {

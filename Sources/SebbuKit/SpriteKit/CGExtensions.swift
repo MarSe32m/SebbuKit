@@ -5,8 +5,8 @@
 //  Copyright © 2020 Sebastian Toivonen. All rights reserved.
 //
 
-import Foundation
 #if canImport(CoreGraphics)
+import Foundation
 import CoreGraphics
 
 public extension CGFloat {
