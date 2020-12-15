@@ -7,7 +7,7 @@
 //
 
 //TODO: Implement this with URLSession
-#if os(Windows)
+#if !os(Windows)
 import Foundation
 import AsyncHTTPClient
 import NIO

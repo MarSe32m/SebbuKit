@@ -9,5 +9,9 @@
 @_exported import Dispatch
 @_exported import CRT
 #endif
+
+#if !os(Windows)
 //TODO: Replace with my own math library
 @_exported import VectorMath
+#endif
+

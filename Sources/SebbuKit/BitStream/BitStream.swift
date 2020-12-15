@@ -40,6 +40,8 @@ public struct FloatCompressor {
     }
 }
 
+//TODO: Implement for your own math types
+#if canImport(VectorMath)
 public extension FloatCompressor {
     @inlinable
     func write(_ value: Vector2, to string: inout WritableBitStream) {
@@ -51,8 +53,9 @@ public extension FloatCompressor {
     func readVector2(from string: inout ReadableBitStream) throws -> Vector2 {
         return Vector2(try read(from: &string), try read(from: &string))
     }
+    
 }
-
+#endif
 /// Gets the number of bits required to encode an enum case.
 public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
     static var bits: Int {

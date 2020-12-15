@@ -47,6 +47,8 @@ public struct BitFloat {
     }
 }
 
+//TODO: Implement for you own math types
+#if canImport(VectorMath)
 @propertyWrapper
 public struct BitVector2 {
     public var wrappedValue: Vector2 = .zero
@@ -60,6 +62,7 @@ public struct BitVector2 {
         self.bits = bits
     }
 }
+#endif
 
 @propertyWrapper
 public struct BitUnsigned {
@@ -102,13 +105,16 @@ public extension WritableBitStream {
         floatCompressor.write(value.wrappedValue, to: &bitStream)
     }
     
+    //TODO: Implement for your own math types
+    #if canImport(VectorMath)
     /// BitVector2 encoding
     @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitVector2) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         floatCompressor.write(value.wrappedValue, to: &bitStream)
     }
-    
+    #endif
+
     /// BitUnsigned encoding
     @inlinable
     static func << (bitStream: inout WritableBitStream, value: BitUnsigned) {
@@ -157,12 +163,15 @@ public extension ReadableBitStream {
         value.wrappedValue = try floatCompressor.read(from: &bitStream)
     }
     
+    //TODO: Implement for your own math types
+    #if canImport(VectorMath)
     /// BitVector2 decoding
     @inlinable
     static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2) throws {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         value.wrappedValue = try floatCompressor.readVector2(from: &bitStream)
     }
+    #endif
     
     /// BitUnsigned decoding
     @inlinable

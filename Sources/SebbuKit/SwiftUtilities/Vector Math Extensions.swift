@@ -4,7 +4,7 @@
 //
 //  Created by Sebastian Toivonen on 16.3.2020.
 //
-
+#if !os(Windows) //TODO: Replace these with your own library
 import Foundation
 import VectorMath
 
@@ -147,3 +147,4 @@ public func lerp(_ start: Vector2, end: Vector2, t: Float) -> Vector2 {
 public func lerp(_ start: Vector3, end: Vector3, t: Float) -> Vector3 {
     return Vector3(lerp(start.x, end: end.x, t: t), lerp(start.y, end: end.y, t: t), lerp(start.z, end: end.y, t: t))
 }
+#endif
