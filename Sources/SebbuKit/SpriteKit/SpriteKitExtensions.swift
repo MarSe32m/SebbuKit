@@ -669,3 +669,41 @@ public class ThumbStickNode: SKSpriteNode {
     }
 }
 #endif
+#if canImport(SwiftUI) && canImport(UIKit)
+import SpriteKit
+import SwiftUI
+public struct SpriteKitContainer: UIViewRepresentable {
+    public typealias UIViewType = SKView
+    
+    private var skScene: SKScene
+    
+    public init(scene: SKScene) {
+        skScene = scene
+    }
+    
+    public class Coordinator: NSObject {
+        var scene: SKScene?
+    }
+    
+    public func makeCoordinator() -> Coordinator {
+        let coordinator = Coordinator()
+        coordinator.scene = self.skScene
+        return coordinator
+    }
+    
+    public func makeUIView(context: Context) -> SKView {
+        let view = SKView(frame: CGRect(x: 0, y: 0,
+                                        width: UIScreen.main.bounds.size.width,
+                                        height: UIScreen.main.bounds.size.height))
+        view.preferredFramesPerSecond = 60
+        view.showsFPS = true
+        view.showsNodeCount = true
+        view.showsPhysics = true
+        return view
+    }
+    
+    public func updateUIView(_ view: SKView, context: Context) {
+        view.presentScene(context.coordinator.scene)
+    }
+}
+#endif
