@@ -78,7 +78,7 @@ public func ln(_ value: Double) -> Double {
 }
 
 func exponentialSmoothingFunction(t: Float) -> Float {
-    return (t == 1.0) ? t : 1.0 - pow(Float(M_E), -6.0 * t)
+    return (t == 1.0) ? t : 1.0 - exp(-6.0 * t)
 }
 
 public postfix func ++(a: inout Int) -> Int {

@@ -57,9 +57,7 @@ let package = Package(
     dependencies: packageDependencies,
     targets: [
         .target(name: "SebbuKit",
-                dependencies: targetDependencies,
-                swiftSettings: [.unsafeFlags(["-cross-module-optimization"],
-                                             .when(configuration: .release))]),
+                dependencies: targetDependencies),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),
