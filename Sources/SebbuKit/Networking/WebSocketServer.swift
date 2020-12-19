@@ -65,13 +65,8 @@ public class WebSocketServer {
                 }
             )
                 if let sslContext = self.sslContext {
-                do {
-                    let handler = try NIOSSLServerHandler(context: sslContext)
+                    let handler = NIOSSLServerHandler(context: sslContext)
                     _ = channel.pipeline.addHandler(handler)
-                } catch let error {
-                    print("Failed to create NIOSSLServerHandler for websocket server")
-                    print(error)
-                }
             }
             return channel.pipeline.configureHTTPServerPipeline(
                 withServerUpgrade: (

@@ -57,7 +57,8 @@ let package = Package(
     dependencies: packageDependencies,
     targets: [
         .target(name: "SebbuKit",
-                dependencies: targetDependencies),
+                dependencies: targetDependencies,
+                resources:[.process("SpriteKit/control_pad.imageset")]),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),

@@ -668,6 +668,4 @@ public class ThumbStickNode: SKSpriteNode {
         delegate?.thumbStickNode(thumbStickNode: self, didUpdateXValue: 0, yValue: 0)
     }
 }
-
-
 #endif
