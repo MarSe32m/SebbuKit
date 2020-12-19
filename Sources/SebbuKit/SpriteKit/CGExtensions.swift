@@ -83,6 +83,30 @@ public extension CGPoint {
 }
 
 public extension CGVector {
+    
+    init(point: CGPoint) {
+        self.init()
+        self.dx = point.x
+        self.dy = point.y
+    }
+    
+    func dotProductWithSelf() -> CGFloat {
+        return dx*dx + dy*dy
+    }
+    
+    func unitVector() -> CGVector {
+        let len = length()
+        if len == 0 {
+            return CGVector.zero
+        }
+        return self / len
+    }
+    
+    func orthogonalProjection(onto vector: CGVector) -> CGVector {
+        let dotProduct = self * vector
+        return dotProduct / (vector.lengthSquared()) * vector
+    }
+    
     func length() -> CGFloat {
         sqrt(dx * dx + dy * dy)
     }
@@ -325,43 +349,6 @@ public func degreesToRadians(degrees: CGFloat) -> CGFloat {
 
 public func radiansToDegrees(radians: CGFloat) -> CGFloat {
     return radians * (180 / CGFloat.pi)
-}
-
-public extension CGVector {
-    
-    func dotProductWithSelf() -> CGFloat {
-        return dx*dx + dy*dy
-    }
-    
-    func unitVector() -> CGVector {
-        let len = length()
-        if len == 0 {
-            return CGVector.zero
-        }
-        return self / len
-    }
-    
-    init(point: CGPoint) {
-        self.init()
-        self.dx = point.x
-        self.dy = point.y
-    }
-    
-    func orthogonalProjection(onto vector: CGVector) -> CGVector {
-        let dotProduct = self * vector
-        return dotProduct / (vector.lengthSquared()) * vector
-    }
-    
-    // In radians
-    func angleTo(vector: CGVector) -> CGFloat {
-        let dotProduct = self * vector
-        let lengthProduct = self.length() * vector.length()
-        if dotProduct - lengthProduct == 0 {
-            return 0
-        }
-        return acos(dotProduct / lengthProduct)
-    }
-    
 }
 
 public func crossProductScalar(vector1: CGVector, vector2: CGVector) -> CGFloat{
