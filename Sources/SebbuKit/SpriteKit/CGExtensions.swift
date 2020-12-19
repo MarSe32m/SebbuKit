@@ -82,23 +82,30 @@ public extension CGPoint {
     }
 }
 
-extension CGVector {
-    
-    public func length() -> CGFloat {
-        return sqrt(dx*dx + dy*dy)
+public extension CGVector {
+    func length() -> CGFloat {
+        sqrt(dx * dx + dy * dy)
     }
     
-    public func lengthSquared() -> CGFloat {
-        return dx*dx + dy*dy
+    func lengthSquared() -> CGFloat {
+        dx * dx + dy * dy
     }
     
-    public var angle: CGFloat {
-        return atan2(dy, dx)
+    func normalized() -> CGVector {
+        self / length()
+    }
+    
+    var angle: CGFloat {
+        atan2(dy, dx)
     }
 
-    // Dot product
+    /// Dot product
     static func * (left: CGVector, right: CGVector) -> CGFloat {
-        return left.dx*right.dx + left.dy*right.dy
+        left.dx*right.dx + left.dy*right.dy
+    }
+    
+    func dot(_ other: CGVector) -> CGFloat {
+        self * other
     }
     
     func rotated(by: CGFloat) -> CGVector {
@@ -106,9 +113,25 @@ extension CGVector {
                         dy: dx * sin(by) + dy * cos(by))
     }
     
+    func angle(with v: CGVector) -> CGFloat {
+        if self == v {
+            return 0
+        }
+        
+        let t1 = normalized()
+        let t2 = v.normalized()
+        let cross = t1.cross(t2)
+        let dot = max(-1, min(1, t1.dot(t2)))
+
+        return atan2(cross, dot)
+    }
+    
+    func cross(_ other: CGVector) -> CGFloat {
+        dx * other.dy - dy * other.dx
+    }
 }
 
-extension CGSize {
+public extension CGSize {
     func aspectFill(_ target: CGSize) -> CGSize {
         let baseAspect = self.width / self.height
         let targetAspect = target.width / target.height
