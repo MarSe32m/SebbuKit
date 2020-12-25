@@ -696,9 +696,6 @@ public struct SpriteKitContainer: UIViewRepresentable {
                                         width: UIScreen.main.bounds.size.width,
                                         height: UIScreen.main.bounds.size.height))
         view.preferredFramesPerSecond = 60
-        view.showsFPS = true
-        view.showsNodeCount = true
-        view.showsPhysics = true
         return view
     }
     
