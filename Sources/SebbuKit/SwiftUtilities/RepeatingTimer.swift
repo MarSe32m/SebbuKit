@@ -16,6 +16,12 @@ public class RepeatingTimer {
     public let timeInterval: DispatchTimeInterval
     private let queue: DispatchQueue?
     
+    /// Delta in seconds
+    public init(delta: Double, queue: DispatchQueue? = nil) {
+        self.timeInterval = DispatchTimeInterval.nanoseconds(Int(delta * 1_000_000_000.0))
+        self.queue = queue
+    }
+    
     public init(timeInterval:  DispatchTimeInterval, queue: DispatchQueue? = nil) {
         self.timeInterval = timeInterval
         self.queue = queue
