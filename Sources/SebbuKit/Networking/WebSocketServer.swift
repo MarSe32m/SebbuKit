@@ -8,13 +8,13 @@
 
 //TODO: Implement on Windows
 #if !os(Windows)
-import Foundation
 import WebSocketKit
 import NIOWebSocket
 import NIO
 import NIOSSL
+import NIOHTTP1
 
-public protocol WebSocketServerProtocol: class {
+public protocol WebSocketServerProtocol: AnyObject {
     func onConnection(webSocket: WebSocket, channel: Channel)
 }
 
@@ -31,7 +31,6 @@ public class WebSocketServer {
         self.port = port
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         self.isSharedEventLoopGroup = false
-        
         if let tls = tls {
             //let configuration = TLSConfiguration.forServer(certificateChain: try NIOSSLCertificate.fromPEMFile("cert.pem").map { .certificate($0) }, privateKey: .file("key.pem"))
             self.sslContext = try NIOSSLContext(configuration: tls)
@@ -50,7 +49,17 @@ public class WebSocketServer {
     }
     
     public func start() throws {
-            serverChannel = try ServerBootstrap(group: eventLoopGroup)
+        serverChannel = try ServerBootstrap
+            .webSocket(on: eventLoopGroup, ssl: sslContext, onUpgrade: { [unowned self] request, webSocket, channel in
+                self.delegate?.onConnection(webSocket: webSocket, channel: channel)
+            })
+            .serverChannelOption(ChannelOptions.backlog, value: 256)
+            .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+            .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+            .bind(host: "0", port: port).wait()
+            
+            /*
+         serverChannel = try ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelInitializer { [unowned self] (channel) in
@@ -77,9 +86,10 @@ public class WebSocketServer {
             }
         .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .bind(host: "0", port: port).wait()
+        */
     }
     
-    public func stop() {
+    public func stop() throws {
         _ = serverChannel?.closeFuture.always({ (result) in
         switch result {
         case .success(_):
@@ -92,13 +102,42 @@ public class WebSocketServer {
         serverChannel?.close(mode: .all, promise: nil)
         
         if !isSharedEventLoopGroup {
-            do {
-                try eventLoopGroup.syncShutdownGracefully()
-            } catch let error {
-                print("Failed to stop WebSocket Server eventloopgroup")
-                print(error)
-            }
+            try eventLoopGroup.syncShutdownGracefully()
         }
     }
 }
+
+extension ServerBootstrap {
+    static func webSocket(
+        on eventLoopGroup: EventLoopGroup,
+        ssl sslContext: NIOSSLContext? = nil,
+        onUpgrade: @escaping (HTTPRequestHead, WebSocket, Channel) -> ()
+    ) -> ServerBootstrap {
+        ServerBootstrap(group: eventLoopGroup).childChannelInitializer { channel in
+            let webSocket = NIOWebSocketServerUpgrader(
+                shouldUpgrade: { channel, req in
+                    return channel.eventLoop.makeSucceededFuture([:])
+                },
+                upgradePipelineHandler: { channel, req in
+                    return WebSocket.server(on: channel) { ws in
+                        onUpgrade(req, ws, channel)
+                    }
+                }
+            )
+            if let sslContext = sslContext {
+                let handler = NIOSSLServerHandler(context: sslContext)
+                _ = channel.pipeline.addHandler(handler)
+            }
+            return channel.pipeline.configureHTTPServerPipeline(
+                withServerUpgrade: (
+                    upgraders: [webSocket],
+                    completionHandler: { ctx in
+                        // complete
+                    }
+                )
+            )
+        }
+    }
+}
+
 #endif

@@ -8,13 +8,13 @@
 import Foundation
 import Crypto
 
-@inlinable
+@inline(__always)
 public func encryptAES(input: [UInt8], key: SymmetricKey) throws -> Data? {
     let sealedBox = try AES.GCM.seal(input, using: key)
     return sealedBox.combined
 }
 
-@inlinable
+@inline(__always)
 public func decryptAES(input: Data, key: SymmetricKey) throws -> Data {
     let k = try AES.GCM.SealedBox(combined: input)
     return try AES.GCM.open(k, using: key)
@@ -27,7 +27,7 @@ public struct CRC {
         for i: UInt32 in 0...255 {
             var k = i
             for c: UInt32 in 0..<8 {
-                k += (c % 2 == 0) ? (c >> 1) : (0xEDB88320 ^ (c >> 1))
+                k += (c & 1 == 0) ? (c >> 1) : (0xEDB88320 ^ (c >> 1))
             }
             result.append(k)
         }

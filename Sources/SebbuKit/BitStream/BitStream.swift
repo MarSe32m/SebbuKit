@@ -73,7 +73,7 @@ public struct WritableBitStream {
     }
 
     public var description: String {
-        var result = "bitStream \(endBitIndex): "
+        var result = "BitStream \(endBitIndex): "
         for index in 0..<bytes.count {
             result.append((String(bytes[index], radix: 2) + " "))
         }
@@ -116,8 +116,8 @@ public struct WritableBitStream {
     }
 
     mutating private func appendBit(_ value: UInt8) {
-        let bitShift = endBitIndex % 8
-        let byteIndex = endBitIndex / 8
+        let bitShift = endBitIndex & 7      //let bitShift = endBitIndex % 8
+        let byteIndex = endBitIndex >> 3    //let byteIndex = endBitIndex / 8
         if bitShift == 0 {
             bytes.append(UInt8(0))
         }
@@ -173,8 +173,6 @@ public struct ReadableBitStream {
         self.init(bytes: [UInt8](data))
     }
 
-    
-    
     // MARK: - Read
 
     public mutating func readBool() throws -> Bool {
@@ -220,11 +218,11 @@ public struct ReadableBitStream {
     public mutating func readData() throws -> Data {
         align()
         let length = Int(try readUInt32())
-        assert(currentBit % 8 == 0)
+        assert(currentBit & 7 == 0)     // assert(currentBit % 8 == 0)
         guard currentBit + (length * 8) <= endBitIndex else {
             throw BitStreamError.tooShort
         }
-        let currentByte = currentBit / 8
+        let currentByte = currentBit >> 3 // let currentByte = currentBit / 8
         let endByte = currentByte + length
 
         let result = Data(bytes[currentByte..<endByte])
@@ -241,20 +239,19 @@ public struct ReadableBitStream {
     }
 
     mutating private func align() {
-        let mod = currentBit % 8
+        let mod = currentBit & 7 //let mod = currentBit % 8
         if mod != 0 {
             currentBit += 8 - mod
         }
     }
 
     mutating private func readBit() -> UInt8 {
-        let bitShift = currentBit % 8
-        let byteIndex = currentBit / 8
+        let bitShift = currentBit & 7   //let bitShift = currentBit % 8
+        let byteIndex = currentBit >> 3 //let byteIndex = currentBit / 8
         currentBit += 1
         return (bytes[byteIndex] >> bitShift) & 1
     }
 }
-
 
 #if canImport(CoreGraphics)
 import CoreGraphics

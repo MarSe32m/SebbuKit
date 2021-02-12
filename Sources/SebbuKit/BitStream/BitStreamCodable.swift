@@ -85,7 +85,6 @@ public struct BitArray<Value> where Value: BitStreamCodable {
 }
 
 public extension WritableBitStream {
-    
     /// Boolean encoding
     @inlinable
     static func << (bitStream: inout WritableBitStream, value: Bool) {

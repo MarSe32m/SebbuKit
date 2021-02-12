@@ -11,7 +11,7 @@ import Dispatch
 /// RepeatingTimer mimics the API of DispatchSourceTimer but in a way that prevents
 /// crashes that occur from calling resume multiple times on a timer that is
 /// already resumed
-public class RepeatingTimer {
+public final class RepeatingTimer {
 
     public let timeInterval: DispatchTimeInterval
     private let queue: DispatchQueue?

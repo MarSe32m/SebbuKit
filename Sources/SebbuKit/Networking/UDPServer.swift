@@ -7,17 +7,19 @@
 
 //TODO: Remove #if when NIO is available on Windows
 #if !os(Windows)
-import Foundation
 import NIO
 
-public protocol UDPServerProtocol: class {
-    func received(data: Data, address: SocketAddress)
+public protocol UDPServerProtocol: AnyObject {
+    func received(data: [UInt8], address: SocketAddress)
 }
 
 public final class UDPServer {
     public let port: Int
     public let group: EventLoopGroup
-    private var channel: Channel?
+    
+    @usableFromInline
+    internal var channel: Channel!
+    
     private let isSharedEventLoopGroup: Bool
     public weak var delegate: UDPServerProtocol? {
         didSet {
@@ -39,28 +41,22 @@ public final class UDPServer {
         self.isSharedEventLoopGroup = true
     }
     
-    public func start() {
+    public func start() throws {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 512000)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 512000)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 1024 * 1024 * 16)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 1024 * 1024 * 8)
         .channelInitializer { channel in
             channel.pipeline.addHandler(self.inboundHandler)
         }
-        do {
-            channel = try bootstrap.bind(host: "0.0.0.0", port: port).wait()
-            started = true
-        } catch let error {
-            print("Error binding to port: \(port)")
-            print(error)
-        }
-        if let localAddress = channel?.localAddress {
-            print("UDP Server started on \(localAddress)")
-        }
+        channel = try bootstrap.bind(host: "0", port: port).wait()
+        started = true
+        
+        print("UDP Server started on", channel.localAddress!)
     }
     
-    public func shutdown() {
-        _ = channel?.closeFuture.always({ (result) in
+    public func shutdown() throws {
+        _ = channel.closeFuture.always({ (result) in
             switch result {
             case .success(_):
                 print("UDP Server closed successfully")
@@ -69,44 +65,60 @@ public final class UDPServer {
                 print(error)
             }
             })
-        channel?.close(mode: .all, promise: nil)
+        channel.close(mode: .all, promise: nil)
         if !isSharedEventLoopGroup {
-            do {
-                try group.syncShutdownGracefully()
-            } catch let error {
-                print("Error shutting down eventloop group")
-                print(error)
-            }
+            try group.syncShutdownGracefully()
         }
     }
     
-    public final func send(data: Data, address: SocketAddress) {
-        guard var buffer = channel?.allocator.buffer(capacity: data.count) else { return }
-        buffer.writeBytes(data)
+    /// Writes the data to the buffer but doesn't send the data to the peer yet
+    /// To send the written data, call the flush function
+    @inline(__always)
+    public final func write(data: [UInt8], address: SocketAddress) {
+        guard let buffer = channel?.allocator.buffer(bytes: data) else {
+            return
+        }
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
-        _ = channel?.writeAndFlush(envelope)
+        _ = channel.write(envelope)
+    }
+    
+    /// Sends data to a remote peer. In other words writes and flushes the data immediately to the remote peer
+    @inline(__always)
+    public final func send(data: [UInt8], address: SocketAddress) {
+        write(data: data, address: address)
+        flush()
+    }
+    
+    /// Flushes the previously written data to the given addresses
+    @inline(__always)
+    public final func flush() {
+        channel.flush()
+    }
+    
+    deinit {
+        if let channel = channel {
+            if channel.isActive {
+                try? shutdown()
+            }
+            precondition(!channel.isActive)
+        }
     }
 }
 
 private final class UDPInboundHandler: ChannelInboundHandler {
     public typealias InboundIn = AddressedEnvelope<ByteBuffer>
-    public typealias OutboundOut = AddressedEnvelope<ByteBuffer>
 
     fileprivate weak var udpServerProtocol: UDPServerProtocol?
     
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let envelope = self.unwrapInboundIn(data)
-        if let data = envelope.data.getData(at: 0, length: envelope.data.readableBytes, byteTransferStrategy: .noCopy) {
+        if let data = envelope.data.getBytes(at: 0, length: envelope.data.readableBytes) {
             udpServerProtocol?.received(data: data, address: envelope.remoteAddress)
         }
     }
 
-    public func channelReadComplete(context: ChannelHandlerContext) {
-        context.flush()
-    }
-    
     public func errorCaught(context: ChannelHandlerContext, error: Error) {
-        print("error in \(#file):\(#function):\(#line): ", error)
+        print("Error in \(#file):\(#function):\(#line): ", error)
         context.close(promise: nil)
     }
 }
