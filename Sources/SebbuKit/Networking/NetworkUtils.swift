@@ -12,19 +12,41 @@ import FoundationNetworking
 #endif
 
 public struct NetworkUtils {
-    private static let ipAddressProviders = ["https://api64.ipify.org/", "https://api.ipify.org/", "http://myexternalip.com/raw", "http://checkip.amazonaws.com/"]
+    private struct IpifyJson: Codable {
+        let ip: String
+    }
+
+    private static let ipAddressProviders = ["https://api64.ipify.org/?format=json", 
+                                             "https://api.ipify.org/?format=json",
+                                             "http://myexternalip.com/json"]
     public static let publicIP: String? = {
         for address in ipAddressProviders {
             guard let url = URL(string: address) else {
                 continue
             }
+
             do {
-                let ipAddress = try String(contentsOf: url)
-                return ipAddress
+                let data = try Data(contentsOf: url)
+                let ipAddress = try JSONDecoder().decode(IpifyJson.self, from: data).ip
+                if ipAddress.isIpAddress() {
+                    return ipAddress
+                }
             } catch let error {
                 print("Error retreiving IP address from: \(address)")
                 print(error)
             }
+        }
+        guard let url = URL(string: "http://checkip.amazonaws.com/") else {
+            return nil
+        }
+        do {
+            let ipAddress = try String(contentsOf: url)
+            if ipAddress.isIpAddress() {
+                return ipAddress
+            }
+        } catch let error {
+            print("Error retreiving IP address from: \(url)")
+            print(error)
         }
         return nil
     }()
