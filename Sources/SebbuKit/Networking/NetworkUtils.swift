@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
 import FoundationNetworking
+#endif
 
 public struct NetworkUtils {
     private static let ipAddressProviders = ["https://api64.ipify.org/", "https://api.ipify.org/", "http://myexternalip.com/raw", "http://checkip.amazonaws.com/"]
