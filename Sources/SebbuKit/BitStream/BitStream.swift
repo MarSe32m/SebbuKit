@@ -107,12 +107,16 @@ public struct WritableBitStream {
         appendUInt32(value.bitPattern)
     }
 
-    public mutating func append(_ value: Data) {
+    public mutating func append(_ value: [UInt8]) {
         align()
         let length = UInt32(value.count)
         appendUInt32(length)
         bytes.append(contentsOf: value)
         endBitIndex += Int(length * 8)
+    }
+
+    public mutating func append(_ value: Data) {
+        append([UInt8](value))
     }
 
     mutating private func appendBit(_ value: UInt8) {
@@ -215,19 +219,23 @@ public struct ReadableBitStream {
         return bitPattern
     }
 
-    public mutating func readData() throws -> Data {
+    public mutating func readBytes() throws -> [UInt8] {
         align()
         let length = Int(try readUInt32())
-        assert(currentBit & 7 == 0)     // assert(currentBit % 8 == 0)
+        assert(currentBit & 7 == 0)
         guard currentBit + (length * 8) <= endBitIndex else {
             throw BitStreamError.tooShort
         }
-        let currentByte = currentBit >> 3 // let currentByte = currentBit / 8
+        let currentByte = currentBit >> 3
         let endByte = currentByte + length
 
-        let result = Data(bytes[currentByte..<endByte])
+        let result = Array(bytes[currentByte..<endByte])
         currentBit += length * 8
         return result
+    }
+
+    public mutating func readData() throws -> Data {
+        return Data(try readBytes())
     }
 
     public mutating func readEnum<T>() throws -> T where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
