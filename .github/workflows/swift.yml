@@ -24,26 +24,8 @@ jobs:
     - name: Test (Release)
       run: swift test -v --configuration release -Xswiftc -enable-testing
     
-  linux-swift-54:
-    name: Linux x86_64 (Swift 5.4)
-    runs-on: ubuntu-latest
-    container: swift:5.4
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Swift Version
-      run: swift --version
-    - name: Build (Debug)
-      run: swift build -v -c debug --enable-test-discovery
-    - name: Build (Release)
-      run: swift build -v -c release --enable-test-discovery
-    - name: Test (Debug)
-      run: swift test -v --configuration debug --enable-test-discovery
-    - name: Test (Release)
-      run: swift test -v --configuration release -Xswiftc -enable-testing --enable-test-discovery
-    
-  linux-swift-nightly:
-    name: Linux x86_64 (Swift Nightly)
+  linux-swift-latest:
+    name: Linux x86_64 (Swift Latest)
     runs-on: ubuntu-latest
     container: swift:latest
     steps:
