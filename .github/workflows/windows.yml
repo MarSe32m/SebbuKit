@@ -9,8 +9,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    
     strategy:
+      fail-fast: false
       matrix:
         include:
          - tag: 5.4-RELEASE
