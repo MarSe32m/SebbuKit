@@ -21,7 +21,9 @@ public func decryptAES(input: Data, key: SymmetricKey) throws -> Data {
 }
 
 public struct CRC {
-    private static let table: [UInt32] = {
+    
+    @usableFromInline
+    internal static let table: [UInt32] = {
         
         var result = [UInt32]()
         for i: UInt32 in 0...255 {
@@ -42,7 +44,20 @@ public struct CRC {
          */
     }()
     
+    @inline(__always)
+    public static func checksum(_ buffer: UnsafeRawBufferPointer) -> UInt32 {
+        return ~(buffer.reduce(~UInt32(0), {crc, byte in
+            (crc >> 8) ^ table[(Int(crc) ^ Int(byte)) & 0xFF]
+        }))
+    }
+    
+    @inline(__always)
     public static func checksum(bytes: [UInt8]) -> UInt32 {
+        return checksum(bytes)
+    }
+    
+    @inline(__always)
+    public static func checksum(_ bytes: [UInt8]) -> UInt32 {
         return ~(bytes.reduce(~UInt32(0), {crc, byte in
             (crc >> 8) ^ table[(Int(crc) ^ Int(byte)) & 0xFF]
         }))
