@@ -69,7 +69,7 @@ public struct WritableBitStream {
     var endBitIndex = 0
 
     public init(size: Int? = nil) {
-        if let size = size { bytes.reserveCapacity(size) }
+        if let size = size { bytes.reserveCapacity(size + 4) }
     }
 
     public var description: String {
@@ -141,13 +141,17 @@ public struct WritableBitStream {
         return Data(packBytes())
     }
     
-    public func packBytes() -> [UInt8] {
+    public func packBytes(withExtraCapacity: Int = 0) -> [UInt8] {
         let endBitIndex32 = UInt32(endBitIndex)
         let endBitIndexBytes = [UInt8(truncatingIfNeeded: endBitIndex32),
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 8),
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 16),
                                 UInt8(truncatingIfNeeded: endBitIndex32 >> 24)]
-        return endBitIndexBytes + bytes
+        var result: [UInt8] = []
+        result.reserveCapacity(bytes.count + 4 + withExtraCapacity)
+        result.append(contentsOf: endBitIndexBytes)
+        result.append(contentsOf: bytes)
+        return result
     }
 }
 
