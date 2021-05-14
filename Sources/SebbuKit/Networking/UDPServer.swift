@@ -29,8 +29,8 @@ public final class UDPServer {
     public private(set) var started = false
     private let inboundHandler = UDPInboundHandler()
     
-    public var recvBufferSize: Int32 = 1024 * 1024 * 16
-    public var sendBufferSize: Int32 = 1024 * 1024 * 8
+    public var recvBufferSize = 1024 * 1024 * 16
+    public var sendBufferSize = 1024 * 1024 * 8
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
@@ -49,8 +49,8 @@ public final class UDPServer {
     public func start() throws {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: recvBufferSize)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: sendBufferSize)
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
         .channelInitializer { channel in
             channel.pipeline.addHandler(self.inboundHandler)
         }
