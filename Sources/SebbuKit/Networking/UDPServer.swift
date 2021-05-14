@@ -29,23 +29,28 @@ public final class UDPServer {
     public private(set) var started = false
     private let inboundHandler = UDPInboundHandler()
     
+    public var recvBufferSize: Int32 = 1024 * 1024 * 16
+    public var sendBufferSize: Int32 = 1024 * 1024 * 8
+    
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
         self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         self.isSharedEventLoopGroup = false
+        self.inboundHandler.udpServer = self
     }
 
     public init(port: Int, eventLoopGroup: EventLoopGroup) {
         self.port = port
         self.group = eventLoopGroup
         self.isSharedEventLoopGroup = true
+        self.inboundHandler.udpServer = self
     }
     
     public func start() throws {
         let bootstrap = DatagramBootstrap(group: group)
         .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: 1024 * 1024 * 16)
-        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: 1024 * 1024 * 8)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: recvBufferSize)
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: sendBufferSize)
         .channelInitializer { channel in
             channel.pipeline.addHandler(self.inboundHandler)
         }
@@ -79,7 +84,7 @@ public final class UDPServer {
             return
         }
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
-        _ = channel.write(envelope)
+        channel.write(envelope, promise: nil)
     }
     
     /// Sends data to a remote peer. In other words writes and flushes the data immediately to the remote peer
@@ -110,10 +115,16 @@ private final class UDPInboundHandler: ChannelInboundHandler {
 
     fileprivate weak var udpServerProtocol: UDPServerProtocol?
     
+    fileprivate unowned var udpServer: UDPServer!
+    
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let envelope = self.unwrapInboundIn(data)
         if let data = envelope.data.getBytes(at: 0, length: envelope.data.readableBytes) {
-            udpServerProtocol?.received(data: data, address: envelope.remoteAddress)
+            if let udpServerProtocol = udpServerProtocol {
+                udpServerProtocol.received(data: data, address: envelope.remoteAddress)
+            } else {
+                
+            }
         }
     }
 
