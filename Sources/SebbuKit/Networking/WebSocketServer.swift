@@ -15,7 +15,7 @@ import NIOSSL
 import NIOHTTP1
 
 public protocol WebSocketServerProtocol: AnyObject {
-    func onConnection(webSocket: WebSocket, channel: Channel)
+    func onConnection(requestHead: HTTPRequestHead, webSocket: WebSocket, channel: Channel)
 }
 
 public class WebSocketServer {
@@ -51,7 +51,7 @@ public class WebSocketServer {
     public func start() throws {
         serverChannel = try ServerBootstrap
             .webSocket(on: eventLoopGroup, ssl: sslContext, onUpgrade: { [unowned self] request, webSocket, channel in
-                self.delegate?.onConnection(webSocket: webSocket, channel: channel)
+                self.delegate?.onConnection(requestHead: request, webSocket: webSocket, channel: channel)
             })
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
