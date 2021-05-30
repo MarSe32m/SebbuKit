@@ -86,17 +86,17 @@ public func lerp<T: BinaryFloatingPoint>(_ start: T, end: T, t: T) -> T {
 
 @inline(__always)
 public func ln(_ value: Float) -> Float {
-    return log(value) / log(exp(1))
+    return log(value) / log(exp(1.0 as Float))
 }
 
 @inline(__always)
 public func ln(_ value: Double) -> Double {
-    return log(value) / log(exp(1))
+    return log(value) / log(exp(1.0 as Double))
 }
 
 @inline(__always)
 public func ln(_ value: CGFloat) -> CGFloat {
-    return log(value) / log(CGFloat(exp(1.0)))
+    return log(value) / log(exp(1.0 as CGFloat))
 }
 
 @inline(__always)
