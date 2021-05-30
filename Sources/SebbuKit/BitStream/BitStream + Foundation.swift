@@ -10,12 +10,12 @@
 import Foundation
 public extension WritableBitStream {
     @inline(__always)
-    public mutating func append(_ value: Data) {
+    mutating func append(_ value: Data) {
         append([UInt8](value))
     }
     
     @inline(__always)
-    public func packData() -> Data {
+    func packData() -> Data {
         return Data(packBytes())
     }
     
@@ -28,13 +28,12 @@ public extension WritableBitStream {
 
 public extension ReadableBitStream {
     @inlinable
-    public init(data: Data) {
+    init(data: Data) {
         self.init(bytes: [UInt8](data))
     }
 
-    
     @inline(__always)
-    public mutating func read() throws -> Data {
+    mutating func read() throws -> Data {
         return Data(try read() as [UInt8])
     }
     

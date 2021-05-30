@@ -80,49 +80,6 @@ extension Array where Element: BitStreamCodable {
     }
 }
 
-extension UInt32: BitStreamCodable {
-    init?(from bitStream: inout ReadableBitStream, numberOfBits: Int) throws {
-        self = try bitStream.read(numberOfBits: numberOfBits)
-    }
-    
-    @inline(__always)
-    public init(from bitStream: inout ReadableBitStream) throws {
-        self = try bitStream.read()
-    }
-    
-    @inline(__always)
-    func encode(to bitStream: inout WritableBitStream, numberOfBits: Int) {
-        bitStream.append(self, numberOfBits: numberOfBits)
-    }
-    
-    @inline(__always)
-    public func encode(to bitStream: inout WritableBitStream) {
-        bitStream.append(self)
-    }
-}
-
-extension Float: BitStreamCodable {
-    public init(from bitStream: inout ReadableBitStream) throws {
-        self = try bitStream.read()
-    }
-    
-    @inline(__always)
-    public func encode(to bitStream: inout WritableBitStream) {
-        bitStream.append(self)
-    }
-}
-
-extension Double: BitStreamCodable {
-    public init(from bitStream: inout ReadableBitStream) throws {
-        self = try bitStream.read()
-    }
-    
-    @inline(__always)
-    public func encode(to bitStream: inout WritableBitStream) {
-        bitStream.append(self)
-    }
-}
-
 #if canImport(CoreGraphics)
 import CoreGraphics
 extension CGFloat: BitStreamCodable {
