@@ -96,7 +96,7 @@ public func ln(_ value: Double) -> Double {
 
 @inline(__always)
 public func ln(_ value: CGFloat) -> CGFloat {
-    return log(value) / log(CGFloat(M_E))
+    return log(value) / log(CGFloat(exp(1)))
 }
 
 @inline(__always)
