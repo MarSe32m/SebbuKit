@@ -2,7 +2,7 @@
 //  UDPServer.swift
 //
 //  Created by Sebastian Toivonen on 24.12.2019.
-//  Copyright © 2019 Sebastian Toivonen. All rights reserved.
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 //
 
 //TODO: Remove #if when NIO is available on Windows
@@ -57,7 +57,7 @@ public final class UDPServer {
         channel = try bootstrap.bind(host: "0", port: port).wait()
         started = true
         
-        print("UDP Server started on", channel.localAddress!)
+        print("UDP Server started on:", channel.localAddress!)
     }
     
     public func shutdown() throws {
@@ -120,16 +120,12 @@ private final class UDPInboundHandler: ChannelInboundHandler {
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let envelope = self.unwrapInboundIn(data)
         if let data = envelope.data.getBytes(at: 0, length: envelope.data.readableBytes) {
-            if let udpServerProtocol = udpServerProtocol {
-                udpServerProtocol.received(data: data, address: envelope.remoteAddress)
-            } else {
-                
-            }
+            udpServerProtocol?.received(data: data, address: envelope.remoteAddress)
         }
     }
 
     public func errorCaught(context: ChannelHandlerContext, error: Error) {
-        print("Error in \(#file):\(#function):\(#line): ", error)
+        print("UDPInboundHandler: Error in \(#file):\(#function):\(#line): ", error)
         context.close(promise: nil)
     }
 }

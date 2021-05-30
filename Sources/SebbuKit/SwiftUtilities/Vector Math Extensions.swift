@@ -4,20 +4,24 @@
 //
 //  Created by Sebastian Toivonen on 16.3.2020.
 //
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 #if !os(Windows) //TODO: Replace these with your own library
 import Foundation
 import VectorMath
 
 //MARK: Vector2 arithmetics
 public extension Vector2 {
+    @inline(__always)
     static func += (lhs: inout Vector2, rhs: Vector2) {
         lhs = lhs + rhs
     }
 
+    @inline(__always)
     static func -= (lhs: inout Vector2, rhs: Vector2) {
         lhs = lhs - rhs
     }
 
+    @inline(__always)
     static func *= (lhs: inout Vector2, rhs: Scalar) {
         lhs = lhs * rhs
     }
@@ -25,14 +29,17 @@ public extension Vector2 {
 
 //MARK: Vector3 arithmetics
 public extension Vector3 {
+    @inline(__always)
     static func += (lhs: inout Vector3, rhs: Vector3) {
         lhs = lhs + rhs
     }
 
+    @inline(__always)
     static func -= (lhs: inout Vector3, rhs: Vector3) {
         lhs = lhs - rhs
     }
-
+    
+    @inline(__always)
     static func *= (lhs: inout Vector3, rhs: Scalar) {
         lhs = lhs * rhs
     }
@@ -40,14 +47,17 @@ public extension Vector3 {
 
 //MARK: Vector4 arithmetics
 public extension Vector4 {
+    @inline(__always)
     static func += (lhs: inout Vector4, rhs: Vector4) {
         lhs = lhs + rhs
     }
 
+    @inline(__always)
     static func -= (lhs: inout Vector4, rhs: Vector4) {
         lhs = lhs - rhs
     }
 
+    @inline(__always)
     static func *= (lhs: inout Vector4, rhs: Scalar) {
         lhs = lhs * rhs
     }
@@ -55,26 +65,31 @@ public extension Vector4 {
 
 //MARK: Matrix3 arithmetics
 public extension Matrix3 {
+    @inline(__always)
     static func + (lhs: Matrix3, rhs: Matrix3) -> Matrix3 {
         Matrix3(lhs.m11 + rhs.m11, lhs.m12 + rhs.m12, lhs.m13 + rhs.m13,
                 lhs.m21 + rhs.m21, lhs.m22 + rhs.m22, lhs.m23 + rhs.m23,
                 lhs.m31 + rhs.m31, lhs.m32 + rhs.m32, lhs.m33 + rhs.m33)
     }
 
+    @inline(__always)
     static func - (lhs: Matrix3, rhs: Matrix3) -> Matrix3 {
         Matrix3(lhs.m11 - rhs.m11, lhs.m12 - rhs.m12, lhs.m13 - rhs.m13,
                 lhs.m21 - rhs.m21, lhs.m22 - rhs.m22, lhs.m23 - rhs.m23,
                 lhs.m31 - rhs.m31, lhs.m32 - rhs.m32, lhs.m33 - rhs.m33)
     }
     
+    @inline(__always)
     static func += (lhs: inout Matrix3, rhs: Matrix3) {
         lhs = lhs + rhs
     }
 
+    @inline(__always)
     static func -= (lhs: inout Matrix3, rhs: Matrix3) {
         lhs = lhs - rhs
     }
 
+    @inline(__always)
     static func *= (lhs: inout Matrix3, rhs: Matrix3) {
         lhs = lhs * rhs
     }

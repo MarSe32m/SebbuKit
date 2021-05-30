@@ -4,6 +4,7 @@
 //
 //  Created by Sebastian Toivonen on 26.1.2021.
 //
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 /// Usage
 /*

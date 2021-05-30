@@ -3,34 +3,23 @@
 //  
 //
 //  Created by Sebastian Toivonen on 31.1.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
-//
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
+#if canImport(Foundation)
 import Foundation
 
 public extension Data {
     var hexString: String {
-        let hexString = map { String(format: "%02.2hhx", $0) }.joined()
-        return hexString
+        map { String(format: "%02.2hhx", $0) }.joined()
     }
 }
 
-fileprivate var standardError = FileHandle.standardError
-
-extension FileHandle: TextOutputStream {
-  public func write(_ string: String) {
-    guard let data = string.data(using: .utf8) else { return }
-    self.write(data)
-  }
-}
-
-public func printError(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-    for item in items {
-        print(item, terminator: "", to: &standardError)
-        print(separator, terminator: "", to: &standardError)
+public extension Array where Element == UInt8 {
+    var hexString: String {
+        map { String(format: "%02.2hhx", $0) }.joined()
     }
-    print(terminator: terminator, to: &standardError)
 }
+#endif
 
 #if canImport(UIKit)
 import UIKit

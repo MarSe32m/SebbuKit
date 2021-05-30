@@ -4,10 +4,9 @@
 //
 //  Created by Sebastian Toivonen on 2.5.2020.
 //
-
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 public struct IsoCountryInfo {
-
     public let name: String
     public let numeric: String
     public let alpha2: String
@@ -20,9 +19,7 @@ public struct IsoCountryInfo {
     }
 }
 
-// swiftlint:disable type_body_length
 public class IsoCountries {
-
     public class func flag(countryCode: String) -> String? {
         var string = ""
         let country = countryCode.uppercased()
@@ -38,7 +35,6 @@ public class IsoCountries {
         return string.isEmpty ? nil : string
     }
 
-    // swiftlint:disable line_length
     public static let allCountries: [IsoCountryInfo] = [
         IsoCountryInfo(name: "Afghanistan", numeric: "004", alpha2: "AF", alpha3: "AFG", calling: "+93", currency: "AFN", continent: "AS" ),
         IsoCountryInfo(name: "Åland Islands", numeric: "248", alpha2: "AX", alpha3: "ALA", calling: "+358", currency: "FIM", continent: "EU" ),
@@ -289,5 +285,4 @@ public class IsoCountries {
         IsoCountryInfo(name: "Yemen", numeric: "887", alpha2: "YE", alpha3: "YEM", calling: "+967", currency: "YER", continent: "AS" ),
         IsoCountryInfo(name: "Zambia", numeric: "894", alpha2: "ZM", alpha3: "ZMB", calling: "+260", currency: "ZMW", continent: "AF" ),
         IsoCountryInfo(name: "Zimbabwe", numeric: "716", alpha2: "ZW", alpha3: "ZWE", calling: "+263", currency: "ZWD", continent: "AF" )]
-    // swiftlint:enable line_length
 }

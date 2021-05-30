@@ -3,17 +3,20 @@
 //  
 //
 //  Created by Sebastian Toivonen on 31.1.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
-//
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
-public func fmodSebbu(_ a: Float, _ b: Float) -> Float {
-    a - Float(Int(a / b)) * b
-}
-
+@inline(__always)
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
 public func wrapMax<T>(_ x: T, max: T) -> T where T: FloatingPoint {
     return fmod(max + fmod(x, max), max)
 }
 
+@inline(__always)
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
 public func wrapMinMax<T>(_ x: T, min: T, max: T) -> T where T: FloatingPoint {
     return min + wrapMax(x - min, max: max - min)
 }
@@ -36,16 +39,20 @@ public func invSqrt(x: Float) -> Float {
     return y
 }
 
-public func solveQuadratic(a: Float, b: Float, c: Float) -> (found: Bool, x1: Float, x2: Float) {
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func solveQuadratic<T: BinaryFloatingPoint>(a: T, b: T, c: T) -> (found: Bool, x1: T, x2: T) {
     if a == 0 {
         if b == 0 {
             return (c == 0, 0, 0)
         } else {
-            return (true, -c/b,-c/b)
+            return (true, -c / b, -c / b)
         }
     }
     if b == 0 {
-        return (-c/a >= 0, sqrt(-c/a), -sqrt(-c/a))
+        return (-c / a >= 0, sqrt(-c / a), -sqrt(-c/a))
     } else if c == 0 {
         return (true, 0, -b / a)
     }
@@ -57,7 +64,11 @@ public func solveQuadratic(a: Float, b: Float, c: Float) -> (found: Bool, x1: Fl
     return (false, 0, 0)
 }
 
-public func smoothMin(a: Float, b: Float, k: Float) -> Float {
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func smoothMin<T: BinaryFloatingPoint>(a: T, b: T, k: T) -> T {
     if k == 0 {
         return min(a, b)
     }
@@ -65,47 +76,79 @@ public func smoothMin(a: Float, b: Float, k: Float) -> Float {
     return min(a, b) - h*h*h*h*1/6.0
 }
 
-public func lerp(_ start: Float, end: Float, t: Float) -> Float {
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func lerp<T: BinaryFloatingPoint>(_ start: T, end: T, t: T) -> T {
     return start + (end - start) * t
 }
 
-public func lerp(_ start: Double, end: Double, t: Double) -> Double {
-    return start + (end - start) * t
+@inline(__always)
+public func ln(_ value: Float) -> Float {
+    return log(value) / log(exp(1))
 }
 
+@inline(__always)
 public func ln(_ value: Double) -> Double {
     return log(value) / log(exp(1))
 }
 
-func exponentialSmoothingFunction(t: Float) -> Float {
+@inline(__always)
+public func ln(_ value: CGFloat) -> CGFloat {
+    return log(value) / log(CGFloat(M_E))
+}
+
+@inline(__always)
+public func exponentialSmoothingFunction(t: Float) -> Float {
     return (t == 1.0) ? t : 1.0 - exp(-6.0 * t)
 }
 
+@inline(__always)
+public func exponentialSmoothingFunction(t: Double) -> Double {
+    return (t == 1.0) ? t : 1.0 - exp(-6.0 * t)
+}
+
+@inline(__always)
+public func exponentialSmoothingFunction(t: CGFloat) -> CGFloat {
+    return (t == 1.0) ? t : 1.0 - exp(-6.0 * t)
+}
+
+@inline(__always)
 public postfix func ++(a: inout Int) -> Int {
     a += 1
     return a - 1
 }
 
+@inline(__always)
 public prefix func ++(a: inout Int) -> Int {
     a += 1
     return a
 }
 
+@inline(__always)
 public postfix func ++(a: inout UInt64) -> UInt64 {
     a += 1
     return a - 1
 }
 
+@inline(__always)
 public prefix func ++(a: inout UInt64) -> UInt64 {
     a += 1
     return a
 }
 
-public func smoothDamp(current c: Float, target t: Float, currentVelocity: inout Float, smoothTime time: Float, maxSpeed: Float = Float.infinity, deltaTime: Float) -> Float {
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func smoothDamp<T: BinaryFloatingPoint>(current c: T, target t: T, currentVelocity: inout T, smoothTime time: T, maxSpeed: T = .greatestFiniteMagnitude, deltaTime: T) -> T {
     let smoothTime = max(0.0001, time)
     let num  = 2 / smoothTime
     let num2 = num * deltaTime
-    let num3 = 1 / (1 + num2 + 0.48 * num2 * num2 + 0.235 * num2 * num2 * num2)
+    let temp1 = 1 + num2 + 0.48 * num2 * num2
+    let temp2 = 0.235 * num2 * num2 * num2
+    let num3 = 1 / (temp1 + temp2)
     var num4 = c - t
     let num5 = t
     let num6 = maxSpeed * smoothTime
@@ -121,28 +164,12 @@ public func smoothDamp(current c: Float, target t: Float, currentVelocity: inout
     return num8
 }
 
-public func smoothDamp(current c: Double, target t: Double, currentVelocity: inout Double, smoothTime time: Double, maxSpeed: Double = Double.infinity, deltaTime: Double) -> Double {
-    let smoothTime = max(0.0001, time)
-    let num  = 2 / smoothTime
-    let num2 = num * deltaTime
-    let num3 = 1 / (1 + num2 + 0.48 * num2 * num2 + 0.235 * num2 * num2 * num2)
-    var num4 = c - t
-    let num5 = t
-    let num6 = maxSpeed * smoothTime
-    num4 = min(max(num4, -num6), num6)
-    let target = c - num4
-    let num7 = (currentVelocity + num * num4) * deltaTime
-    currentVelocity = (currentVelocity - num * num7) * num3
-    var num8 = target + (num4 + num7) * num3
-    if (num5 - c > 0) == (num8 > num5) {
-        num8 = num5
-        currentVelocity = (num8 - num5) / deltaTime
-    }
-    return num8
-}
-
-public func hermiteSpline(startPos: (x: Float, y: Float), startVelocity: (dx: Float, dy: Float), endPos: (x: Float, y: Float), endVelocity: (dx: Float, dy: Float), t: Float) -> (x: Float, y: Float) {
-    var result: (x: Float, y: Float) = (0.0, 0.0)
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func hermiteSpline<T: BinaryFloatingPoint>(startPos: (x: T, y: T), startVelocity: (dx: T, dy: T), endPos: (x: T, y: T), endVelocity: (dx: T, dy: T), t: T) -> (x: T, y: T) {
+    var result: (x: T, y: T) = (0, 0)
     let t2 = t * t
     let t3 = t2 * t
     
@@ -164,14 +191,16 @@ public func hermiteSpline(startPos: (x: Float, y: Float), startVelocity: (dx: Fl
     return result
 }
 
+@inlinable
+@_specialize(where T == Double)
+@_specialize(where T == Float)
+@_specialize(where T == CGFloat)
+public func sign<T: BinaryFloatingPoint>(_ value: T) -> Int {
+    value.sign == .plus ? 1 : -1
+}
 
 #if canImport(CoreGraphics)
 import CoreGraphics
-public func solveQuadratic(a: CGFloat, b: CGFloat, c: CGFloat) -> (found: Bool, x1: CGFloat, x2: CGFloat) {
-    let result = solveQuadratic(a: Float(a), b: Float(b), c: Float(c))
-    return (result.found, CGFloat(result.x1), CGFloat(result.x2))
-}
-
 public func invSqrt(x: CGFloat) -> CGFloat {
     let halfx = 0.5 * x
     var i = x.bitPattern
@@ -179,58 +208,6 @@ public func invSqrt(x: CGFloat) -> CGFloat {
     var y = CGFloat(bitPattern: i)
     y = y * (1.5 - (halfx * y * y))
     return y
-}
-
-public func smoothMin(a: CGFloat, b: CGFloat, k: CGFloat) -> CGFloat {
-    if k == 0 {
-        return min(a, b)
-    }
-    let h = max(k - abs(a - b), 0) / k
-    return min(a, b) - h*h*h*h*1/6.0
-}
-
-public func ln(_ value: CGFloat) -> CGFloat {
-    return log(value) / log(CGFloat(M_E))
-}
-
-public func sign(value: CGFloat) -> Int {
-    return value >= 0 ? 1 : -1
-}
-
-public func smoothDamp(current c: CGFloat, target t: CGFloat, currentVelocity: inout CGFloat, smoothTime time: CGFloat, maxSpeed: CGFloat = CGFloat.infinity, deltaTime: CGFloat) -> CGFloat {
-    let smoothTime = max(0.0001, time)
-    let num  = 2 / smoothTime
-    let num2 = num * deltaTime
-    let num3 = 1 / (1 + num2 + 0.48 * num2 * num2 + 0.235 * num2 * num2 * num2)
-    var num4 = c - t
-    let num5 = t
-    let num6 = maxSpeed * smoothTime
-    num4 = min(max(num4, -num6), num6)
-    let target = c - num4
-    let num7 = (currentVelocity + num * num4) * deltaTime
-    currentVelocity = (currentVelocity - num * num7) * num3
-    var num8 = target + (num4 + num7) * num3
-    if (num5 - c > 0) == (num8 > num5) {
-        num8 = num5
-        currentVelocity = (num8 - num5) / deltaTime
-    }
-    return num8
-}
-
-public func hermiteSpline(startPos: CGPoint, startVelocity: CGVector, endPos: CGPoint, endVelocity: CGVector, t: CGFloat) -> CGPoint {
-    var result = CGPoint.zero
-    let t2 = t * t
-    let t3 = t2 * t
-    let d1 = (2 * t3 - 3 * t2 + 1)
-    let d2 = (t3 - 2 * t2 + t)
-    let d3 = (-2 * t3 + 3 * t2)
-    let d4 = (t3 - t2)
-    
-    result += d1 * startPos
-    result += d2 * startVelocity
-    result += d3 * endPos
-    result += d4 * endVelocity
-    return result
 }
 
 func collisionPoint(targetStartPosition: CGPoint, targetVelocity: CGVector, bulletStartPosition: CGPoint, bulletSpeed: CGFloat) -> CGPoint? {

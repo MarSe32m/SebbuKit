@@ -4,6 +4,7 @@
 //
 //  Created by Sebastian Toivonen on 28.11.2020.
 //
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 import Foundation
 
@@ -24,9 +25,8 @@ public final class Lock: NSLocking {
     }
     
     public func lock(_ closure: () -> Void) {
-        _lock.lock()
+        _lock.lock(); defer{ _lock.unlock() }
         closure()
-        _lock.unlock()
     }
     
     public func unlock() {

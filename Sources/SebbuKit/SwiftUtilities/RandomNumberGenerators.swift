@@ -2,8 +2,7 @@
 //  RandomNumberGenerators.swift
 //
 //  Created by Sebastian Toivonen on 20.1.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
-//
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 import Foundation
 
@@ -22,7 +21,8 @@ extension RandomGenerator {
 public struct Xoshiro: RandomNumberGenerator {
     public typealias StateType = (UInt64, UInt64, UInt64, UInt64)
 
-    private var state: StateType = (0, 0, 0, 0)
+    @usableFromInline
+    internal var state: StateType = (0, 0, 0, 0)
 
     public init() {
         state.0 = UInt64.random(in: 0...UInt64.max)
@@ -35,6 +35,7 @@ public struct Xoshiro: RandomNumberGenerator {
         self.state = seed
     }
     
+    @inlinable
     public mutating func next() -> UInt64 {
         // Derived from public domain implementation of xoshiro256** here:
         // http://xoshiro.di.unimi.it

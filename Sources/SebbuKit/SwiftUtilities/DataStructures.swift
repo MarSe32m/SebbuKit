@@ -3,12 +3,16 @@
 //  
 //
 //  Created by Sebastian Toivonen on 31.1.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
-//
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 public final class Grid<T> {
+    @usableFromInline
     var matrix:[T]
+    
+    @usableFromInline
     var rows:Int
+    
+    @usableFromInline
     var columns:Int
     
     public init(rows:Int, columns:Int, defaultValue:T) {
@@ -17,7 +21,8 @@ public final class Grid<T> {
         matrix = Array(repeating:defaultValue,count:(rows*columns))
     }
     
-    internal func indexIsValidFor(row: Int, column: Int) -> Bool {
+    @inlinable
+    internal final func indexIsValidFor(row: Int, column: Int) -> Bool {
         return row >= 0 && row < rows && column >= 0 && column < columns
     }
     

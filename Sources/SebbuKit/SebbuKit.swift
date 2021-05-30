@@ -1,4 +1,4 @@
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 @_exported import Foundation
 #if os(Linux)
 @_exported import FoundationNetworking

@@ -4,7 +4,7 @@
 //
 //  Created by Sebastian Toivonen on 2.5.2020.
 //
-
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 public class IsoCountryCodes {
 

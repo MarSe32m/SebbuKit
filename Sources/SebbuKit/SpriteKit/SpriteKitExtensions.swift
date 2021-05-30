@@ -3,7 +3,7 @@
 //  
 //
 //  Created by Sebastian Toivonen on 30.1.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 //
 
 #if canImport(UIKit)
@@ -11,23 +11,29 @@ import Foundation
 import SpriteKit
 open class Scene: SKScene {
     public private(set) var deltaTime: CGFloat = 1.0 / 60.0
-    private var lastUpdateTime: TimeInterval = 0.0
     
+    @usableFromInline
+    internal var lastUpdateTime: TimeInterval = 0.0
+    
+    @inlinable
     open override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
         assignDT(currentTime)
     }
     
-    private func assignDT(_ currentTime: TimeInterval) {
+    @inlinable
+    internal func assignDT(_ currentTime: TimeInterval) {
         let dt = CGFloat(currentTime - lastUpdateTime)
         deltaTime = dt < 1.0 ? dt : 0.017 //This is a hack, since the game starts with 0 delta time, forces applied to it aren't calculated properly
         lastUpdateTime = currentTime
     }
     
+    @inlinable
     open class func createLandscape(view: SKView) -> Self {
         createLandscape(fileNamed: String(describing: Self.self), view: view)
     }
     
+    @inlinable
     open class func createLandscape(fileNamed: String, view: SKView) -> Self {
         guard let scene = SKScene(fileNamed: fileNamed) as? Self else {
             fatalError("Couldn't load scene")
@@ -37,10 +43,12 @@ open class Scene: SKScene {
         return scene
     }
     
+    @inlinable
     open class func createPortrait(view: SKView) -> Self {
         createPortrait(fileNamed: String(describing: Self.self), view: view)
     }
     
+    @inlinable
     open class func createPortrait(fileNamed: String, view: SKView) -> Self {
         guard let scene = SKScene(fileNamed: fileNamed) as? Self else {
             fatalError("Couldn't load scene")
@@ -50,10 +58,12 @@ open class Scene: SKScene {
         return scene
     }
     
+    @inlinable
     open class func create(with size: CGSize, view: SKView) -> Self {
         create(with: size, fileName: String(describing: Self.self), view: view)
     }
     
+    @inlinable
     open class func create(with size: CGSize, fileName: String, view: SKView) -> Self {
         guard let scene = SKScene(fileNamed: fileName) as? Self else {
             fatalError("Couldn't load scene, wrong file name")
@@ -65,6 +75,7 @@ open class Scene: SKScene {
 }
 
 public extension SKNode {
+    @inline(__always)
     var rotation: CGFloat {
         get {return CGFloat(fmod(Double(zRotation), .pi * 2))}
         set { zRotation = newValue }
@@ -72,12 +83,15 @@ public extension SKNode {
 }
 
 public extension SKColor {
+    @inline(__always)
     static func randomColor() -> SKColor {
         return SKColor(red: CGFloat.random(in: 0...1),
                        green: CGFloat.random(in: 0...1),
                        blue: CGFloat.random(in: 0...1),
                        alpha: 1.0)
     }
+    
+    @inlinable
     func complementaryColor() -> SKColor {
         var hue: CGFloat = 0
         self.getHue(&hue, saturation: nil, brightness: nil, alpha: nil)
@@ -89,12 +103,17 @@ public extension SKColor {
         return SKColor(hue: hue, saturation: 1.0, brightness: 1.0, alpha: 1.0)
     }
     
+    @inline(__always)
     static var gold: SKColor {
         return SKColor(red: 255 / 255, green: 215 / 255, blue: 0, alpha: 1.0)
     }
+    
+    @inline(__always)
     static var darkoliveGreen: SKColor {
         return SKColor(red: 85 / 255, green: 107 / 255, blue: 47 / 255, alpha: 1.0)
     }
+    
+    @inline(__always)
     static var powderBlue: SKColor {
         return SKColor(red: 176 / 255, green: 224 / 255, blue: 230 / 255, alpha: 1.0)
     }
@@ -102,6 +121,7 @@ public extension SKColor {
 
 // Camera shake action
 public extension SKAction {
+    @inlinable
     class func shake(duration:CGFloat, amplitudeX:Int = 3, amplitudeY:Int = 3) -> SKAction {
         let numberOfShakes = duration / 0.015 / 2.0
         var actionsArray:[SKAction] = []
@@ -116,6 +136,7 @@ public extension SKAction {
         return SKAction.sequence(actionsArray)
     }
     
+    @inline(__always)
     class func hermiteInterpolation(duration: CGFloat, start: CGPoint, end: CGPoint, startVelocity: CGVector, endVelocity: CGVector) -> SKAction {
         let customAction = SKAction.customAction(withDuration: TimeInterval(duration)) { (node, elapsedTime) in
             let pos = hermiteSpline(startPos: start, startVelocity: startVelocity, endPos: end, endVelocity: endVelocity, t: elapsedTime / duration)
@@ -124,6 +145,7 @@ public extension SKAction {
         return customAction
     }
     
+    @inline(__always)
     class func colorizeWithRainbow(duration: CGFloat) -> SKAction {
         let actions = [SKAction.colorize(with: .red, colorBlendFactor: 1.0, duration: TimeInterval(duration / 7.0)),
                        SKAction.colorize(with: .orange, colorBlendFactor: 1.0, duration: TimeInterval(duration / 7.0)),
@@ -133,6 +155,7 @@ public extension SKAction {
         return sequence(actions)
     }
     
+    @inline(__always)
     class func colorizeFillColor(withSequence: SKKeyframeSequence, duration: CGFloat) -> SKAction {
         let customAction = SKAction.customAction(withDuration: TimeInterval(duration)) { (node, elapsedTime) in
             let timeValue = elapsedTime / duration
@@ -144,6 +167,8 @@ public extension SKAction {
         return customAction
     }
     
+    //TODO: Make a more robus one...
+    @inlinable
     class func typeOut(duration: CGFloat, text: String) -> SKAction {
         let timeBetweenCharacters: CGFloat = CGFloat(duration / CGFloat(text.count))
         let typeText = text
@@ -166,6 +191,7 @@ public extension SKAction {
         return SKAction.sequence([customAction, ])
     }
     
+    //TODO: Implement
     class func smoothFollow(path: [CGPoint], speed: CGFloat) -> SKAction {
         var distance: CGFloat = 0
         if path.count <= 1 {
@@ -182,6 +208,7 @@ public extension SKAction {
         return customAction
     }
     
+    @inlinable
     class func seekTarget(targetNode: SKNode, speed: CGFloat, duration: TimeInterval) -> SKAction {
         var velocity = CGVector(dx: 0, dy: 0)
         var lastElapsedTime: CGFloat = 0
@@ -200,12 +227,14 @@ public extension SKAction {
 
 public extension SKSpriteNode {
     
+    @inline(__always)
     func removeGlow() {
-        self.enumerateChildNodes(withName: "glow") { (node, void) in
+        self.enumerateChildNodes(withName: "glow") { (node, _) in
             node.removeFromParent()
         }
     }
     
+    @inlinable
     func addGlow(radius: Float = 30) {
         let effectNode = SKEffectNode()
         effectNode.shouldRasterize = true
@@ -218,6 +247,7 @@ public extension SKSpriteNode {
         effectNode.filter = CIFilter(name: "CIGaussianBlur", parameters: ["inputRadius":radius])
     }
     
+    @inlinable
     func addBlur() -> SKEffectNode {
         let effectNode = SKEffectNode()
         effectNode.shouldRasterize = true
@@ -229,6 +259,8 @@ public extension SKSpriteNode {
 
 @available(iOS 9.0, *)
 public extension SKCameraNode {
+    
+    @inline(__always)
     func followNode(target: SKNode, offset: CGVector, smoothTime: CGFloat, currentVelocity: inout CGVector, dt: CGFloat) {
         position = smoothDamp(currentPosition: position, targetPosition: target.position + offset, currentVelocity: &currentVelocity, smoothTime: smoothTime, deltaTime: dt)
         
@@ -236,12 +268,14 @@ public extension SKCameraNode {
 }
 
 public extension SKPhysicsBody {
+    @inline(__always)
     var kineticEnergy: CGFloat {
         get {
             return 0.5 * mass * velocity.lengthSquared()
         }
     }
     
+    @inline(__always)
     var potentialEnergy: CGFloat {
         get {
             guard let node = node else {
@@ -254,6 +288,7 @@ public extension SKPhysicsBody {
 
 public extension SKLabelNode {
     
+    @inline(__always)
     func setText(_ text: String) {
         self.text = text
         (childNode(withName: "shadow") as? SKLabelNode)?.text = text
@@ -263,6 +298,7 @@ public extension SKLabelNode {
 
 @available(iOS 9.0, *)
 public extension SKTexture {
+    @inlinable
     func getPixelColor(pos: CGPoint) -> SKColor {
         let pixelData = self.cgImage().dataProvider!.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
@@ -276,6 +312,7 @@ public extension SKTexture {
         
         return SKColor(red: r, green: g, blue: b, alpha: a)
     }
+    
     func getAveragePixelColor() -> SKColor {
         let pixelData = self.cgImage().dataProvider!.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
@@ -578,7 +615,7 @@ public class ThumbStickNode: SKSpriteNode {
         center = CGPoint(x: size.width / 2 - touchPadLength, y: size.height / 2 - touchPadLength)
         
         let touchPadSize = CGSize(width: touchPadLength, height: touchPadLength)
-        let touchPadTexture = SKTexture(imageNamed: "control_pad")
+        let touchPadTexture = SKTexture(image: .init(byReferencing: Bundle.module.urlForImageResource(.init("control_pad"))))
         
         // `touchPad` is the inner touch pad that follows the user's thumb.
         touchPad = SKSpriteNode(texture: touchPadTexture, color: UIColor.darkGray, size: touchPadSize)

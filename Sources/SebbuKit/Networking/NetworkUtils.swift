@@ -3,7 +3,7 @@
 //  
 //
 //  Created by Sebastian Toivonen on 9.2.2020.
-//  Copyright © 2020 Sebastian Toivonen. All rights reserved.
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 //
 
 import Foundation
@@ -19,6 +19,7 @@ public struct NetworkUtils {
     private static let ipAddressProviders = ["https://api64.ipify.org/?format=json", 
                                              "https://api.ipify.org/?format=json",
                                              "http://myexternalip.com/json"]
+    
     public static let publicIP: String? = {
         for address in ipAddressProviders {
             guard let url = URL(string: address) else {

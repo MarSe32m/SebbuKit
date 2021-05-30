@@ -4,8 +4,8 @@
 //
 //  Created by Sebastian Toivonen on 12.5.2020.
 //
+//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
-import Foundation
 import Dispatch
 
 /// RepeatingTimer mimics the API of DispatchSourceTimer but in a way that prevents

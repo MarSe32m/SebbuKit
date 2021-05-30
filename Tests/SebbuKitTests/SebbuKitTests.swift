@@ -1,5 +1,5 @@
 import XCTest
-@testable import SebbuKit
+import SebbuKit
 
 final class SebbuKitTests: XCTestCase {
     func testNetworkUtils() {
