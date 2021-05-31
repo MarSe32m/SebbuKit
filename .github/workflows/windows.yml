@@ -13,11 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-         - tag: 5.4-RELEASE
-           branch: swift-5.4-release
-         - tag: 5.5-DEVELOPMENT-SNAPSHOT-2021-05-02-a
+         - tag: 5.4.1-RELEASE
+           branch: swift-5.4.1-release
+         - tag: 5.5-DEVELOPMENT-SNAPSHOT-2021-05-18-a
            branch: swift-5.5-branch
-         - tag: DEVELOPMENT-SNAPSHOT-2021-05-03-a
+         - tag: DEVELOPMENT-SNAPSHOT-2021-05-25-a
            branch: development
            
     steps:
@@ -52,7 +52,7 @@ jobs:
       run: swift build -v -c release
       
     - name: Test (Debug)
-      run: swift test -v --configuration debug
+      run: swift test -v --configuration debug --parallel
       
     - name: Test (Release)
-      run: swift test -v --configuration release -Xswiftc -enable-testing
+      run: swift test -v --configuration release -Xswiftc -enable-testing --parallel
