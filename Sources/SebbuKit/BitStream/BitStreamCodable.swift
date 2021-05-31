@@ -41,8 +41,9 @@ extension String {
     public init(from bitStream: inout ReadableBitStream) throws {
         if let result = try bitStream.read() as String? {
             self = result
+        } else {
+            throw BitStreamError.encodingError
         }
-        throw BitStreamError.encodingError
     }
 
     public func encode(to bitStream: inout WritableBitStream) -> Bool {
