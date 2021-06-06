@@ -15,13 +15,11 @@ open class Scene: SKScene {
     @usableFromInline
     internal var lastUpdateTime: TimeInterval = 0.0
     
-    @inlinable
     open override func update(_ currentTime: TimeInterval) {
         super.update(currentTime)
         assignDT(currentTime)
     }
     
-    @inlinable
     internal func assignDT(_ currentTime: TimeInterval) {
         let dt = CGFloat(currentTime - lastUpdateTime)
         deltaTime = dt < 1.0 ? dt : 0.017 //This is a hack, since the game starts with 0 delta time, forces applied to it aren't calculated properly
@@ -139,8 +137,8 @@ public extension SKAction {
     @inline(__always)
     class func hermiteInterpolation(duration: CGFloat, start: CGPoint, end: CGPoint, startVelocity: CGVector, endVelocity: CGVector) -> SKAction {
         let customAction = SKAction.customAction(withDuration: TimeInterval(duration)) { (node, elapsedTime) in
-            let pos = hermiteSpline(startPos: start, startVelocity: startVelocity, endPos: end, endVelocity: endVelocity, t: elapsedTime / duration)
-            node.position = pos
+            let pos = hermiteSpline(startPos: (start.x, start.y), startVelocity: (startVelocity.dx, startVelocity.dy), endPos: (end.x, end.y), endVelocity: (endVelocity.dx, endVelocity.dy), t: elapsedTime / duration)
+            node.position = CGPoint(x: pos.x, y: pos.y)
         }
         return customAction
     }
@@ -615,7 +613,11 @@ public class ThumbStickNode: SKSpriteNode {
         center = CGPoint(x: size.width / 2 - touchPadLength, y: size.height / 2 - touchPadLength)
         
         let touchPadSize = CGSize(width: touchPadLength, height: touchPadLength)
-        let touchPadTexture = SKTexture(image: .init(byReferencing: Bundle.module.urlForImageResource(.init("control_pad"))))
+        let path = Bundle.module.url(forResource: "control_pad", withExtension: "png")?.absoluteString
+        if path == nil {
+            print("Failed to load control_pad texture")
+        }
+        let touchPadTexture = SKTexture(image: UIImage(contentsOfFile: path ?? "control_pad.png") ?? UIImage())
         
         // `touchPad` is the inner touch pad that follows the user's thumb.
         touchPad = SKSpriteNode(texture: touchPadTexture, color: UIColor.darkGray, size: touchPadSize)
