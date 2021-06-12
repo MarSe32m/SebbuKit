@@ -735,11 +735,12 @@ public struct SpriteKitContainer: UIViewRepresentable {
                                         width: UIScreen.main.bounds.size.width,
                                         height: UIScreen.main.bounds.size.height))
         view.preferredFramesPerSecond = 60
+        view.presentScene(context.coordinator.scene)
         return view
     }
     
     public func updateUIView(_ view: SKView, context: Context) {
-        view.presentScene(context.coordinator.scene)
+        
     }
 }
 #endif
