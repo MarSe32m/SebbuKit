@@ -29,8 +29,21 @@ public final class UDPServer {
     public private(set) var started = false
     private let inboundHandler = UDPInboundHandler()
     
-    public var recvBufferSize = 1024 * 1024 * 16
-    public var sendBufferSize = 1024 * 1024 * 8
+    public var recvBufferSize = 1024 * 1024 * 16 {
+        didSet {
+            if channel != nil {
+                _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
+            }
+        }
+    }
+    
+    public var sendBufferSize = 1024 * 1024 * 8 {
+        didSet {
+            if channel != nil {
+                _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
+            }
+        }
+    }
     
     public init(port: Int, numberOfThreads: Int = 1) {
         self.port = port
@@ -56,7 +69,6 @@ public final class UDPServer {
         }
         channel = try bootstrap.bind(host: "0", port: port).wait()
         started = true
-        
         print("UDP Server started on:", channel.localAddress!)
     }
     
@@ -105,7 +117,6 @@ public final class UDPServer {
             if channel.isActive {
                 try? shutdown()
             }
-            precondition(!channel.isActive)
         }
     }
 }

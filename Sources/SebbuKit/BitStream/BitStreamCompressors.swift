@@ -90,7 +90,7 @@ public struct IntCompressor {
     }
     
     public func write(_ value: Int, to bitStream: inout WritableBitStream) {
-        bitStream.append(UInt(max(0, min(maxBitValue, value + absoluteMinValue))), numberOfBits: bits)
+        bitStream.append(UInt(max(0, min(maxBitValue, value &+ absoluteMinValue))), numberOfBits: bits)
     }
     
     public func read(from bitStream: inout ReadableBitStream) throws -> Int {

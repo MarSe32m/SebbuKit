@@ -5,6 +5,9 @@
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 import Foundation
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 public protocol BitStreamEncodable {
     func encode(to bitStream: inout WritableBitStream)
@@ -39,14 +42,10 @@ public extension BitStreamDecodable where Self: Decodable {
 
 extension String {
     public init(from bitStream: inout ReadableBitStream) throws {
-        if let result = try bitStream.read() as String? {
-            self = result
-        } else {
-            throw BitStreamError.encodingError
-        }
+        self = try bitStream.read()
     }
 
-    public func encode(to bitStream: inout WritableBitStream) -> Bool {
+    public func encode(to bitStream: inout WritableBitStream) {
         bitStream.append(self)
     }
 }
@@ -81,8 +80,6 @@ extension Array where Element: BitStreamCodable {
     }
 }
 
-#if canImport(CoreGraphics)
-import CoreGraphics
 extension CGFloat: BitStreamCodable {
     public init(from bitStream: inout ReadableBitStream) throws {
         self = try bitStream.read()
@@ -93,4 +90,3 @@ extension CGFloat: BitStreamCodable {
         bitStream.append(self)
     }
 }
-#endif

@@ -4,26 +4,88 @@
 //  Created by Sebastian Toivonen on 24.12.2019.
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
+import GLMSwift
+
 public enum BitStreamError: Error {
     case tooShort
     case encodingError
 }
 
-//TODO: Implement for your own math types
-#if canImport(VectorMath)
 public extension FloatCompressor {
     @inline(__always)
-    func write(_ value: Vector2, to string: inout WritableBitStream) {
-        write(value.x, to: &string)
-        write(value.y, to: &string)
+    func write(_ value: Vector2<Float>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
     }
     
     @inline(__always)
-    func readVector2(from string: inout ReadableBitStream) throws -> Vector2 {
-        return Vector2(try read(from: &string), try read(from: &string))
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector2<Float> {
+        Vector2(x: try read(from: &bitStream), y: try read(from: &bitStream))
+    }
+    
+    @inline(__always)
+    func write(_ value: Vector3<Float>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
+        write(value.z, to: &bitStream)
+    }
+    
+    @inline(__always)
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector3<Float> {
+        Vector3(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream))
+    }
+    
+    @inline(__always)
+    func write(_ value: Vector4<Float>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
+        write(value.z, to: &bitStream)
+        write(value.w, to: &bitStream)
+    }
+    
+    @inline(__always)
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector4<Float> {
+        Vector4(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream), w: try read(from: &bitStream))
     }
 }
-#endif
+
+public extension DoubleCompressor {
+    @inline(__always)
+    func write(_ value: Vector2<Double>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
+    }
+    
+    @inline(__always)
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector2<Double> {
+        Vector2(x: try read(from: &bitStream), y: try read(from: &bitStream))
+    }
+    
+    @inline(__always)
+    func write(_ value: Vector3<Double>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
+        write(value.z, to: &bitStream)
+    }
+    
+    @inline(__always)
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector3<Double> {
+        Vector3(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream))
+    }
+    
+    @inline(__always)
+    func write(_ value: Vector4<Double>, to bitStream: inout WritableBitStream) {
+        write(value.x, to: &bitStream)
+        write(value.y, to: &bitStream)
+        write(value.z, to: &bitStream)
+        write(value.w, to: &bitStream)
+    }
+    
+    @inline(__always)
+    func read(from bitStream: inout ReadableBitStream) throws -> Vector4<Double> {
+        Vector4(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream), w: try read(from: &bitStream))
+    }
+}
 
 /// Gets the number of bits required to encode an enum case.
 public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
@@ -111,14 +173,8 @@ public struct WritableBitStream {
     }
     
     @inline(__always)
-    public mutating func append(_ value: String) -> Bool {
-        if let data = value.data(using: .utf8) {
-            append(true)
-            append(data)
-            return true
-        }
-        append(false)
-        return false
+    public mutating func append(_ value: String) {
+        append([UInt8](value.utf8))
     }
     
     @inline(__always)
@@ -291,9 +347,12 @@ public struct ReadableBitStream {
     }
     
     @inline(__always)
-    public mutating func read() throws -> String? {
-        if try !read() { return nil }
-        return String(data: try read(), encoding: .utf8)
+    public mutating func read() throws -> String {
+        let bytes: [UInt8] = try read()
+        return String(unsafeUninitializedCapacity: bytes.count) {
+            _ = $0.initialize(from: bytes)
+            return bytes.count
+        }
     }
     
     @inlinable

@@ -73,7 +73,8 @@ public func smoothMin<T: BinaryFloatingPoint>(a: T, b: T, k: T) -> T {
         return min(a, b)
     }
     let h = max(k - abs(a - b), 0) / k
-    return min(a, b) - h*h*h*h*1/6.0
+    let hhhh = h * h * h * h
+    return min(a, b) - hhhh * 1/6.0
 }
 
 @inlinable

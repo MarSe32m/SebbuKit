@@ -220,7 +220,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             int32 = try bitStream.read()
             int64 = try bitStream.read()
             int = try bitStream.read()
-            name = try bitStream.read() ?? "no name..."
+            name = try bitStream.read()
             bool = try bitStream.read()
             ´enum´ = try bitStream.read()
             float = try bitStream.read()
@@ -250,7 +250,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             bitStream.append(int32)
             bitStream.append(int64)
             bitStream.append(int)
-            if !bitStream.append(name) { print("Couldn't encode name... wtf??")}
+            bitStream.append(name)
             bitStream.append(bool)
             bitStream.append(´enum´)
             bitStream.append(float)

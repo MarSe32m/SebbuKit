@@ -6,6 +6,7 @@
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 import Foundation
+import GLMSwift
 
 @propertyWrapper
 public struct BitUnsigned<T: UnsignedInteger> {
@@ -57,22 +58,49 @@ public struct BitDouble {
     }
 }
 
-//TODO: Implement for you own math types
-#if canImport(VectorMath)
 @propertyWrapper
-public struct BitVector2 {
-    public var wrappedValue: Vector2 = .zero
-    public let minValue: Float
-    public let maxValue: Float
+public struct BitVector2<T: BinaryFloatingPoint & SIMDScalar> {
+    public var wrappedValue: Vector2<T> = Vector2(x: 0, y: 0)
+    public let minValue: T
+    public let maxValue: T
     public let bits: Int
     
-    public init(minValue: Float, maxValue: Float, bits: Int) {
+    public init(minValue: T, maxValue: T, bits: Int) {
         self.minValue = minValue
         self.maxValue = maxValue
         self.bits = bits
     }
 }
-#endif
+
+@propertyWrapper
+public struct BitVector3<T: BinaryFloatingPoint & SIMDScalar> {
+    public var wrappedValue: Vector3<T> = Vector3(x: 0, y: 0)
+    public let minValue: T
+    public let maxValue: T
+    public let bits: Int
+    
+    public init(minValue: T, maxValue: T, bits: Int) {
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.bits = bits
+    }
+}
+
+@propertyWrapper
+public struct BitVector4<T: BinaryFloatingPoint & SIMDScalar> {
+    public var wrappedValue: Vector4<T> = Vector4(x: 0, y: 0)
+    public let minValue: T
+    public let maxValue: T
+    public let bits: Int
+    
+    public init(minValue: T, maxValue: T, bits: Int) {
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.bits = bits
+    }
+}
+
+//TODO: BitMatrix2, BitMatrix3, BitMatrix4
 
 @propertyWrapper
 public struct BitArray<Value> where Value: UnsignedInteger {
@@ -132,17 +160,46 @@ public extension WritableBitStream {
         let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         doubleCompressor.write(value.wrappedValue, to: &self)
     }
+
     
-    //TODO: Implement for your own math types
-    #if canImport(VectorMath)
-    /// BitVector2 encoding
     @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector2) {
+    static func << (bitStream: inout WritableBitStream, value: BitVector2<Float>) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         floatCompressor.write(value.wrappedValue, to: &bitStream)
     }
-    #endif
 
+    @inline(__always)
+    static func << (bitStream: inout WritableBitStream, value: BitVector3<Float>) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    @inline(__always)
+    static func << (bitStream: inout WritableBitStream, value: BitVector4<Float>) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    @inline(__always)
+    static func << (bitStream: inout WritableBitStream, value: BitVector2<Double>) {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+
+    @inline(__always)
+    static func << (bitStream: inout WritableBitStream, value: BitVector3<Double>) {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    @inline(__always)
+    static func << (bitStream: inout WritableBitStream, value: BitVector4<Double>) {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+    }
+    
+    //TODO: BitMatrix2, BitMatrix3, BitMatrix4 encoding
+    
     /// BitUnsigned encoding
     @inline(__always)
     @_specialize(where T == UInt8)
@@ -270,6 +327,44 @@ public extension ReadableBitStream {
         value.wrappedValue = try floatCompressor.readVector2(from: &bitStream)
     }
     #endif
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2<Float>) throws {
+        let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+    }
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector3<Float>) throws {
+        let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+    }
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector4<Float>) throws {
+        let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+    }
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2<Double>) throws {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    }
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector3<Double>) throws {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    }
+    
+    @inline(__always)
+    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector4<Double>) throws {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    }
+    
+    //TODO: BitMatrix2, BitMatrix3, BitMatrix4 decoding
     
     /// BitUnsigned decoding
     @inline(__always)
