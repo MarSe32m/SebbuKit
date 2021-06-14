@@ -5,7 +5,6 @@
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 import GLMSwift
-import NIO
 
 public enum BitStreamError: Error {
     case tooShort
