@@ -51,7 +51,7 @@ let package = Package(
     name: "SebbuKit",
     platforms: [
         .macOS(.v11),
-        .iOS(.v14)
+        .iOS(.v13)
     ],
     products: [
         .library(name: "SebbuKit", targets: ["SebbuKit"]),

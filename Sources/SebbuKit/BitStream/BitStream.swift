@@ -5,6 +5,7 @@
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 import GLMSwift
+import NIO
 
 public enum BitStreamError: Error {
     case tooShort
@@ -349,10 +350,7 @@ public struct ReadableBitStream {
     @inline(__always)
     public mutating func read() throws -> String {
         let bytes: [UInt8] = try read()
-        return String(unsafeUninitializedCapacity: bytes.count) {
-            _ = $0.initialize(from: bytes)
-            return bytes.count
-        }
+        return String(decoding: bytes, as: Unicode.UTF8.self)
     }
     
     @inlinable
