@@ -82,6 +82,7 @@ public final class TCPClient {
         #if canImport(NIOTransportServices) && canImport(Network)
         let bootstrap = NIOTSConnectionBootstrap(group: eventLoopGroup)
             .connectTimeout(.seconds(10))
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .channelInitializer { channel in
                 channel.pipeline.addHandler(self.receiveHandler)

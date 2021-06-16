@@ -47,6 +47,7 @@ public final class TCPServer {
     public final func start() throws {
         #if canImport(NIOTransportServices) && canImport(Network)
         let bootstrap = NIOTSListenerBootstrap(group: eventLoopGroup)
+            .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
             .childChannelInitializer { channel in
                 channel.pipeline.addHandler(BackPressureHandler()).flatMap { v in
                     let receiveHandler = TCPReceiveHandler()
@@ -55,6 +56,8 @@ public final class TCPServer {
                     return channel.pipeline.addHandler(receiveHandler)
                 }
             }
+            .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
+            .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
         #else
         let bootstrap = ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
@@ -68,7 +71,6 @@ public final class TCPServer {
                     return channel.pipeline.addHandler(receiveHandler)
                 }
             }
-
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: 16)
