@@ -1,35 +1,34 @@
 //
-//  UDPServer.swift
+//  UDPClient.swift
+//  
 //
-//  Created by Sebastian Toivonen on 24.12.2019.
-//  Copyright © 2021 Sebastian Toivonen. All rights reserved.
+//  Created by Sebastian Toivonen on 16.6.2021.
 //
 
 //TODO: Remove #if when NIO is available on Windows
 #if !os(Windows)
 import NIO
 
-public protocol UDPServerProtocol: AnyObject {
+public protocol UDPClientProtocol: AnyObject {
     func received(data: [UInt8], address: SocketAddress)
 }
 
-public final class UDPServer {
-    public private(set) var port: Int
+public final class UDPClient {
     public let group: EventLoopGroup
     
     @usableFromInline
     internal var channel: Channel!
     
     private let isSharedEventLoopGroup: Bool
-    public weak var delegate: UDPServerProtocol? {
+    public weak var delegate: UDPClientProtocol? {
         didSet {
-            inboundHandler.udpServerProtocol = delegate
+            inboundHandler.udpClientProtocol = delegate
         }
     }
     public private(set) var started = false
     private let inboundHandler = UDPInboundHandler()
     
-    public var recvBufferSize = 1024 * 1024 * 16 {
+    public var recvBufferSize = 1024 * 1024 {
         didSet {
             if channel != nil {
                 _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
@@ -37,7 +36,7 @@ public final class UDPServer {
         }
     }
     
-    public var sendBufferSize = 1024 * 1024 * 8 {
+    public var sendBufferSize = 1024 * 1024 {
         didSet {
             if channel != nil {
                 _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
@@ -45,18 +44,14 @@ public final class UDPServer {
         }
     }
     
-    public init(port: Int, numberOfThreads: Int = 1) {
-        self.port = port
-        self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
+    public init() {
+        self.group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         self.isSharedEventLoopGroup = false
-        self.inboundHandler.udpServer = self
     }
 
-    public init(port: Int, eventLoopGroup: EventLoopGroup) {
-        self.port = port
+    public init(eventLoopGroup: EventLoopGroup) {
         self.group = eventLoopGroup
         self.isSharedEventLoopGroup = true
-        self.inboundHandler.udpServer = self
     }
     
     public func start() throws {
@@ -67,15 +62,12 @@ public final class UDPServer {
             .channelInitializer { channel in
                 channel.pipeline.addHandler(self.inboundHandler)
             }
-        channel = try bootstrap.bind(host: "0", port: port).wait()
+        channel = try bootstrap.bind(host: "0", port: 0).wait()
         started = true
-        port = channel.localAddress?.port ?? port
-        print("UDP Server started on:", channel.localAddress!)
     }
     
     public func shutdown() throws {
         try channel.close().wait()
-        print("UDP Server shutdown successfully")
         if !isSharedEventLoopGroup {
             try group.syncShutdownGracefully()
         }
@@ -83,11 +75,11 @@ public final class UDPServer {
     
     /// Writes the data to the buffer but doesn't send the data to the peer yet
     /// To send the written data, call the flush function
-    /// This way
     @inline(__always)
     public final func write(data: [UInt8], address: SocketAddress) {
-        assert(channel != nil)
-        let buffer = channel.allocator.buffer(bytes: data)
+        guard let buffer = channel?.allocator.buffer(bytes: data) else {
+            return
+        }
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
         channel.write(envelope, promise: nil)
     }
@@ -117,14 +109,12 @@ public final class UDPServer {
 private final class UDPInboundHandler: ChannelInboundHandler {
     public typealias InboundIn = AddressedEnvelope<ByteBuffer>
 
-    fileprivate weak var udpServerProtocol: UDPServerProtocol?
-    
-    fileprivate unowned var udpServer: UDPServer!
+    fileprivate weak var udpClientProtocol: UDPClientProtocol?
     
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let envelope = self.unwrapInboundIn(data)
         if let data = envelope.data.getBytes(at: 0, length: envelope.data.readableBytes) {
-            udpServerProtocol?.received(data: data, address: envelope.remoteAddress)
+            udpClientProtocol?.received(data: data, address: envelope.remoteAddress)
         }
     }
 
