@@ -1,6 +1,8 @@
 import XCTest
 import SebbuKit
+#if !os(Windows)
 import NIO
+#endif
 
 let testData = (0..<128).map { _ in UInt8.random(in: .min ... .max) }
 
