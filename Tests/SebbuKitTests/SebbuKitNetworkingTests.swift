@@ -34,7 +34,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         }
         
         let serverDelegate = ServerDelegate()
-        let server = UDPServer(port: 25565)
+        let server = UDPServer(port: 25567)
         server.delegate = serverDelegate
         serverDelegate.udpServer = server
         server.recvBufferSize = 1024 * 1024
@@ -47,7 +47,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         try client.start()
         
         while clientDelegate.successfulReceives < 1000 {
-            client.send(data: testData, address: try! .init(ipAddress: "127.0.0.1", port: 25565))
+            client.send(data: testData, address: try! .init(ipAddress: "127.0.0.1", port: 25567))
             Thread.sleep(forTimeInterval: 0.001)
         }
         try server.shutdown()
@@ -158,13 +158,13 @@ final class SebbuKitNetworkingTests: XCTestCase {
         }
         
         let serverDelegate = ServerDelegate()
-        let webSocketServer = try WebSocketServer(port: 25565, numberOfThreads: 1)
+        let webSocketServer = try WebSocketServer(port: 25566, numberOfThreads: 1)
         webSocketServer.delegate = serverDelegate
         try webSocketServer.start()
         
         let webSocketClient = WebSocketClient(eventLoopGroupProvider: .createNew)
         
-        let webSocket = try webSocketClient.connect(scheme: "ws", host: "127.0.0.1", port: 25565)
+        let webSocket = try webSocketClient.connect(scheme: "ws", host: "127.0.0.1", port: 25566)
         webSocket.onText { ws, text in
             XCTAssertEqual(text, "Hello")
             ws.send("Well hello!")
@@ -175,6 +175,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(webSocket.isClosed)
         try webSocketClient.syncShutdown()
+        try webSocketServer.stop()
     }
 }
 #endif
