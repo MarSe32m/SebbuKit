@@ -162,7 +162,9 @@ final class SebbuKitNetworkingTests: XCTestCase {
         webSocketServer.delegate = serverDelegate
         try webSocketServer.start()
         
-        let webSocket = try WebSocketClient(eventLoopGroupProvider: .createNew).connect(scheme: "ws", host: "127.0.0.1", port: 25565)
+        let webSocketClient = WebSocketClient(eventLoopGroupProvider: .createNew)
+        
+        let webSocket = try webSocketClient.connect(scheme: "ws", host: "127.0.0.1", port: 25565)
         webSocket.onText { ws, text in
             XCTAssertEqual(text, "Hello")
             ws.send("Well hello!")
@@ -172,6 +174,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         }
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(webSocket.isClosed)
+        try webSocketClient.syncShutdown()
     }
 }
 #endif
