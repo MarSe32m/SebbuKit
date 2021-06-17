@@ -15,12 +15,12 @@ import NIOSSL
 import NIOHTTP1
 
 public protocol WebSocketServerProtocol: AnyObject {
-    func shouldUpgrade(requestHead: HTTPRequestHead) -> (shouldUpgrade: Bool, headers: HTTPHeaders)
+    func shouldUpgrade(requestHead: HTTPRequestHead) -> Bool
     func onConnection(requestHead: HTTPRequestHead, webSocket: WebSocket, channel: Channel)
 }
 
 public extension WebSocketServerProtocol {
-    func shouldUpgrade(requestHead: HTTPRequestHead) -> (shouldUpgrade: Bool, headers: HTTPHeaders) { (true, [:]) }
+    func shouldUpgrade(requestHead: HTTPRequestHead) -> Bool { true }
 }
 
 public class WebSocketServer {
@@ -56,7 +56,7 @@ public class WebSocketServer {
     public func start() throws {
         serverChannel = try ServerBootstrap
             .webSocket(on: eventLoopGroup, ssl: sslContext, shouldUpgrade: { [weak self] (head) in
-                self?.delegate?.shouldUpgrade(requestHead: head) ?? (true, [:])
+                self?.delegate?.shouldUpgrade(requestHead: head) ?? true
             }, onUpgrade: { [weak self] request, webSocket, channel in
                 self?.delegate?.onConnection(requestHead: request, webSocket: webSocket, channel: channel)
             })
@@ -88,23 +88,21 @@ extension ServerBootstrap {
     static func webSocket(
         on eventLoopGroup: EventLoopGroup,
         ssl sslContext: NIOSSLContext? = nil,
-        shouldUpgrade: @escaping (HTTPRequestHead) -> (Bool, HTTPHeaders),
+        shouldUpgrade: @escaping (HTTPRequestHead) -> Bool,
         onUpgrade: @escaping (HTTPRequestHead, WebSocket, Channel) -> ()
     ) -> ServerBootstrap {
         ServerBootstrap(group: eventLoopGroup).childChannelInitializer { channel in
             let webSocket = NIOWebSocketServerUpgrader(
                 shouldUpgrade: { channel, req in
-                    let shouldBeUpgraded = shouldUpgrade(req)
-                    if shouldBeUpgraded.0 {
-                        return channel.eventLoop.makeSucceededFuture(shouldBeUpgraded.1)
-                    } else {
-                        channel.close()
-                        return channel.eventLoop.makeSucceededFuture(nil)
-                    }
+                    return channel.eventLoop.makeSucceededFuture([:])
                 },
                 upgradePipelineHandler: { channel, req in
                     return WebSocket.server(on: channel) { ws in
-                        onUpgrade(req, ws, channel)
+                        if shouldUpgrade(req) {
+                            onUpgrade(req, ws, channel)
+                        } else {
+                            ws.close(code: .policyViolation, promise: nil)
+                        }
                     }
                 }
             )
