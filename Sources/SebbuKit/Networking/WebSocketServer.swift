@@ -98,7 +98,8 @@ extension ServerBootstrap {
                     if shouldBeUpgraded.0 {
                         return channel.eventLoop.makeSucceededFuture(shouldBeUpgraded.1)
                     } else {
-                        return channel.eventLoop.makeFailedFuture(NIOWebSocketUpgradeError.invalidUpgradeHeader)
+                        channel.close()
+                        return channel.eventLoop.makeSucceededFuture(nil)
                     }
                 },
                 upgradePipelineHandler: { channel, req in
