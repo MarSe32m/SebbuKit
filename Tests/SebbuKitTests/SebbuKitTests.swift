@@ -64,38 +64,60 @@ final class SebbuKitTests: XCTestCase {
                 let handler = ServerClientHandler()
                 handlers.append(handler)
                 client.delegate = handler
-                print("server Client connected")
-                client.eventLoopGroup.next().scheduleTask(deadline: NIODeadline.now() + .seconds(1)) {
-                    client.send([1,1,1,1,1])
+                client.eventLoopGroup.next().scheduleTask(deadline: NIODeadline.now() + .milliseconds(500)) {
+                    for _ in 0..<10_000 {
+                        client.send([1,1,1,1,1])
+                    }
                 }
+                
             }
         }
         
         class ServerClientHandler: TCPClientProtocol {
+            var totalReceivedData = [UInt8]()
+            let expectedData: [UInt8] = (0..<10_000).flatMap {_ in [2,2,2,2,2]}
+            var isConnected = false
+            
             func connected() {
-                print("Server Client: Connected to server!")
+                XCTAssertFalse(isConnected)
+                isConnected = true
+                totalReceivedData.reserveCapacity(10_000 * 5)
             }
             
             func diconnected() {
+                XCTAssertTrue(isConnected)
+                isConnected = false
                 print("Server Client: Disconnected from server!")
+                XCTAssertEqual(totalReceivedData.count, expectedData.count)
+                XCTAssertEqual(totalReceivedData, expectedData)
             }
             
             func received(_ data: [UInt8]) {
-                print("Server Client: Received data:", data)
+                totalReceivedData += data
             }
         }
         
         class ClientHandler: TCPClientProtocol {
+            var totalReceivedData = [UInt8]()
+            let expectedData: [UInt8] = (0..<10_000).flatMap {_ in [1,1,1,1,1]}
+            var isConnected = false
             func connected() {
-                print("Client: Connected to server!")
+                XCTAssertFalse(isConnected)
+                isConnected = true
+                totalReceivedData.reserveCapacity(10000 * 5)
             }
             
             func diconnected() {
+                XCTAssertTrue(isConnected)
+                isConnected = false
+                
                 print("Client: Disconnected from server!")
+                XCTAssertEqual(totalReceivedData.count, expectedData.count)
+                XCTAssertEqual(totalReceivedData, expectedData)
             }
             
             func received(_ data: [UInt8]) {
-                print("Client: Received data:", data)
+                totalReceivedData += data
             }
         }
         
@@ -106,13 +128,15 @@ final class SebbuKitTests: XCTestCase {
         try server.start()
         
         let clientDelegate = ClientHandler()
-        let client = TCPClient(address: try SocketAddress(ipAddress: "127.0.0.1", port: 25565))
+        let client = TCPClient()
         client.delegate = clientDelegate
-        try client.connect()
+        try client.connect(host: "127.0.0.1", port: 25565)
         Thread.sleep(forTimeInterval: 1)
-        client.send([2,2,2,2,2])
+        for _ in 0..<10_000 {
+            client.send([2,2,2,2,2])
+        }
         
-        Thread.sleep(forTimeInterval: 1)
+        Thread.sleep(forTimeInterval: 5)
         try client.diconnect()
         try server.stop()
     }

@@ -25,16 +25,18 @@ public final class TCPClient {
         }
     }
     
+    public var port: Int? {
+        channel?.localAddress?.port
+    }
+    
     @usableFromInline
     internal var channel: Channel!
     
-    private var targetAddress: SocketAddress!
     public let eventLoopGroup: EventLoopGroup
     
     private var isSharedEventLoopGroup = false
     
-    public init(address: SocketAddress) {
-        self.targetAddress = address
+    public init() {
         #if canImport(NIOTransportServices) && canImport(Network)
         self.eventLoopGroup = NIOTSEventLoopGroup()
         #else
@@ -43,8 +45,7 @@ public final class TCPClient {
         self.receiveHandler = TCPReceiveHandler()
     }
     
-    public init(address: SocketAddress, eventLoopGroup: EventLoopGroup) {
-        self.targetAddress = address
+    public init(eventLoopGroup: EventLoopGroup) {
         #if canImport(NIOTransportServices) && canImport(Network)
         assert(eventLoopGroup is NIOTSEventLoopGroup, "On Apple platforms, the event loop group should be a NIOTSEventLoopGroup")
         #endif
@@ -77,7 +78,7 @@ public final class TCPClient {
         channel.flush()
     }
     
-    public final func connect() throws {
+    public final func connect(host: String, port: Int) throws {
         if channel != nil { return }
         #if canImport(NIOTransportServices) && canImport(Network)
         let bootstrap = NIOTSConnectionBootstrap(group: eventLoopGroup)
@@ -96,7 +97,7 @@ public final class TCPClient {
                 channel.pipeline.addHandler(self.receiveHandler)
             }
         #endif
-        channel = try bootstrap.connect(to: targetAddress).wait()
+        channel = try bootstrap.connect(host: host, port: port).wait()
     }
     
     public final func diconnect() throws {
