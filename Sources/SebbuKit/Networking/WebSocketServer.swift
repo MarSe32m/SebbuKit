@@ -15,7 +15,12 @@ import NIOSSL
 import NIOHTTP1
 
 public protocol WebSocketServerProtocol: AnyObject {
+    func shouldUpgrade(requestHead: HTTPRequestHead) -> (shouldUpgrade: Bool, headers: HTTPHeaders)
     func onConnection(requestHead: HTTPRequestHead, webSocket: WebSocket, channel: Channel)
+}
+
+public extension WebSocketServerProtocol {
+    func shouldUpgrade(requestHead: HTTPRequestHead) -> (shouldUpgrade: Bool, headers: HTTPHeaders) { (true, [:]) }
 }
 
 public class WebSocketServer {
@@ -50,43 +55,15 @@ public class WebSocketServer {
     
     public func start() throws {
         serverChannel = try ServerBootstrap
-            .webSocket(on: eventLoopGroup, ssl: sslContext, onUpgrade: { [unowned self] request, webSocket, channel in
-                self.delegate?.onConnection(requestHead: request, webSocket: webSocket, channel: channel)
+            .webSocket(on: eventLoopGroup, ssl: sslContext, shouldUpgrade: { [weak self] (head) in
+                self?.delegate?.shouldUpgrade(requestHead: head) ?? (true, [:])
+            }, onUpgrade: { [weak self] request, webSocket, channel in
+                self?.delegate?.onConnection(requestHead: request, webSocket: webSocket, channel: channel)
             })
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .bind(host: "0", port: port).wait()
-            
-            /*
-         serverChannel = try ServerBootstrap(group: eventLoopGroup)
-            .serverChannelOption(ChannelOptions.backlog, value: 256)
-            .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .childChannelInitializer { [unowned self] (channel) in
-            let webSocket = NIOWebSocketServerUpgrader(
-                shouldUpgrade: { channel, req in
-                    return channel.eventLoop.makeSucceededFuture([:])
-                },
-                upgradePipelineHandler: { channel, req in
-                    return WebSocketKit.WebSocket.server(on: channel) { ws in
-                        self.delegate?.onConnection(webSocket: ws, channel: channel)
-                    }
-                }
-            )
-                if let sslContext = self.sslContext {
-                    let handler = NIOSSLServerHandler(context: sslContext)
-                    _ = channel.pipeline.addHandler(handler)
-            }
-            return channel.pipeline.configureHTTPServerPipeline(
-                withServerUpgrade: (
-                    upgraders: [webSocket],
-                    completionHandler: { ctx in
-                        // complete
-                    }))
-            }
-        .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .bind(host: "0", port: port).wait()
-        */
     }
     
     public func stop() throws {
@@ -111,12 +88,18 @@ extension ServerBootstrap {
     static func webSocket(
         on eventLoopGroup: EventLoopGroup,
         ssl sslContext: NIOSSLContext? = nil,
+        shouldUpgrade: @escaping (HTTPRequestHead) -> (Bool, HTTPHeaders),
         onUpgrade: @escaping (HTTPRequestHead, WebSocket, Channel) -> ()
     ) -> ServerBootstrap {
         ServerBootstrap(group: eventLoopGroup).childChannelInitializer { channel in
             let webSocket = NIOWebSocketServerUpgrader(
                 shouldUpgrade: { channel, req in
-                    return channel.eventLoop.makeSucceededFuture([:])
+                    let shouldBeUpgraded = shouldUpgrade(req)
+                    if shouldBeUpgraded.0 {
+                        return channel.eventLoop.makeSucceededFuture(shouldBeUpgraded.1)
+                    } else {
+                        return channel.eventLoop.makeFailedFuture(NIOWebSocketUpgradeError.invalidUpgradeHeader)
+                    }
                 },
                 upgradePipelineHandler: { channel, req in
                     return WebSocket.server(on: channel) { ws in
