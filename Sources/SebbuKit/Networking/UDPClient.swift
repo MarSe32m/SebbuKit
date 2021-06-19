@@ -17,30 +17,32 @@ public final class UDPClient {
     public let group: EventLoopGroup
     
     @usableFromInline
-    internal var channel: Channel!
+    internal var channelv4: Channel!
+    
+    @usableFromInline
+    internal var channelv6: Channel!
     
     private let isSharedEventLoopGroup: Bool
+    
     public weak var delegate: UDPClientProtocol? {
         didSet {
             inboundHandler.udpClientProtocol = delegate
         }
     }
-    public private(set) var started = false
+    
     private let inboundHandler = UDPInboundHandler()
     
     public var recvBufferSize = 1024 * 1024 {
         didSet {
-            if channel != nil {
-                _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
-            }
+            _ = channelv4.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
+            _ = channelv6.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
         }
     }
     
     public var sendBufferSize = 1024 * 1024 {
         didSet {
-            if channel != nil {
-                _ = channel.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
-            }
+            _ = channelv4.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
+            _ = channelv6.setOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
         }
     }
     
@@ -55,19 +57,14 @@ public final class UDPClient {
     }
     
     public func start() throws {
-        let bootstrap = DatagramBootstrap(group: group)
-            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
-            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
-            .channelInitializer { channel in
-                channel.pipeline.addHandler(self.inboundHandler)
-            }
-        channel = try bootstrap.bind(host: "0", port: 0).wait()
-        started = true
+        let bootstrap = bootstrap
+        channelv4 = try bootstrap.bind(host: "0", port: 0).wait()
+        channelv6 = try bootstrap.bind(host: "::", port: channelv4?.localAddress?.port ?? 0).wait()
     }
     
     public func shutdown() throws {
-        try channel.close().wait()
+        try channelv4.close().wait()
+        try channelv6.close().wait()
         if !isSharedEventLoopGroup {
             try group.syncShutdownGracefully()
         }
@@ -77,28 +74,88 @@ public final class UDPClient {
     /// To send the written data, call the flush function
     @inline(__always)
     public final func write(data: [UInt8], address: SocketAddress) {
-        guard let buffer = channel?.allocator.buffer(bytes: data) else {
+        switch address.protocol {
+        case .inet:
+            writeIPv4(data: data, address: address)
+        case .inet6:
+            writeIPv6(data: data, address: address)
+        default:
+            break
+        }
+    }
+    
+    @inline(__always)
+    internal final func writeIPv4(data: [UInt8], address: SocketAddress) {
+        assert(address.protocol == .inet)
+        guard let buffer = channelv4?.allocator.buffer(bytes: data) else {
             return
         }
         let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
-        channel.write(envelope, promise: nil)
+        channelv4.write(envelope, promise: nil)
+    }
+    
+    @inline(__always)
+    internal final func writeIPv6(data: [UInt8], address: SocketAddress) {
+        assert(address.protocol == .inet6)
+        guard let buffer = channelv6?.allocator.buffer(bytes: data) else {
+            return
+        }
+        let envelope = AddressedEnvelope<ByteBuffer>(remoteAddress: address, data: buffer)
+        channelv6.write(envelope, promise: nil)
     }
     
     /// Sends data to a remote peer. In other words writes and flushes the data immediately to the remote peer
     @inline(__always)
     public final func send(data: [UInt8], address: SocketAddress) {
-        write(data: data, address: address)
-        flush()
+        switch address.protocol {
+        case .inet:
+            sendIPv4(data: data, address: address)
+        case .inet6:
+            sendIPv6(data: data, address: address)
+        default:
+            break
+        }
+    }
+    
+    @inline(__always)
+    internal final func sendIPv4(data: [UInt8], address: SocketAddress) {
+        assert(address.protocol == .inet)
+        writeIPv4(data: data, address: address)
+        channelv4.flush()
+    }
+    
+    @inline(__always)
+    internal final func sendIPv6(data: [UInt8], address: SocketAddress) {
+        assert(address.protocol == .inet6)
+        writeIPv6(data: data, address: address)
+        channelv6.flush()
     }
     
     /// Flushes the previously written data to the given addresses
     @inline(__always)
     public final func flush() {
-        channel.flush()
+        channelv4.flush()
+        channelv6.flush()
+    }
+    
+    private var bootstrap: DatagramBootstrap {
+        DatagramBootstrap(group: group)
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_RCVBUF), value: .init(recvBufferSize))
+            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_SNDBUF), value: .init(sendBufferSize))
+            .channelInitializer { channel in
+                channel.pipeline.addHandler(self.inboundHandler)
+            }
     }
     
     deinit {
-        if let channel = channel {
+        if let channel = channelv4 {
+            if channel.isActive {
+                try? shutdown()
+            }
+        }
+        
+        if let channel = channelv6 {
             if channel.isActive {
                 try? shutdown()
             }

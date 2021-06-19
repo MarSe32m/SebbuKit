@@ -80,33 +80,38 @@ public final class TCPClient {
     
     public final func connect(host: String, port: Int) throws {
         if channel != nil { return }
-        #if canImport(NIOTransportServices) && canImport(Network)
-        let bootstrap = NIOTSConnectionBootstrap(group: eventLoopGroup)
-            .connectTimeout(.seconds(10))
-            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-            .channelInitializer { channel in
-                channel.pipeline.addHandler(self.receiveHandler)
-            }
-        #else
-        let bootstrap = ClientBootstrap(group: eventLoopGroup)
-            .connectTimeout(.seconds(10))
-            .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-            .channelInitializer { channel in
-                channel.pipeline.addHandler(self.receiveHandler)
-            }
-        #endif
         channel = try bootstrap.connect(host: host, port: port).wait()
     }
     
-    public final func diconnect() throws {
+    public final func disconnect() throws {
         try channel.close().wait()
         if !isSharedEventLoopGroup {
             try eventLoopGroup.syncShutdownGracefully()
         }
         channel = nil
     }
+    
+    #if canImport(NIOTransportServices) && canImport(Network)
+    private var bootstrap: NIOTSConnectionBootstrap {
+        NIOTSConnectionBootstrap(group: eventLoopGroup)
+        .connectTimeout(.seconds(10))
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+        .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
+        .channelInitializer { channel in
+            channel.pipeline.addHandler(self.receiveHandler)
+        }
+    }
+    #else
+    private var  bootstrap: ClientBootstrap {
+        ClientBootstrap(group: eventLoopGroup)
+        .connectTimeout(.seconds(10))
+        .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+        .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
+        .channelInitializer { channel in
+            channel.pipeline.addHandler(self.receiveHandler)
+        }
+    }
+    #endif
 }
 
 internal final class TCPReceiveHandler: ChannelInboundHandler {

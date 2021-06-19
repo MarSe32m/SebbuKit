@@ -46,8 +46,9 @@ final class SebbuKitNetworkingTests: XCTestCase {
         client.delegate = clientDelegate
         try client.start()
         
-        while clientDelegate.successfulReceives < 1000 {
-            client.send(data: testData, address: try! .init(ipAddress: "127.0.0.1", port: 25567))
+        while clientDelegate.successfulReceives < 10000 {
+            client.send(data: testData, address: try .init(ipAddress: "127.0.0.1", port: 25567))
+            client.send(data: testData, address: try .init(ipAddress: "::1", port: 25567))
             Thread.sleep(forTimeInterval: 0.001)
         }
         try server.shutdown()
@@ -68,7 +69,6 @@ final class SebbuKitNetworkingTests: XCTestCase {
                         client.send([1,1,1,1,1])
                     }
                 }
-                
             }
         }
         
@@ -122,38 +122,59 @@ final class SebbuKitNetworkingTests: XCTestCase {
         
         let serverDelegate = ServerHandler()
         
-        let server = TCPServer(port: 25565)
-        server.delegate = serverDelegate
-        try server.start()
+        let serveripv4 = TCPServer(port: 25565)
+        serveripv4.delegate = serverDelegate
+        try serveripv4.start()
         
-        let clientDelegate = ClientHandler()
-        let client = TCPClient()
-        client.delegate = clientDelegate
-        try client.connect(host: "127.0.0.1", port: 25565)
+        let serveripv6 = TCPServer(port: 25570)
+        serveripv6.delegate = serverDelegate
+        try serveripv6.start(startIpv4: false, startIpv6: true)
+        
+        let clientDelegatev4 = ClientHandler()
+        let clientv4 = TCPClient()
+        clientv4.delegate = clientDelegatev4
+        try clientv4.connect(host: "127.0.0.1", port: 25565)
+        
+        
+        let clientDelegatev6 = ClientHandler()
+        let clientv6 = TCPClient()
+        clientv6.delegate = clientDelegatev6
+        try clientv6.connect(host: "::1", port: 25570)
         Thread.sleep(forTimeInterval: 1)
         for _ in 0..<10_000 {
-            client.send([2,2,2,2,2])
+            clientv4.send([2,2,2,2,2])
+            clientv6.send([2,2,2,2,2])
         }
         
         Thread.sleep(forTimeInterval: 5)
-        try client.diconnect()
-        try server.stop()
+        try clientv4.disconnect()
+        try clientv6.disconnect()
+        try serveripv4.stop()
     }
     
     func testWebSocketClientServer() throws {
         class ServerDelegate: WebSocketServerProtocol {
             var connections = [WebSocket]()
-            var closedConnection = false
+            var closedConnections: Bool {
+                connections.count == 0
+            }
             func onConnection(requestHead: HTTPRequestHead, webSocket: WebSocket, channel: Channel) {
                 connections.append(webSocket)
-                webSocket.send("Hello")
                 webSocket.onText { ws, text in
                     XCTAssertEqual(text, "Well hello!")
-                    ws.close(promise: nil)
-                    self.connections.removeAll()
-                    self.closedConnection = true
+                    ws.close().whenComplete { result in
+                        switch result {
+                        case .success(_):
+                            print("Closed client connection successfully")
+                        case .failure(let error):
+                            print("Error closing client connection", error)
+                        }
+                    }
                     ws.onText { _, _ in }
+                    self.connections.removeAll(where: { $0 === webSocket })
+                    
                 }
+                webSocket.send("Hello")
             }
         }
         
@@ -164,16 +185,29 @@ final class SebbuKitNetworkingTests: XCTestCase {
         
         let webSocketClient = WebSocketClient(eventLoopGroupProvider: .createNew)
         
-        let webSocket = try webSocketClient.connect(scheme: "ws", host: "127.0.0.1", port: 25566)
-        webSocket.onText { ws, text in
+        let webSocketv4 = try webSocketClient.connect(scheme: "ws", host: "127.0.0.1", port: 25566)
+        webSocketv4.onText { ws, text in
             XCTAssertEqual(text, "Hello")
             ws.send("Well hello!")
         }
-        _ = webSocket.onClose.always { _ in
-            XCTAssertTrue(serverDelegate.closedConnection)
+        
+        let webSocketv6 = try webSocketClient.connect(scheme: "ws", host: "::1", port: 25566)
+        webSocketv6.onText { ws, text in
+            XCTAssertEqual(text, "Hello")
+            ws.send("Well hello!")
         }
+        
         Thread.sleep(forTimeInterval: 5)
-        XCTAssertTrue(webSocket.isClosed)
+        if !webSocketv4.isClosed {
+            try webSocketv4.close().wait()
+        }
+        
+        if !webSocketv6.isClosed {
+            try webSocketv6.close().wait()
+        }
+        XCTAssertTrue(webSocketv4.isClosed)
+        XCTAssertTrue(webSocketv6.isClosed)
+        XCTAssertTrue(serverDelegate.closedConnections)
         try webSocketClient.syncShutdown()
         try webSocketServer.stop()
     }

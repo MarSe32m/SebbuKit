@@ -5,7 +5,7 @@
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 public extension String {
-    private func isIPv4() -> Bool {
+    public func isIPv4() -> Bool {
         let items = self.components(separatedBy: ".")
         
         if items.count != 4 { return false }
@@ -36,7 +36,7 @@ public extension String {
         return true
     }
 
-    private func isIPv6() -> Bool {
+    public func isIPv6() -> Bool {
         let items = self.components(separatedBy: ":")
         if items.count != 8 {
             return false

@@ -27,7 +27,9 @@ public class WebSocketServer {
     public let eventLoopGroup: EventLoopGroup
     public weak var delegate: WebSocketServerProtocol?
     
-    private var serverChannel: Channel?
+    private var serverChannelv4: Channel?
+    private var serverChannelv6: Channel?
+    
     private var sslContext: NIOSSLContext?
     private var isSharedEventLoopGroup: Bool
     public let port: Int
@@ -54,7 +56,22 @@ public class WebSocketServer {
     }
     
     public func start() throws {
-        serverChannel = try ServerBootstrap
+        let serverBootstrap = bootstrap
+        serverChannelv4 = try serverBootstrap.bind(host: "0", port: port).wait()
+        serverChannelv6 = try serverBootstrap.bind(host: "::", port: port).wait()
+    }
+    
+    public func stop() throws {
+        try serverChannelv4?.close(mode: .all).wait()
+        try serverChannelv6?.close(mode: .all).wait()
+        print("Websocket server closed successfully!")
+        if !isSharedEventLoopGroup {
+            try eventLoopGroup.syncShutdownGracefully()
+        }
+    }
+    
+    private var bootstrap: ServerBootstrap {
+        ServerBootstrap
             .webSocket(on: eventLoopGroup, ssl: sslContext, shouldUpgrade: { [weak self] (head) in
                 self?.delegate?.shouldUpgrade(requestHead: head) ?? true
             }, onUpgrade: { [weak self] request, webSocket, channel in
@@ -63,24 +80,6 @@ public class WebSocketServer {
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
-            .bind(host: "0", port: port).wait()
-    }
-    
-    public func stop() throws {
-        _ = serverChannel?.closeFuture.always({ (result) in
-        switch result {
-        case .success(_):
-            print("WebSocket Server closed successfully")
-        case .failure(let error):
-            print("Error upon closing WebSocket Server")
-            print(error)
-        }
-        })
-        serverChannel?.close(mode: .all, promise: nil)
-        
-        if !isSharedEventLoopGroup {
-            try eventLoopGroup.syncShutdownGracefully()
-        }
     }
 }
 

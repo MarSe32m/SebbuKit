@@ -16,7 +16,8 @@ public protocol TCPServerProtocol: AnyObject {
 
 public final class TCPServer {
     
-    internal var channel: Channel!
+    internal var ipv4channel: Channel?
+    internal var ipv6channel: Channel?
     
     public let eventLoopGroup: EventLoopGroup
     
@@ -44,9 +45,38 @@ public final class TCPServer {
         #endif
     }
     
-    public final func start() throws {
-        #if canImport(NIOTransportServices) && canImport(Network)
-        let bootstrap = NIOTSListenerBootstrap(group: eventLoopGroup)
+    public final func start(startIpv4: Bool = true, startIpv6: Bool = true) throws {
+        if !startIpv4 && !startIpv6 { return }
+        
+        #if canImport(Network) && canImport(NIOTransportServices)
+        // We need to do this because Network doesn't allow binding IPv4 and IPv6 sockets on the same port
+        let startIpv6 = startIpv4 && startIpv6 ? false : startIpv6
+        #endif
+        
+        if startIpv4 {
+            ipv4channel = try bootstrap.bind(host: "0", port: port).wait()
+            //print("ipv4 tcp server started:", ipv4channel!.localAddress!)
+        }
+        
+        if startIpv6 && ipv4channel == nil {
+            ipv6channel = try bootstrap.bind(host: "::", port: port).wait()
+            //print("ipv6 tcp server started:", ipv6channel!.localAddress!)
+        }
+        
+        port = ipv4channel?.localAddress!.port ?? ipv6channel?.localAddress!.port ?? port
+    }
+    
+    public final func stop() throws {
+        try? ipv4channel?.close().wait()
+        try? ipv6channel?.close().wait()
+        if !isSharedEventLoopGroup {
+            try eventLoopGroup.syncShutdownGracefully()
+        }
+    }
+    
+    #if canImport(Network) && canImport(NIOTransportServices)
+    private var bootstrap: NIOTSListenerBootstrap {
+        NIOTSListenerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
             .childChannelInitializer { channel in
                 channel.pipeline.addHandler(BackPressureHandler()).flatMap { v in
@@ -58,11 +88,12 @@ public final class TCPServer {
             }
             .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
-        #else
-        let bootstrap = ServerBootstrap(group: eventLoopGroup)
+    }
+    #else
+    private var bootstrap: ServerBootstrap {
+        ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-
             .childChannelInitializer { channel in
                 channel.pipeline.addHandler(BackPressureHandler()).flatMap { v in
                     let receiveHandler = TCPReceiveHandler()
@@ -75,17 +106,7 @@ public final class TCPServer {
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: 16)
             .childChannelOption(ChannelOptions.recvAllocator, value: AdaptiveRecvByteBufferAllocator())
-        #endif
-        
-        channel = try bootstrap.bind(host: "0", port: port).wait()
-        port = channel.localAddress?.port ?? port
     }
-    
-    public final func stop() throws {
-        try channel.close().wait()
-        if !isSharedEventLoopGroup {
-            try eventLoopGroup.syncShutdownGracefully()
-        }
-    }
+    #endif
 }
 #endif
