@@ -9,12 +9,16 @@ import Foundation
 import GLMSwift
 
 @propertyWrapper
-public struct BitUnsigned<T: UnsignedInteger> {
+public struct BitUnsigned<T: UnsignedInteger & FixedWidthInteger> {
     public var wrappedValue: T = 0
     public let bits: Int
     
     public init(bits: Int) {
         self.bits = bits
+    }
+    
+    public init(maxValue: T) {
+        bits = maxValue.bitWidth - maxValue.leadingZeroBitCount
     }
 }
 

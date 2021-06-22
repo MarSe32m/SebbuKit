@@ -52,7 +52,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
     }
     
     func testComplexType() throws {
-        let entity = Entity(uint8: 154, uint16: 8832, uint32: 718348123, uint64: 918239485, uint: 123895851, int8: -75, int16: -3423, int32: -234555, int64: -2345261462, int: -234692384, name: "My name is Oliver Quèen!", bool: true, ´enum´: .player, float: 1.02345, double: -1.2143525, bytes: [1,2,3,5,6,7,4,2,4,67,3,2,4,5,7,2,129], identifier: .init(), count: 88, uint8bits: 5, uint16bits: 17, uint32bits: 663, uint64bits: 235234, uintbits: 3233, floatBits: -10, doubleBits: 99, bitArray: [1,2,3,5,6,7,4,6], boundedArray: [Packet(sequence: 1), Packet(sequence: 1), Packet(sequence: 1), Packet(sequence: 1)])
+        let entity = Entity(uint8: 154, uint16: 8832, uint32: 718348123, uint64: 918239485, uint: 123895851, int8: -75, int16: -3423, int32: -234555, int64: -2345261462, int: -234692384, name: "My name is Oliver Quèen!", bool: true, ´enum´: .player, float: 1.02345, double: -1.2143525, bytes: [1,2,3,5,6,7,4,2,4,67,3,2,4,5,7,2,129], identifier: .init(), count: 88, uint8bits: 5, uint16bits: 17, uint32bits: 663, uint64bits: 235234, uintbits: 3233, uintBits999: 887, floatBits: -10, doubleBits: 99, bitArray: [1,2,3,5,6,7,4,6], boundedArray: [Packet(sequence: 1), Packet(sequence: 1), Packet(sequence: 1), Packet(sequence: 1)])
         var writeStream = WritableBitStream()
         entity.encode(to: &writeStream)
         var readStream = ReadableBitStream(bytes: writeStream.packBytes())
@@ -83,6 +83,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
         XCTAssertEqual(entity.uint32Bits, newEntity.uint32Bits)
         XCTAssertEqual(entity.uint64Bits, newEntity.uint64Bits)
         XCTAssertEqual(entity.uintBits, newEntity.uintBits)
+        XCTAssertEqual(entity.uintBits999, newEntity.uintBits999)
         
         
         XCTAssert(abs(entity.floatBits - newEntity.floatBits) < 0.01)
@@ -163,6 +164,8 @@ final class SebbuKitBitStreamTests: XCTestCase {
         public var uint64Bits: UInt64
         @BitUnsigned(bits: 57)
         public var uintBits: UInt
+        @BitUnsigned(maxValue: 999)
+        public var uintBits999: UInt32
         
         @BitFloat(min: -1000, max: 1000, bits: 26)
         public var floatBits: Float
@@ -177,7 +180,10 @@ final class SebbuKitBitStreamTests: XCTestCase {
         public var boundedArray: [Packet]
         
         
-        internal init(uint8: UInt8, uint16: UInt16, uint32: UInt32, uint64: UInt64, uint: UInt, int8: Int8, int16: Int16, int32: Int32, int64: Int64, int: Int, name: String, bool: Bool, ´enum´: SebbuKitBitStreamTests.EntityType, float: Float, double: Double, bytes: [UInt8], identifier: UUID, count: Int, uint8bits: UInt8, uint16bits: UInt16, uint32bits: UInt32, uint64bits: UInt64, uintbits: UInt,
+        internal init(uint8: UInt8, uint16: UInt16, uint32: UInt32, uint64: UInt64, uint: UInt,
+                      int8: Int8, int16: Int16, int32: Int32, int64: Int64, int: Int,
+                      name: String, bool: Bool, ´enum´: SebbuKitBitStreamTests.EntityType,
+                      float: Float, double: Double, bytes: [UInt8], identifier: UUID, count: Int, uint8bits: UInt8, uint16bits: UInt16, uint32bits: UInt32, uint64bits: UInt64, uintbits: UInt, uintBits999: UInt32,
                       floatBits: Float, doubleBits: Double, bitArray: [UInt16], boundedArray: [Packet]) {
             self.uint8 = uint8
             self.uint16 = uint16
@@ -202,6 +208,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             self.uint32Bits = uint32bits
             self.uint64Bits = uint64bits
             self.uintBits = uintbits
+            self.uintBits999 = uintBits999
             self.floatBits = floatBits
             self.doubleBits = doubleBits
             self.bitArray = bitArray
@@ -233,6 +240,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             try bitStream >> _uint32Bits
             try bitStream >> _uint64Bits
             try bitStream >> _uintBits
+            try bitStream >> _uintBits999
             try bitStream >> _floatBits
             try bitStream >> _doubleBits
             try bitStream >> _bitArray
@@ -263,6 +271,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             bitStream.append(_uint32Bits)
             bitStream.append(_uint64Bits)
             bitStream.append(_uintBits)
+            bitStream.append(_uintBits999)
             bitStream.append(_floatBits)
             bitStream.append(_doubleBits)
             bitStream.append(_bitArray)
