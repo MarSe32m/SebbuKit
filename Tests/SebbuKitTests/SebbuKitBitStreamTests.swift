@@ -56,7 +56,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
         var writeStream = WritableBitStream()
         entity.encode(to: &writeStream)
         var readStream = ReadableBitStream(bytes: writeStream.packBytes())
-        let newEntity = try Entity(from: &readStream)
+        let newEntity: Entity = try readStream.readObject()
         XCTAssertEqual(entity.uint8, newEntity.uint8)
         XCTAssertEqual(entity.uint16, newEntity.uint16)
         XCTAssertEqual(entity.uint32, newEntity.uint32)
@@ -234,17 +234,17 @@ final class SebbuKitBitStreamTests: XCTestCase {
             double = try bitStream.read()
             bytes = try bitStream.read()
             identifier = try UUID(from: &bitStream)
-            try bitStream >> _count
-            try bitStream >> _uint8Bits
-            try bitStream >> _uint16Bits
-            try bitStream >> _uint32Bits
-            try bitStream >> _uint64Bits
-            try bitStream >> _uintBits
-            try bitStream >> _uintBits999
-            try bitStream >> _floatBits
-            try bitStream >> _doubleBits
-            try bitStream >> _bitArray
-            try bitStream >> _boundedArray
+            try bitStream.read(&_count)
+            try bitStream.read(&_uint8Bits)
+            try bitStream.read(&_uint16Bits)
+            try bitStream.read(&_uint32Bits)
+            try bitStream.read(&_uint64Bits)
+            try bitStream.read(&_uintBits)
+            try bitStream.read(&_uintBits999)
+            try bitStream.read(&_floatBits)
+            try bitStream.read(&_doubleBits)
+            try bitStream.read(&_bitArray)
+            try bitStream.read(&_boundedArray)
         }
         
         func encode(to bitStream: inout WritableBitStream) {

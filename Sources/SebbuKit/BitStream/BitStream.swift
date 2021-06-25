@@ -12,30 +12,30 @@ public enum BitStreamError: Error {
 }
 
 public extension FloatCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector2<Float>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector2<Float> {
         Vector2(x: try read(from: &bitStream), y: try read(from: &bitStream))
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector3<Float>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
         write(value.z, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector3<Float> {
         Vector3(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream))
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector4<Float>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
@@ -43,37 +43,37 @@ public extension FloatCompressor {
         write(value.w, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector4<Float> {
         Vector4(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream), w: try read(from: &bitStream))
     }
 }
 
 public extension DoubleCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector2<Double>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector2<Double> {
         Vector2(x: try read(from: &bitStream), y: try read(from: &bitStream))
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector3<Double>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
         write(value.z, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector3<Double> {
         Vector3(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream))
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: Vector4<Double>, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
@@ -81,7 +81,7 @@ public extension DoubleCompressor {
         write(value.w, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> Vector4<Double> {
         Vector4(x: try read(from: &bitStream), y: try read(from: &bitStream), z: try read(from: &bitStream), w: try read(from: &bitStream))
     }
@@ -89,7 +89,7 @@ public extension DoubleCompressor {
 
 /// Gets the number of bits required to encode an enum case.
 public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
-    @inline(__always)
+    @inlinable
     static var bits: Int {
         let casesCount = UInt32(allCases.count)
         return UInt32.bitWidth - casesCount.leadingZeroBitCount
@@ -98,7 +98,8 @@ public extension RawRepresentable where Self: CaseIterable, RawValue == UInt32 {
 
 //MARK: WritableBitStream
 public struct WritableBitStream {
-    public private(set) var bytes = [UInt8]()
+    @usableFromInline
+    var bytes = [UInt8]()
     
     @usableFromInline
     var endBitIndex = 0
@@ -116,13 +117,13 @@ public struct WritableBitStream {
     }
 
     //MARK: - Append Bool
-    @inline(__always)
+    @inlinable
     public mutating func append(_ value: Bool) {
         appendBit(UInt8(value ? 1 : 0))
     }
     
     //MARK: - Append FixedWidthInteger
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -141,7 +142,7 @@ public struct WritableBitStream {
         }
     }
     
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -157,27 +158,27 @@ public struct WritableBitStream {
     }
     
     // Appends an integer-based enum using the minimal number of bits for its set of possible cases.
-    @inline(__always)
+    @inlinable
     public mutating func append<T>(_ value: T) where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
         append(value.rawValue, numberOfBits: type(of: value).bits)
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func append(_ value: Float) {
         append(value.bitPattern)
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func append(_ value: Double) {
         append(value.bitPattern)
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func append(_ value: String) {
         append([UInt8](value.utf8))
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func append(_ value: [UInt8]) {
         align()
         let length = UInt32(value.count)
@@ -186,7 +187,7 @@ public struct WritableBitStream {
         endBitIndex += Int(length * 8)
     }
     
-    @inline(__always)
+    @inlinable
     mutating internal func appendBit(_ value: UInt8) {
         let bitShift = endBitIndex & 7      //let bitShift = endBitIndex % 8
         let byteIndex = endBitIndex >> 3    //let byteIndex = endBitIndex / 8
@@ -198,7 +199,7 @@ public struct WritableBitStream {
         endBitIndex += 1
     }
     
-    @inline(__always)
+    @inlinable
     mutating internal func align() {
         // skip over any remaining bits in the current byte
         endBitIndex = bytes.count * 8
@@ -252,7 +253,7 @@ public struct ReadableBitStream {
     
     // MARK: - Read
     
-    @inline(__always)
+    @inlinable
     public mutating func read() throws -> Bool {
         if currentBit >= endBitIndex {
             throw BitStreamError.tooShort
@@ -260,7 +261,7 @@ public struct ReadableBitStream {
         return (readBit() > 0) ? true : false
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func read() throws -> Float {
         var result: Float = 0.0
         do {
@@ -271,7 +272,7 @@ public struct ReadableBitStream {
         return result
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func read() throws -> Double {
         var result: Double = 0.0
         do {
@@ -282,7 +283,7 @@ public struct ReadableBitStream {
         return result
     }
     
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -304,7 +305,7 @@ public struct ReadableBitStream {
         return bitPattern
     }
     
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -337,7 +338,7 @@ public struct ReadableBitStream {
         return result
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func read<T>() throws -> T where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
         let rawValue = try read(numberOfBits: T.bits) as UInt32
         guard let result = T(rawValue: rawValue) else {
@@ -346,7 +347,7 @@ public struct ReadableBitStream {
         return result
     }
     
-    @inline(__always)
+    @inlinable
     public mutating func read() throws -> String {
         let bytes: [UInt8] = try read()
         return String(decoding: bytes, as: Unicode.UTF8.self)
@@ -360,7 +361,7 @@ public struct ReadableBitStream {
         }
     }
     
-    @inline(__always)
+    @inlinable
     mutating internal func readBit() -> UInt8 {
         let bitShift = currentBit & 7   //let bitShift = currentBit % 8
         let byteIndex = currentBit >> 3 //let byteIndex = currentBit / 8
@@ -370,25 +371,25 @@ public struct ReadableBitStream {
 }
 
 public extension FloatCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: SIMD2<Float>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: SIMD3<Float>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
         write(value.z, to: &string)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from string: inout ReadableBitStream) throws -> SIMD2<Float> {
         return SIMD2<Float>(x: try read(from: &string), y: try read(from: &string))
     }
     
-    @inline(__always)
+    @inlinable
     func read(from string: inout ReadableBitStream) throws -> SIMD3<Float> {
         return SIMD3<Float>(
             x: try read(from: &string),
@@ -398,25 +399,25 @@ public extension FloatCompressor {
 }
 
 public extension DoubleCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: SIMD2<Double>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: SIMD3<Double>, to string: inout WritableBitStream) {
         write(value.x, to: &string)
         write(value.y, to: &string)
         write(value.z, to: &string)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from string: inout ReadableBitStream) throws -> SIMD2<Double> {
         return SIMD2<Double>(x: try read(from: &string), y: try read(from: &string))
     }
     
-    @inline(__always)
+    @inlinable
     func read(from string: inout ReadableBitStream) throws -> SIMD3<Double> {
         return SIMD3<Double>(
             x: try read(from: &string),
@@ -426,26 +427,26 @@ public extension DoubleCompressor {
 }
 
 public extension WritableBitStream {
-    @inline(__always)
+    @inlinable
     mutating func append(_ value: CGFloat) {
         append(Double(value))
     }
 }
 
 public extension ReadableBitStream {
-    @inline(__always)
+    @inlinable
     mutating func read() throws -> CGFloat {
         return CGFloat(try read() as Double)
     }
 }
 
 public extension DoubleCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: CGFloat, to bitStream: inout WritableBitStream) {
         write(Double(value), to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> CGFloat {
         try CGFloat(read(from: &bitStream) as Double)
     }
@@ -455,24 +456,24 @@ public extension DoubleCompressor {
 import CoreGraphics
 
 public extension DoubleCompressor {
-    @inline(__always)
+    @inlinable
     func write(_ value: CGPoint, to bitStream: inout WritableBitStream) {
         write(value.x, to: &bitStream)
         write(value.y, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func write(_ value: CGVector, to bitStream: inout WritableBitStream) {
         write(value.dx, to: &bitStream)
         write(value.dy, to: &bitStream)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> CGPoint {
         try CGPoint(x: read(from: &bitStream) as CGFloat, y: read(from: &bitStream) as CGFloat)
     }
     
-    @inline(__always)
+    @inlinable
     func read(from bitStream: inout ReadableBitStream) throws -> CGVector {
         try CGVector(dx: read(from: &bitStream) as CGFloat, dy: read(from: &bitStream) as CGFloat)
     }

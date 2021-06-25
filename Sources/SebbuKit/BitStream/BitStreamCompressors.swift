@@ -21,7 +21,7 @@ public struct FloatCompressor {
         self.maxBitValue = pow(2.0, Double(bits)) - 1 // for 8 bits, highest value is 255, not 256
     }
 
-    @inline(__always)
+    @inlinable
     public func write(_ value: Float, to string: inout WritableBitStream) {
         let ratio = Double((value - minValue) / (maxValue - minValue))
         let clampedRatio = max(0.0, min(1.0, ratio))
@@ -29,7 +29,7 @@ public struct FloatCompressor {
         string.append(bitPattern, numberOfBits: bits)
     }
 
-    @inline(__always)
+    @inlinable
     public func read(from string: inout ReadableBitStream) throws -> Float {
         let bitPattern = try string.read(numberOfBits: bits) as UInt32
 
@@ -51,7 +51,7 @@ public struct DoubleCompressor {
         self.maxBitValue = pow(2.0, Double(bits)) - 1 // for 8 bits, highest value is 255, not 256
     }
 
-    @inline(__always)
+    @inlinable
     public func write(_ value: Double, to string: inout WritableBitStream) {
         let ratio = (value - minValue) / (maxValue - minValue)
         let clampedRatio = max(0.0, min(1.0, ratio))
@@ -59,7 +59,7 @@ public struct DoubleCompressor {
         string.append(bitPattern, numberOfBits: bits)
     }
 
-    @inline(__always)
+    @inlinable
     public func read(from string: inout ReadableBitStream) throws -> Double {
         let bitPattern = try string.read(numberOfBits: bits) as UInt64
 
@@ -89,10 +89,12 @@ public struct IntCompressor {
         self.maxBitValue = maxValue - minValue
     }
     
+    @inlinable
     public func write(_ value: Int, to bitStream: inout WritableBitStream) {
         bitStream.append(UInt(max(0, min(maxBitValue, value &+ absoluteMinValue))), numberOfBits: bits)
     }
     
+    @inlinable
     public func read(from bitStream: inout ReadableBitStream) throws -> Int {
         let value: UInt = try bitStream.read(numberOfBits: bits)
         return Int(value) &- absoluteMinValue

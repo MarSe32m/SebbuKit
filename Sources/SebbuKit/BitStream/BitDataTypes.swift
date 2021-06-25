@@ -129,94 +129,60 @@ public struct BoundedArray<Value> where Value: BitStreamCodable {
 }
 
 public extension WritableBitStream {
-    /// Boolean encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: Bool) {
-        bitStream.append(value)
-    }
-    
-    /// Enum encoding
-    @inline(__always)
-    static func << <T>(bitStream: inout WritableBitStream, value: T) where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
-        bitStream.append(value)
-    }
-    
     /// BitFloat encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitFloat) {
-        bitStream.append(value)
-    }
-    
-    @inline(__always)
+    @inlinable
     mutating func append(_ value: BitFloat) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         floatCompressor.write(value.wrappedValue, to: &self)
     }
     
     /// BitDouble encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitDouble) {
-        bitStream.append(value)
-    }
-    
-    @inline(__always)
+    @inlinable
     mutating func append(_ value: BitDouble) {
         let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
         doubleCompressor.write(value.wrappedValue, to: &self)
     }
-
     
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector2<Float>) {
+    @inlinable
+    mutating func append(_ value: BitVector2<Float>) {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        floatCompressor.write(value.wrappedValue, to: &bitStream)
-    }
-
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector3<Float>) {
-        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        floatCompressor.write(value.wrappedValue, to: &bitStream)
-    }
-    
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector4<Float>) {
-        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        floatCompressor.write(value.wrappedValue, to: &bitStream)
-    }
-    
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector2<Double>) {
-        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+        floatCompressor.write(value.wrappedValue, to: &self)
     }
 
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector3<Double>) {
-        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+    @inlinable
+    mutating func append(_ value: BitVector3<Float>) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &self)
     }
     
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitVector4<Double>) {
+    @inlinable
+    mutating func append(_ value: BitVector4<Float>) {
+        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        floatCompressor.write(value.wrappedValue, to: &self)
+    }
+    
+    @inlinable
+    mutating func append(_ value: BitVector2<Double>) {
         let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        doubleCompressor.write(value.wrappedValue, to: &bitStream)
+        doubleCompressor.write(value.wrappedValue, to: &self)
+    }
+
+    @inlinable
+    mutating func append(_ value: BitVector3<Double>) {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        doubleCompressor.write(value.wrappedValue, to: &self)
+    }
+    
+    @inlinable
+    mutating func append(_ value: BitVector4<Double>) {
+        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        doubleCompressor.write(value.wrappedValue, to: &self)
     }
     
     //TODO: BitMatrix2, BitMatrix3, BitMatrix4 encoding
     
     /// BitUnsigned encoding
-    @inline(__always)
-    @_specialize(where T == UInt8)
-    @_specialize(where T == UInt16)
-    @_specialize(where T == UInt32)
-    @_specialize(where T == UInt64)
-    @_specialize(where T == UInt)
-    static func << <T> (bitStream: inout WritableBitStream, value: BitUnsigned<T>) where T: UnsignedInteger {
-        bitStream.append(value)
-    }
-    
-    
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -227,47 +193,20 @@ public extension WritableBitStream {
     }
     
     /// BitSigned encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitSigned) {
-        bitStream.append(value)
-    }
-    
-    @inline(__always)
+    @inlinable
     mutating func append(_ value: BitSigned) {
         let intCompressor = IntCompressor(minValue: value.min, maxValue: value.max)
         intCompressor.write(value.wrappedValue, to: &self)
     }
-    
-    /// Generic BitStreamEncodable encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: BitStreamEncodable) {
-        value.encode(to: &bitStream)
-    }
 
     /// Generic BitStreamEncodable encoding
-    @inline(__always)
+    @inlinable
     mutating func appendObject<T>(_ value: T) where T: BitStreamEncodable {
         value.encode(to: &self)
     }
     
-    /// Bytes encoding
-    @inline(__always)
-    static func << (bitStream: inout WritableBitStream, value: [UInt8]) {
-        bitStream.append(value)
-    }
-    
     /// BitArray encoding
-    @inline(__always)
-    @_specialize(where T == UInt8)
-    @_specialize(where T == UInt16)
-    @_specialize(where T == UInt32)
-    @_specialize(where T == UInt64)
-    @_specialize(where T == UInt)
-    static func << <T>(bitStream: inout WritableBitStream, value: BitArray<T>) where T: UnsignedInteger {
-        bitStream.append(value)
-    }
-    
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
@@ -281,12 +220,12 @@ public extension WritableBitStream {
     }
     
     /// BoundedArray encoding
-    @inline(__always)
+    @inlinable
     static func << <T>(bitStream: inout WritableBitStream, value: BoundedArray<T>) where T: BitStreamCodable {
         bitStream.append(value)
     }
     
-    @inline(__always)
+    @inlinable
     mutating func append<T>(_ value: BoundedArray<T>) where T: BitStreamCodable {
         append(UInt32(value.wrappedValue.count), numberOfBits: value.bits)
         for element in value.wrappedValue {
@@ -296,139 +235,106 @@ public extension WritableBitStream {
 }
 
 public extension ReadableBitStream {
-    /// Boolean decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout Bool) throws {
-        value = try bitStream.read()
-    }
-    
-    /// Enum decoding
-    @inline(__always)
-    static func >> <T>(bitStream: inout ReadableBitStream, value: inout T) throws where T: CaseIterable & RawRepresentable, T.RawValue == UInt32 {
-        value = try bitStream.read()
-    }
-    
     /// BitFloat decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitFloat) throws {
+    @inlinable
+    mutating func read(_ value: inout BitFloat) throws {
         let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try floatCompressor.read(from: &bitStream)
+        value.wrappedValue = try floatCompressor.read(from: &self)
     }
     
     /// BitDouble decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitDouble) throws {
+    @inlinable
+    mutating func read(_ value: inout BitDouble) throws {
         let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+        value.wrappedValue = try doubleCompressor.read(from: &self)
     }
     
-    //TODO: Implement for your own math types
-    #if canImport(VectorMath)
-    /// BitVector2 decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2) throws {
-        let floatCompressor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try floatCompressor.readVector2(from: &bitStream)
-    }
-    #endif
-    
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2<Float>) throws {
+    @inlinable
+    mutating func read(_ value: inout BitVector2<Float>) throws {
         let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+        value.wrappedValue = try floatComperssor.read(from: &self)
     }
     
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector3<Float>) throws {
+    @inlinable
+    mutating func read(_ value: inout BitVector3<Float>) throws {
         let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+        value.wrappedValue = try floatComperssor.read(from: &self)
     }
     
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector4<Float>) throws {
+    @inlinable
+    mutating func read(_ value: inout BitVector4<Float>) throws {
         let floatComperssor = FloatCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try floatComperssor.read(from: &bitStream)
+        value.wrappedValue = try floatComperssor.read(from: &self)
     }
     
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector2<Double>) throws {
-        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    @inlinable
+    mutating func read(_ value: inout BitVector2<Double>) throws {
+        let doubleComperssor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleComperssor.read(from: &self)
     }
     
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector3<Double>) throws {
-        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    @inlinable
+    mutating func read(_ value: inout BitVector3<Double>) throws {
+        let doubleComperssor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleComperssor.read(from: &self)
     }
     
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitVector4<Double>) throws {
-        let doubleCompressor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
-        value.wrappedValue = try doubleCompressor.read(from: &bitStream)
+    @inlinable
+    mutating func read(_ value: inout BitVector4<Double>) throws {
+        let doubleComperssor = DoubleCompressor(minValue: value.minValue, maxValue: value.maxValue, bits: value.bits)
+        value.wrappedValue = try doubleComperssor.read(from: &self)
     }
     
     //TODO: BitMatrix2, BitMatrix3, BitMatrix4 decoding
     
     /// BitUnsigned decoding
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
     @_specialize(where T == UInt64)
     @_specialize(where T == UInt)
-    static func >> <T> (bitStream: inout ReadableBitStream, value: inout BitUnsigned<T>) throws where T: UnsignedInteger {
-        value.wrappedValue = try bitStream.read(numberOfBits: value.bits)
+    mutating func read<T>(_ value: inout BitUnsigned<T>) throws where T: UnsignedInteger {
+        value.wrappedValue = try self.read(numberOfBits: value.bits)
     }
     
     /// BitSigned decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: inout BitSigned) throws {
+    @inlinable
+    mutating func read(_ value: inout BitSigned) throws {
         let intCompressor = IntCompressor(minValue: value.min, maxValue: value.max)
-        value.wrappedValue = try intCompressor.read(from: &bitStream)
+        value.wrappedValue = try intCompressor.read(from: &self)
     }
     
     /// Generic BitStreamDecodable decoding
-    @inline(__always)
-    mutating func readObject<T>(_ type: T.Type) throws -> T where T: BitStreamDecodable {
-        return try T.init(from: &self)
-    }
-    
-    /// Generic BitStreamCodable type decoding
-    @inline(__always)
-    static func >> <T>(bitStream: inout ReadableBitStream, type: T.Type) throws -> T where T: BitStreamDecodable {
-        return try T.init(from: &bitStream)
-    }
-    
-    /// Bytes decoding
-    @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: [UInt8].Type) throws -> [UInt8] {
-        return try bitStream.read()
+    @inlinable
+    mutating func readObject<T>() throws -> T where T: BitStreamCodable {
+        return try T(from: &self)
     }
     
     /// Array with chosen bit value for count decoding
-    @inline(__always)
+    @inlinable
     @_specialize(where T == UInt8)
     @_specialize(where T == UInt16)
     @_specialize(where T == UInt32)
     @_specialize(where T == UInt64)
     @_specialize(where T == UInt)
-    static func >> <T>(bitStream: inout ReadableBitStream, value: inout BitArray<T>) throws where T: UnsignedInteger {
-        let count = Int(try bitStream.read(numberOfBits: value.bits) as UInt32)
+    mutating func read<T>(_ value: inout BitArray<T>) throws where T: UnsignedInteger {
+        let count = Int(try self.read(numberOfBits: value.bits) as UInt32)
         value.wrappedValue.removeAll(keepingCapacity: true)
         value.wrappedValue.reserveCapacity(count)
         for _ in 0..<count {
-            value.wrappedValue.append(try bitStream.read(numberOfBits: value.valueBits))
+            value.wrappedValue.append(try self.read(numberOfBits: value.valueBits))
         }
     }
     
     /// Array with chosen bit value for count count decoding, generic
-    static func >> <T>(bitStream: inout ReadableBitStream, value: inout BoundedArray<T>) throws where T: BitStreamCodable {
-        let count = Int(try bitStream.read(numberOfBits: value.bits) as UInt32)
+    @inlinable
+    mutating func read<T>(_ value: inout BoundedArray<T>) throws where T: BitStreamCodable {
+        let count = Int(try self.read(numberOfBits: value.bits) as UInt32)
         value.wrappedValue.removeAll(keepingCapacity: true)
         value.wrappedValue.reserveCapacity(count)
         for _ in 0..<count {
-            value.wrappedValue.append(try T.init(from: &bitStream))
+            value.wrappedValue.append(try T(from: &self))
         }
     }
 }

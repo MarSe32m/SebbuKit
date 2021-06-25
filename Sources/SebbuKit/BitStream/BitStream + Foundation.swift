@@ -9,18 +9,23 @@
 #if canImport(Foundation)
 import Foundation
 public extension WritableBitStream {
-    @inline(__always)
+    @inlinable
     mutating func append(_ value: Data) {
         append([UInt8](value))
     }
     
     @inline(__always)
+    mutating func append(_ value: UUID) {
+        value.encode(to: &self)
+    }
+    
+    @inlinable
     func packData() -> Data {
         return Data(packBytes())
     }
     
     /// Data encoding
-    @inline(__always)
+    @inlinable
     static func << (bitStream: inout WritableBitStream, value: Data) {
         bitStream.append(value)
     }
@@ -32,15 +37,14 @@ public extension ReadableBitStream {
         self.init(bytes: [UInt8](data))
     }
 
-    @inline(__always)
+    @inlinable
     mutating func read() throws -> Data {
         return Data(try read() as [UInt8])
     }
     
-    /// Data decoding
     @inline(__always)
-    static func >> (bitStream: inout ReadableBitStream, value: Data.Type) throws  -> Data {
-        return try bitStream.read()
+    mutating func read() throws -> UUID {
+        return try UUID(from: &self)
     }
 }
 
