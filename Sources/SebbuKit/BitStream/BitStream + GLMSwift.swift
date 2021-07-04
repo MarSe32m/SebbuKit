@@ -50,3 +50,35 @@ public extension WritableBitStream {
         append(value.w)
     }
 }
+
+public extension ReadableBitStream {
+    @inlinable
+    mutating func read() throws -> Vector2<Float> {
+        Vector2<Float>(try read(), try read())
+    }
+    
+    @inlinable
+    mutating func read() throws -> Vector2<Double> {
+        Vector2<Double>(try read(), try read())
+    }
+    
+    @inlinable
+    mutating func read() throws -> Vector3<Float> {
+        Vector3<Float>(try read(), try read(), try read())
+    }
+    
+    @inlinable
+    mutating func read() throws -> Vector3<Double> {
+        Vector3<Double>(try read(), try read(), try read())
+    }
+    
+    @inlinable
+    mutating func read() throws -> Vector4<Float> {
+        Vector4<Float>(try read(), try read(), try read(), try read())
+    }
+    
+    @inlinable
+    mutating func read() throws -> Vector4<Double> {
+        Vector4<Double>(try read(), try read(), try read(), try read())
+    }
+}
