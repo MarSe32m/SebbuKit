@@ -19,16 +19,21 @@ public final class TCPServer {
     internal var ipv4channel: Channel?
     internal var ipv6channel: Channel?
     
+    public var ipv4Port: Int? {
+        ipv4channel?.localAddress?.port
+    }
+    
+    public var ipv6Port: Int? {
+        ipv6channel?.localAddress?.port
+    }
+    
     public let eventLoopGroup: EventLoopGroup
     
     public weak var delegate: TCPServerProtocol?
     
-    public private(set) var port: Int
-    
     private var isSharedEventLoopGroup = false
     
-    public init(port: Int, eventLoopGroup: EventLoopGroup) {
-        self.port = port
+    public init(eventLoopGroup: EventLoopGroup) {
         #if canImport(NIOTransportServices) && canImport(Network)
         assert(eventLoopGroup is NIOTSEventLoopGroup, "On Apple platforms, the event loop group should be a NIOTSEventLoopGroup")
         #endif
@@ -36,8 +41,7 @@ public final class TCPServer {
         self.isSharedEventLoopGroup = true
     }
     
-    public init(port: Int) {
-        self.port = port
+    public init() {
         #if canImport(NIOTransportServices) && canImport(Network)
         self.eventLoopGroup = NIOTSEventLoopGroup()
         #else
@@ -45,25 +49,20 @@ public final class TCPServer {
         #endif
     }
     
-    public final func start(startIpv4: Bool = true, startIpv6: Bool = true) throws {
-        if !startIpv4 && !startIpv6 { return }
-        
-        #if canImport(Network) && canImport(NIOTransportServices)
-        // We need to do this because Network doesn't allow binding IPv4 and IPv6 sockets on the same port
-        let startIpv6 = startIpv4 && startIpv6 ? false : startIpv6
+    public init(numberOfThreads: Int) {
+        #if canImport(NIOTransportServices) && canImport(Network)
+        self.eventLoopGroup = NIOTSEventLoopGroup(loopCount: numberOfThreads)
+        #else
+        self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         #endif
-        
-        if startIpv4 {
-            ipv4channel = try bootstrap.bind(host: "0", port: port).wait()
-            //print("ipv4 tcp server started:", ipv4channel!.localAddress!)
-        }
-        
-        if startIpv6 && ipv4channel == nil {
-            ipv6channel = try bootstrap.bind(host: "::", port: port).wait()
-            //print("ipv6 tcp server started:", ipv6channel!.localAddress!)
-        }
-        
-        port = ipv4channel?.localAddress!.port ?? ipv6channel?.localAddress!.port ?? port
+    }
+    
+    public final func startIPv4(port: Int) throws {
+        ipv4channel = try bootstrap.bind(host: "0", port: port).wait()
+    }
+    
+    public final func startIPv6(port: Int) throws {
+        ipv6channel = try bootstrap.bind(host: "::", port: port).wait()
     }
     
     public final func stop() throws {

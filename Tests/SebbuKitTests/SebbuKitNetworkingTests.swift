@@ -34,12 +34,13 @@ final class SebbuKitNetworkingTests: XCTestCase {
         }
         
         let serverDelegate = ServerDelegate()
-        let server = UDPServer(port: 25567)
+        let server = UDPServer()
         server.delegate = serverDelegate
         serverDelegate.udpServer = server
         server.recvBufferSize = 1024 * 1024
         server.sendBufferSize = 1024 * 1024
-        try server.start()
+        try server.startIPv4(port: 25567)
+        try server.startIPv6(port: 25568)
         
         let clientDelegate = ClientDelegate()
         let client = UDPClient()
@@ -48,7 +49,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         
         while clientDelegate.successfulReceives < 10000 {
             client.send(data: testData, address: try .init(ipAddress: "127.0.0.1", port: 25567))
-            client.send(data: testData, address: try .init(ipAddress: "::1", port: 25567))
+            client.send(data: testData, address: try .init(ipAddress: "::1", port: 25568))
             Thread.sleep(forTimeInterval: 0.001)
         }
         try server.shutdown()
@@ -122,13 +123,13 @@ final class SebbuKitNetworkingTests: XCTestCase {
         
         let serverDelegate = ServerHandler()
         
-        let serveripv4 = TCPServer(port: 25565)
+        let serveripv4 = TCPServer()
         serveripv4.delegate = serverDelegate
-        try serveripv4.start()
+        try serveripv4.startIPv4(port: 25565)
         
-        let serveripv6 = TCPServer(port: 25570)
+        let serveripv6 = TCPServer()
         serveripv6.delegate = serverDelegate
-        try serveripv6.start(startIpv4: false, startIpv6: true)
+        try serveripv6.startIPv6(port: 25570)
         
         let clientDelegatev4 = ClientHandler()
         let clientv4 = TCPClient()
@@ -179,9 +180,10 @@ final class SebbuKitNetworkingTests: XCTestCase {
         }
         
         let serverDelegate = ServerDelegate()
-        let webSocketServer = try WebSocketServer(port: 25566, numberOfThreads: 1)
+        let webSocketServer = try WebSocketServer(numberOfThreads: 1)
         webSocketServer.delegate = serverDelegate
-        try webSocketServer.start()
+        try webSocketServer.startIPv4(port: 25566)
+        try webSocketServer.startIPv6(port: 25567)
         
         let webSocketClient = WebSocketClient(eventLoopGroupProvider: .createNew)
         
@@ -191,7 +193,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
             ws.send("Well hello!")
         }
         
-        let webSocketv6 = try webSocketClient.connect(scheme: "ws", host: "::1", port: 25566)
+        let webSocketv6 = try webSocketClient.connect(scheme: "ws", host: "::1", port: 25567)
         webSocketv6.onText { ws, text in
             XCTAssertEqual(text, "Hello")
             ws.send("Well hello!")

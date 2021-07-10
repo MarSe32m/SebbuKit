@@ -14,14 +14,21 @@ public protocol UDPServerProtocol: AnyObject {
 }
 
 public final class UDPServer {
-    public private(set) var port: Int
     public let group: EventLoopGroup
     
     @usableFromInline
     internal var channelv4: Channel?
     
+    public var ipv4Port: Int? {
+        channelv4?.localAddress?.port
+    }
+    
     @usableFromInline
     internal var channelv6: Channel?
+    
+    public var ipv6Port: Int? {
+        channelv6?.localAddress?.port
+    }
     
     private let isSharedEventLoopGroup: Bool
     public weak var delegate: UDPServerProtocol? {
@@ -46,31 +53,24 @@ public final class UDPServer {
         }
     }
     
-    public init(port: Int, numberOfThreads: Int = 1) {
-        self.port = port
+    public init(numberOfThreads: Int = 1) {
         self.group = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         self.isSharedEventLoopGroup = false
     }
 
-    public init(port: Int, eventLoopGroup: EventLoopGroup) {
-        self.port = port
+    public init(eventLoopGroup: EventLoopGroup) {
         self.group = eventLoopGroup
         self.isSharedEventLoopGroup = true
     }
     
-    public func start(startIpv4: Bool = true, startIpv6: Bool = true) throws {
-        if startIpv4 {
-            channelv4 = try bootstrap.bind(host: "0", port: port).wait()
-            print("UDP Server started on ipv4:", channelv4!.localAddress!)
-        }
-        
-        if startIpv6 {
-            channelv6 = try bootstrap.bind(host: "::", port: port).wait()
-            print("UDP Server started on ipv6:", channelv6!.localAddress!)
-        }
-        
-        started = true
-        port = channelv4?.localAddress!.port ?? channelv6?.localAddress?.port ?? port
+    public func startIPv4(port: Int) throws {
+        channelv4 = try bootstrap.bind(host: "0", port: port).wait()
+        print("UDP Server started on ipv4:", channelv4!.localAddress!)
+    }
+    
+    public func startIPv6(port: Int) throws {
+        channelv6 = try bootstrap.bind(host: "::", port: port).wait()
+        print("UDP Server started on ipv6:", channelv6!.localAddress!)
     }
     
     public func shutdown() throws {

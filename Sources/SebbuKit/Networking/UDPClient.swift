@@ -22,6 +22,14 @@ public final class UDPClient {
     @usableFromInline
     internal var channelv6: Channel!
     
+    public var ipv4Port: Int? {
+        channelv4.localAddress?.port
+    }
+    
+    public var ipv6Port: Int? {
+        channelv6.localAddress?.port
+    }
+    
     private let isSharedEventLoopGroup: Bool
     
     public weak var delegate: UDPClientProtocol? {
@@ -59,7 +67,7 @@ public final class UDPClient {
     public func start() throws {
         let bootstrap = bootstrap
         channelv4 = try bootstrap.bind(host: "0", port: 0).wait()
-        channelv6 = try bootstrap.bind(host: "::", port: channelv4?.localAddress?.port ?? 0).wait()
+        channelv6 = try bootstrap.bind(host: "::", port: 0).wait()
     }
     
     public func shutdown() throws {

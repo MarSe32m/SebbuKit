@@ -30,12 +30,17 @@ public class WebSocketServer {
     private var serverChannelv4: Channel?
     private var serverChannelv6: Channel?
     
+    public var ipv4Port: Int? {
+        serverChannelv4?.localAddress?.port
+    }
+    public var ipv6Port: Int? {
+        serverChannelv6?.localAddress?.port
+    }
+    
     private var sslContext: NIOSSLContext?
     private var isSharedEventLoopGroup: Bool
-    public let port: Int
     
-    public init(port: Int, tls: TLSConfiguration? = nil, numberOfThreads: Int) throws {
-        self.port = port
+    public init(tls: TLSConfiguration? = nil, numberOfThreads: Int) throws {
         self.eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
         self.isSharedEventLoopGroup = false
         if let tls = tls {
@@ -44,8 +49,7 @@ public class WebSocketServer {
         }
     }
     
-    public init(port: Int, tls: TLSConfiguration? = nil, eventLoopGroup: EventLoopGroup) throws {
-        self.port = port
+    public init(tls: TLSConfiguration? = nil, eventLoopGroup: EventLoopGroup) throws {
         self.eventLoopGroup = eventLoopGroup
         self.isSharedEventLoopGroup = true
         
@@ -55,10 +59,12 @@ public class WebSocketServer {
         }
     }
     
-    public func start() throws {
-        let serverBootstrap = bootstrap
-        serverChannelv4 = try serverBootstrap.bind(host: "0", port: port).wait()
-        serverChannelv6 = try serverBootstrap.bind(host: "::", port: port).wait()
+    public func startIPv4(port: Int) throws {
+        serverChannelv4 = try bootstrap.bind(host: "0", port: port).wait()
+    }
+    
+    public func startIPv6(port: Int) throws {
+        serverChannelv6 = try bootstrap.bind(host: "::", port: port).wait()
     }
     
     public func stop() throws {

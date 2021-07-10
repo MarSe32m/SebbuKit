@@ -78,6 +78,11 @@ public final class TCPClient {
         channel.flush()
     }
     
+    public final func connect(address: SocketAddress) throws {
+        if channel != nil { return }
+        channel = try bootstrap.connect(to: address).wait()
+    }
+    
     public final func connect(host: String, port: Int) throws {
         if channel != nil { return }
         channel = try bootstrap.connect(host: host, port: port).wait()
