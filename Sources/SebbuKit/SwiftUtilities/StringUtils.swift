@@ -58,3 +58,21 @@ public extension String {
 
     func isIpAddress() -> Bool { return self.isIPv6() || self.isIPv4() }
 }
+
+public extension Array where Element == UInt8 {
+    var hexString: String {
+        map { String(format: "%02.2hhx", $0) }.joined()
+    }
+}
+
+public extension StringProtocol {
+    var hexBytes: [UInt8] { .init(hex) }
+    internal var hex: UnfoldSequence<UInt8, Index> {
+        sequence(state: startIndex) { startIndex in
+            guard startIndex < self.endIndex else { return nil }
+            let endIndex = self.index(startIndex, offsetBy: 2, limitedBy: self.endIndex) ?? self.endIndex
+            defer { startIndex = endIndex }
+            return UInt8(self[startIndex..<endIndex], radix: 16)
+        }
+    }
+}

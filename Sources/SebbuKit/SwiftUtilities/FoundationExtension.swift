@@ -14,10 +14,8 @@ public extension Data {
     }
 }
 
-public extension Array where Element == UInt8 {
-    var hexString: String {
-        map { String(format: "%02.2hhx", $0) }.joined()
-    }
+public extension StringProtocol {
+    var hexData: Data { .init(hex) }
 }
 #endif
 
