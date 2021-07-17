@@ -63,6 +63,16 @@ public extension Array where Element == UInt8 {
     var hexString: String {
         map { String(format: "%02.2hhx", $0) }.joined()
     }
+    
+    @inlinable
+    static func random(count: Int) -> Self {
+        var result = [UInt8]()
+        result.reserveCapacity(count)
+        for _ in 0..<count {
+            result.append(UInt8.random(in: .min ... .max))
+        }
+        return result
+    }
 }
 
 public extension StringProtocol {
