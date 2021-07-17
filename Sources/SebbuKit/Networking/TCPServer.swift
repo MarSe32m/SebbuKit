@@ -65,7 +65,7 @@ public final class TCPServer {
         ipv6channel = try bootstrap.bind(host: "::", port: port).wait()
     }
     
-    public final func stop() throws {
+    public final func shutdown() throws {
         try? ipv4channel?.close().wait()
         try? ipv6channel?.close().wait()
         if !isSharedEventLoopGroup {

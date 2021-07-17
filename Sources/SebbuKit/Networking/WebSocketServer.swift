@@ -67,7 +67,7 @@ public class WebSocketServer {
         serverChannelv6 = try bootstrap.bind(host: "::", port: port).wait()
     }
     
-    public func stop() throws {
+    public func shutdown() throws {
         try serverChannelv4?.close(mode: .all).wait()
         try serverChannelv6?.close(mode: .all).wait()
         print("Websocket server closed successfully!")

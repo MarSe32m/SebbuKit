@@ -150,7 +150,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         Thread.sleep(forTimeInterval: 5)
         try clientv4.disconnect()
         try clientv6.disconnect()
-        try serveripv4.stop()
+        try serveripv4.shutdown()
     }
     
     func testWebSocketClientServer() throws {
@@ -211,7 +211,7 @@ final class SebbuKitNetworkingTests: XCTestCase {
         XCTAssertTrue(webSocketv6.isClosed)
         XCTAssertTrue(serverDelegate.closedConnections)
         try webSocketClient.syncShutdown()
-        try webSocketServer.stop()
+        try webSocketServer.shutdown()
     }
 }
 #endif
