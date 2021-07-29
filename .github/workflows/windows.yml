@@ -47,13 +47,13 @@ jobs:
       run: swift --version
       
     - name: Build (Debug)
-      run: swift build -v -c debug
+      run: swift build -c debug
       
     - name: Build (Release)
-      run: swift build -v -c release
+      run: swift build -c release
       
     - name: Test (Debug)
-      run: swift test -v --configuration debug --parallel
+      run: swift test --configuration debug --parallel
       
     - name: Test (Release)
-      run: swift test -v --configuration release -Xswiftc -enable-testing --parallel
+      run: swift test --configuration release -Xswiftc -enable-testing --parallel
