@@ -65,9 +65,9 @@ public final class UDPClient {
     }
     
     public func start() throws {
-        let bootstrap = bootstrap
-        channelv4 = try bootstrap.bind(host: "0", port: 0).wait()
-        channelv6 = try bootstrap.bind(host: "::", port: 0).wait()
+        let _bootstrap = bootstrap
+        channelv4 = try _bootstrap.bind(host: "0", port: 0).wait()
+        channelv6 = try _bootstrap.bind(host: "::", port: 0).wait()
     }
     
     public func shutdown() throws {
