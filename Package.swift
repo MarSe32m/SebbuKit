@@ -23,7 +23,8 @@ targetDependencies = [
     .product(name: "WebSocketKit", package: "websocket-kit"),
     .product(name: "GLMSwift", package: "GLMSwift"),
     .product(name: "Crypto", package: "swift-crypto"),
-    .product(name: "NIOTransportServices", package: "swift-nio-transport-services", condition: .when(platforms: [.iOS, .macOS, .watchOS, .tvOS]))
+    .product(name: "NIOTransportServices", package: "swift-nio-transport-services", condition: .when(platforms: [.iOS, .macOS, .watchOS, .tvOS])),
+    "bcrypt"
 ]
 #else // Windows dependecies
 packageDependencies = [
@@ -44,7 +45,8 @@ targetDependencies = [
     //.product(name: "NIOWebSocket", package: "swift-nio"),
     //.product(name: "WebSocketKit", package: "websocket-kit"),
     .product(name: "GLMSwift", package: "GLMSwift"),
-    .product(name: "Crypto", package: "swift-crypto")
+    .product(name: "Crypto", package: "swift-crypto"),
+    "bcrypt"
 ]
 #endif
 
@@ -63,6 +65,7 @@ let package = Package(
         .target(name: "SebbuKit",
                 dependencies: targetDependencies,
                 resources:[.process("SpriteKit/control_pad.imageset")]),
+        .target(name: "bcrypt"),
         .testTarget(
             name: "SebbuKitTests",
             dependencies: ["SebbuKit"]),

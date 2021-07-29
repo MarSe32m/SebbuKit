@@ -4,7 +4,7 @@
 //
 //  Created by Sebastian Toivonen on 17.6.2021.
 //
-#if !os(Windows)
+#if canImport(TestDisabled)
 import XCTest
 import Foundation
 import NIO
