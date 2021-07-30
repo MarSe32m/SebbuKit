@@ -264,7 +264,7 @@ final class SebbuKitBitStreamTests: XCTestCase {
             bitStream.append(float)
             bitStream.append(double)
             bitStream.append(bytes)
-            identifier.encode(to: &bitStream)
+            bitStream.appendObject(identifier)
             bitStream.append(_count)
             bitStream.append(_uint8Bits)
             bitStream.append(_uint16Bits)

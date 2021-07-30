@@ -4,6 +4,8 @@
 //
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
+//TODO: Implement this to work on Windows aswell
+#if !os(Windows)
 public extension String {
     func isIPAddress() -> Bool {
         var ipv4Addr = in_addr()
@@ -15,7 +17,9 @@ public extension String {
         }
     }
 }
+#endif
 
+//TODO: Remove
 public extension String {
     func isIPv4() -> Bool {
         let items = self.components(separatedBy: ".")

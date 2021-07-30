@@ -1,56 +1,39 @@
-#ifndef _BCRYPT_H_
-#define _BCRYPT_H_
+#include <sys/types.h>
+#include <string.h>
+#include <stdio.h>
 
-#define BCRYPT_HASHSIZE    64
-
-/*
- * This function expects a work factor between 4 and 31 and a char array to
- * store the resulting generated salt. The char array should typically have
- * BCRYPT_HASHSIZE bytes at least. If the provided work factor is not in the
- * previous range, it will default to 12.
- *
- * The return value is zero if the salt could be correctly generated and
- * nonzero otherwise.
- */
-int bcrypt_gensalt(int workfactor, char salt[BCRYPT_HASHSIZE]);
-
-/*
- * This function expects a password to be hashed, a salt to hash the password
- * with and a char array to leave the result. It can also be used to verify a
- * hashed password. In that case, provide the expected hash in the salt
- * parameter and verify the output hash is the same as the input hash. Both the
- * salt and the hash parameters should have room for BCRYPT_HASHSIZE characters
- * at least.
- *
- * The return value is zero if the password could be hashed and nonzero
- * otherwise.
- */
-int bcrypt_hashpw(const char *passwd, const char salt[BCRYPT_HASHSIZE], char hash[BCRYPT_HASHSIZE]);
-
-/*
- * Brief Example
- * -------------
- *
- * Hashing a password:
- *
- *    char salt[BCRYPT_HASHSIZE];
- *    char hash[BCRYPT_HASHSIZE];
- *
- *    assert(bcrypt_gensalt(12, salt) == 0);
- *    assert(bcrypt_hashpw("thepassword", salt, hash) == 0);
- *
- *
- * Verifying a password:
- *
- *    char outhash[BCRYPT_HASHSIZE];
- *
- *    assert(bcrypt_hashpw("thepassword", "expectedhash", outhash) == 0);
- *
- *    if (strcmp("expectedhash", outhash) == 0) {
- *        printf("The password matches\n");
- *    } else {
- *        printf("The password does NOT match\n");
- *    }
- */
-
+#if defined(_WIN32)
+typedef unsigned char uint8_t;
+typedef uint8_t u_int8_t;
+typedef unsigned short uint16_t;
+typedef uint16_t u_int16_t;
+typedef unsigned uint32_t;
+typedef uint32_t u_int32_t;
+typedef unsigned long long uint64_t;
+typedef uint64_t u_int64_t;
+#define snprintf _snprintf
+#define __attribute__(unused)
+#else
+#include <stdint.h>
 #endif
+
+#define explicit_bzero(s,n) memset(s, 0, n)
+#define DEF_WEAK(f)
+
+
+/* This implementation is adaptable to current computing power.
+ * You can have up to 2^31 rounds which should be enough for some
+ * time to come.
+ */
+
+#define BCRYPT_VERSION '2'
+#define BCRYPT_MAXSALT 16    /* Precomputation is just so nice */
+#define BCRYPT_WORDS 6        /* Ciphertext words */
+#define BCRYPT_MINLOGROUNDS 4    /* we have log2(rounds) in salt */
+
+#define    BCRYPT_SALTSPACE    (7 + (BCRYPT_MAXSALT * 4 + 2) / 3 + 1)
+#define    BCRYPT_HASHSPACE    61
+
+
+int bcrypt_hashpass(const char *key, const char *salt, char *encrypted, size_t encryptedlen);
+int encode_base64(char *, const u_int8_t *, size_t);
