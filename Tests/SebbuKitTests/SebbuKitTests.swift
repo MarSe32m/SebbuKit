@@ -6,7 +6,7 @@ final class SebbuKitTests: XCTestCase {
     func testNetworkUtils() {
         let ipAddress = NetworkUtils.publicIP
         XCTAssert(ipAddress != nil, "IP Address was nil")
-        XCTAssert(ipAddress!.isIPAddress())
+        XCTAssert(ipAddress!.isIpAddress())
     }
     
     func testHMAC256SignatureAndVerification() {
