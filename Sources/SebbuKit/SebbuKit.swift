@@ -12,6 +12,9 @@
 @_exported import CRT
 #endif
 
+/// This function checks for the whole length of the (smaller) array if
+/// if they are equal. This way it's harder to perform timing attacks
+/// on for example passwords.
 @inlinable
 public func slowEquals(_ a: [UInt8], _ b: [UInt8]) -> Bool {
     var diff = a.count ^ b.count
