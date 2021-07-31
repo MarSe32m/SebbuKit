@@ -1,5 +1,5 @@
 //
-//  Cryptography Essentials.swift
+//  CRC.swift
 //  
 //
 //  Created by Sebastian Toivonen on 15.5.2020.

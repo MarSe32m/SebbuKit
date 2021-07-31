@@ -1,9 +1,7 @@
 //
 //  BCrypt.swift
 //  
-//
 //  Created by Sebastian Toivonen on 30.7.2021.
-//
 
 import bcrypt
 
@@ -34,10 +32,8 @@ public final class BCrypt {
 
         let originalAlgorithm: Algorithm
         if salt.count == Algorithm.saltCount {
-            // user provided salt
             originalAlgorithm = ._2b
         } else {
-            // full salt, not user provided
             let revisionString = String(salt.prefix(4))
             if let parsedRevision = Algorithm(rawValue: revisionString) {
                 originalAlgorithm = parsedRevision
@@ -46,10 +42,8 @@ public final class BCrypt {
             }
         }
 
-        // OpenBSD doesn't support 2y revision.
         let normalizedSalt: String
         if originalAlgorithm == Algorithm._2y {
-            // Replace with 2b.
             normalizedSalt = Algorithm._2b.rawValue + salt.dropFirst(originalAlgorithm.revisionCount)
         } else {
             normalizedSalt = salt
@@ -115,12 +109,10 @@ public final class BCrypt {
     }
 
     private func isSaltValid(_ salt: String) -> Bool {
-        // Includes revision and cost info (count should be 29)
         let revisionString = String(salt.prefix(4))
         if let algorithm = Algorithm(rawValue: revisionString) {
             return salt.count == algorithm.fullSaltCount
         } else {
-            // Does not include revision and cost info (count should be 22)
             return salt.count == Algorithm.saltCount
         }
     }
@@ -135,31 +127,23 @@ public final class BCrypt {
         return String(cString: encodedBytes)
     }
 
-    /// Specific BCrypt algorithm.
     private enum Algorithm: String, RawRepresentable {
-        /// older version
         case _2a = "$2a$"
-        /// format specific to the crypt_blowfish BCrypt implementation, identical to `2b` in all but name.
         case _2y = "$2y$"
-        /// latest revision of the official BCrypt algorithm, current default
         case _2b = "$2b$"
 
-        /// Revision's length, including the `$` symbols
         var revisionCount: Int {
             return 4
         }
 
-        /// Salt's length (includes revision and cost info)
         var fullSaltCount: Int {
             return 29
         }
 
-        /// Checksum's length
         var checksumCount: Int {
             return 31
         }
 
-        /// Salt's length (does NOT include neither revision nor cost info)
         static var saltCount: Int {
             return 22
         }
