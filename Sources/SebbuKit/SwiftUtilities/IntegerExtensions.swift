@@ -74,3 +74,56 @@ public extension FixedWidthInteger {
         return 1 << ((Self.bitWidth - 1) - self.leadingZeroBitCount)
     }
 }
+
+public extension UInt16 {
+    init(_ bytes: [UInt8]) {
+        if bytes.isEmpty { self = 0 }
+        self = UInt16(bytes[0])
+        for i in 1..<(bytes.count <= 2 ? bytes.count : 2) {
+            self |= (UInt16(bytes[i]) << (8 * i))
+        }
+    }
+    
+    var bytes: [UInt8] {
+        [UInt8(truncatingIfNeeded: self),
+         UInt8(truncatingIfNeeded: self >> 8)]
+    }
+}
+
+public extension UInt32 {
+    init(_ bytes: [UInt8]) {
+        if bytes.isEmpty { self = 0 }
+        self = UInt32(bytes[0])
+        for i in 1..<(bytes.count <= 4 ? bytes.count : 4) {
+            self |= (UInt32(bytes[i]) << (8 * i))
+        }
+    }
+    
+    var bytes: [UInt8] {
+        [UInt8(truncatingIfNeeded: self),
+         UInt8(truncatingIfNeeded: self >> 8),
+         UInt8(truncatingIfNeeded: self >> 16),
+         UInt8(truncatingIfNeeded: self >> 24)]
+    }
+}
+
+public extension UInt64 {
+    init(_ bytes: [UInt8]) {
+        if bytes.isEmpty { self = 0 }
+        self = UInt64(bytes[0])
+        for i in 1..<(bytes.count <= 8 ? bytes.count : 4) {
+            self |= (UInt64(bytes[i]) << (8 * i))
+        }
+    }
+    
+    var bytes: [UInt8] {
+        [UInt8(truncatingIfNeeded: self),
+         UInt8(truncatingIfNeeded: self >> 8),
+         UInt8(truncatingIfNeeded: self >> 16),
+         UInt8(truncatingIfNeeded: self >> 24),
+         UInt8(truncatingIfNeeded: self >> 32),
+         UInt8(truncatingIfNeeded: self >> 40),
+         UInt8(truncatingIfNeeded: self >> 48),
+         UInt8(truncatingIfNeeded: self >> 56)]
+    }
+}
