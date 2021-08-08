@@ -10,7 +10,6 @@ packageDependencies = [
     .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.10.1"),
     .package(url: "https://github.com/MarSe32m/GLMSwift.git", .branch("main")),
     .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "1.0.0"),
     .package(url: "https://github.com/apple/swift-nio-transport-services", from: "1.0.0"),
     .package(url: "https://github.com/MarSe32m/sebbu-bitstream.git", .branch("main")),
     .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main"))
@@ -26,7 +25,6 @@ targetDependencies = [
     .product(name: "GLMSwift", package: "GLMSwift"),
     .product(name: "SebbuBitStream", package: "sebbu-bitstream"),
     .product(name: "SebbuCrypto", package: "sebbu-cryptography"),
-    .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "NIOTransportServices", package: "swift-nio-transport-services", condition: .when(platforms: [.iOS, .macOS, .watchOS, .tvOS]))
 ]
 #else // Windows dependecies
@@ -38,7 +36,6 @@ packageDependencies = [
     .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main")),
     //.package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     //.package(url: "https://github.com/swift-server/async-http-client.git", from: "1.0.0"),
-    .package(url: "https://github.com/apple/swift-crypto.git", .branch("main"))
 ]
 targetDependencies = [
     //.product(name: "NIO",package: "swift-nio"),

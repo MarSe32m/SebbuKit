@@ -9,6 +9,7 @@ final class SebbuKitTests: XCTestCase {
         XCTAssert(ipAddress!.isIpAddress())
     }
     
+    @available(iOS 13.2, *)
     func testHMAC256SignatureAndVerification() {
         let key = SymmetricKey(size: .bits256)
         let data = "Hello this data is some test data... We are now going to make a signature out of it".hexBytes
