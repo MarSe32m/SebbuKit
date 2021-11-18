@@ -83,9 +83,19 @@ public final class TCPClient {
         channel = try bootstrap.connect(to: address).wait()
     }
     
+    public final func connect(address: SocketAddress) async throws {
+        if channel != nil { return }
+        channel = try await bootstrap.connect(to: address).get()
+    }
+    
     public final func connect(host: String, port: Int) throws {
         if channel != nil { return }
         channel = try bootstrap.connect(host: host, port: port).wait()
+    }
+    
+    public final func connect(host: String, port: Int) async throws {
+        if channel != nil { return }
+        channel = try await bootstrap.connect(host: host, port: port).get()
     }
     
     public final func disconnect() throws {

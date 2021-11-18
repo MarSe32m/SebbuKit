@@ -63,16 +63,31 @@ public class WebSocketServer {
         serverChannelv4 = try bootstrap.bind(host: "0", port: port).wait()
     }
     
+    public func startIPv4(port: Int) async throws {
+        serverChannelv4 = try await bootstrap.bind(host: "0", port: port).get()
+    }
+    
     public func startIPv6(port: Int) throws {
         serverChannelv6 = try bootstrap.bind(host: "::", port: port).wait()
+    }
+    
+    public func startIPv6(port: Int) async throws {
+        serverChannelv6 = try await bootstrap.bind(host: "::", port: port).get()
     }
     
     public func shutdown() throws {
         try serverChannelv4?.close(mode: .all).wait()
         try serverChannelv6?.close(mode: .all).wait()
-        print("Websocket server closed successfully!")
         if !isSharedEventLoopGroup {
             try eventLoopGroup.syncShutdownGracefully()
+        }
+    }
+    
+    public func shutdown() async throws {
+        try await serverChannelv4?.close()
+        try await serverChannelv6?.close()
+        if !isSharedEventLoopGroup {
+            try await eventLoopGroup.shutdownGracefully()
         }
     }
     

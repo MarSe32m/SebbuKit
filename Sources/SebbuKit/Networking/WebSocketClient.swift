@@ -22,5 +22,15 @@ public extension WebSocketClient {
         semaphore.wait()
         return webSocket
     }
+    
+    func connect(scheme: String, host: String, port: Int, path: String = "/", headers: HTTPHeaders = [:]) async throws -> WebSocket {
+        return try await withUnsafeThrowingContinuation({ continuation in
+            connect(scheme: scheme, host: host, port: port, path: path, headers: headers, onUpgrade: { ws in
+                continuation.resume(returning: ws)
+            }).whenFailure({ error in
+                continuation.resume(throwing: error)
+            })
+        })
+    }
 }
 #endif

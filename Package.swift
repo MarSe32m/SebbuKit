@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 import PackageDescription
 
 var packageDependencies: [Package.Dependency] = []
@@ -55,8 +55,8 @@ targetDependencies = [
 let package = Package(
     name: "SebbuKit",
     platforms: [
-        .macOS(.v11),
-        .iOS(.v13)
+        .macOS(.v12),
+        .iOS(.v15)
     ],
     products: [
         .library(name: "SebbuKit", targets: ["SebbuKit"]),

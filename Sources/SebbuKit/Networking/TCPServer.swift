@@ -61,8 +61,16 @@ public final class TCPServer {
         ipv4channel = try bootstrap.bind(host: "0", port: port).wait()
     }
     
+    public final func startIPv4(port: Int) async throws {
+        ipv4channel = try await bootstrap.bind(host: "0", port: port).get()
+    }
+    
     public final func startIPv6(port: Int) throws {
         ipv6channel = try bootstrap.bind(host: "::", port: port).wait()
+    }
+    
+    public final func startIPv6(port: Int) async throws {
+        ipv6channel = try await bootstrap.bind(host: "::", port: port).get()
     }
     
     public final func shutdown() throws {
@@ -70,6 +78,14 @@ public final class TCPServer {
         try? ipv6channel?.close().wait()
         if !isSharedEventLoopGroup {
             try eventLoopGroup.syncShutdownGracefully()
+        }
+    }
+    
+    public final func shutdown() async throws {
+        try await ipv4channel?.close()
+        try await ipv6channel?.close()
+        if !isSharedEventLoopGroup {
+            try await eventLoopGroup.shutdownGracefully()
         }
     }
     
