@@ -17,7 +17,7 @@ public extension String {
         }
     }
 }
-#endif
+#else
 
 //TODO: Remove
 public extension String {
@@ -74,6 +74,7 @@ public extension String {
 
     func isIpAddress() -> Bool { return self.isIPv6() || self.isIPv4() }
 }
+#endif
 
 public extension Array where Element == UInt8 {
     var hexString: String {

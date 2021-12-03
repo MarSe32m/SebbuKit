@@ -30,9 +30,9 @@ public final class RepeatingTimer {
     private lazy var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource(flags: .strict, queue: queue)
         t.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
-        t.setEventHandler(handler: { [weak self] in
+        t.setEventHandler { [weak self] in
             self?.eventHandler?()
-        })
+        }
         return t
     }()
 
