@@ -5,7 +5,7 @@
 //  Created by Sebastian Toivonen on 16.6.2021.
 //
 #if !os(Windows)
-import NIOCore
+import NIO
 #if canImport(NIOTransportServices) && canImport(Network)
 import NIOTransportServices
 #endif
