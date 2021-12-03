@@ -12,7 +12,8 @@ packageDependencies = [
     .package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     .package(url: "https://github.com/apple/swift-nio-transport-services", from: "1.0.0"),
     .package(url: "https://github.com/MarSe32m/sebbu-bitstream.git", .branch("main")),
-    .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main"))
+    .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main")),
+    .package(url: "https://github.com/apple/swift-collections.git", .branch("main"))
 ]
 targetDependencies = [
     .product(name: "NIO",package: "swift-nio"),
@@ -25,7 +26,8 @@ targetDependencies = [
     .product(name: "GLMSwift", package: "GLMSwift"),
     .product(name: "SebbuBitStream", package: "sebbu-bitstream"),
     .product(name: "SebbuCrypto", package: "sebbu-cryptography"),
-    .product(name: "NIOTransportServices", package: "swift-nio-transport-services", condition: .when(platforms: [.iOS, .macOS, .watchOS, .tvOS]))
+    .product(name: "NIOTransportServices", package: "swift-nio-transport-services", condition: .when(platforms: [.iOS, .macOS, .watchOS, .tvOS])),
+    .product(name: "DequeModule", package: "swift-collections")
 ]
 #else // Windows dependecies
 packageDependencies = [
@@ -36,6 +38,7 @@ packageDependencies = [
     .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main")),
     //.package(url: "https://github.com/vapor/websocket-kit.git", from: "2.0.0"),
     //.package(url: "https://github.com/swift-server/async-http-client.git", from: "1.0.0"),
+    .package(url: "https://github.com/apple/swift-collections.git", .branch("main"))
 ]
 targetDependencies = [
     //.product(name: "NIO",package: "swift-nio"),
@@ -47,7 +50,8 @@ targetDependencies = [
     //.product(name: "WebSocketKit", package: "websocket-kit"),
     .product(name: "GLMSwift", package: "GLMSwift"),
     .product(name: "SebbuBitStream", package: "sebbu-bitstream"),
-    .product(name: "SebbuCrypto", package: "sebbu-cryptography")
+    .product(name: "SebbuCrypto", package: "sebbu-cryptography"),
+    .product(name: "DequeModule", package: "swift-collections")
 ]
 #endif
 

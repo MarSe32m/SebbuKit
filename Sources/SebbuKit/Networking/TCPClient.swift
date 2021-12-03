@@ -5,7 +5,7 @@
 //  Created by Sebastian Toivonen on 16.6.2021.
 //
 #if !os(Windows)
-import NIO
+import NIOCore
 #if canImport(NIOTransportServices) && canImport(Network)
 import NIOTransportServices
 #endif
@@ -13,7 +13,7 @@ import NIOTransportServices
 public protocol TCPClientProtocol: AnyObject {
     func received(_ data: [UInt8])
     func connected()
-    func diconnected()
+    func disconnected()
 }
 
 public final class TCPClient {
@@ -106,6 +106,14 @@ public final class TCPClient {
         channel = nil
     }
     
+    public final func disconnect() async throws {
+        try await channel.close()
+        if !isSharedEventLoopGroup {
+            try await eventLoopGroup.shutdownGracefully()
+        }
+        channel = nil
+    }
+    
     #if canImport(NIOTransportServices) && canImport(Network)
     private var bootstrap: NIOTSConnectionBootstrap {
         NIOTSConnectionBootstrap(group: eventLoopGroup)
@@ -147,7 +155,7 @@ internal final class TCPReceiveHandler: ChannelInboundHandler {
     }
     
     func channelUnregistered(context: ChannelHandlerContext) {
-        delegate?.diconnected()
+        delegate?.disconnected()
     }
 
     public func errorCaught(context: ChannelHandlerContext, error: Error) {

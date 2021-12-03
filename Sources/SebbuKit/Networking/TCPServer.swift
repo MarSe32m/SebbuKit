@@ -5,7 +5,7 @@
 //  Created by Sebastian Toivonen on 16.6.2021.
 //
 #if !os(Windows)
-import NIO
+import NIOCore
 #if canImport(NIOTransportServices) && canImport(Network)
 import NIOTransportServices
 #endif
@@ -15,7 +15,6 @@ public protocol TCPServerProtocol: AnyObject {
 }
 
 public final class TCPServer {
-    
     internal var ipv4channel: Channel?
     internal var ipv6channel: Channel?
     
@@ -27,6 +26,8 @@ public final class TCPServer {
         ipv6channel?.localAddress?.port
     }
     
+    
+    //TODO: TLS Support
     public let eventLoopGroup: EventLoopGroup
     
     public weak var delegate: TCPServerProtocol?

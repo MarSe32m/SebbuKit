@@ -76,10 +76,19 @@ public final class UDPServer {
     public func shutdown() throws {
         try channelv4?.close().wait()
         try channelv6?.close().wait()
-        print("UDP Server shutdown successfully")
         if !isSharedEventLoopGroup {
             try group.syncShutdownGracefully()
         }
+        print("UDP Server shutdown successfully")
+    }
+    
+    public func shutdown() async throws {
+        try await channelv4?.close()
+        try await channelv6?.close()
+        if !isSharedEventLoopGroup {
+            try await group.shutdownGracefully()
+        }
+        print("UDP Server shutdown successfully")
     }
     
     /// Writes the data to the buffer but doesn't send the data to the peer yet

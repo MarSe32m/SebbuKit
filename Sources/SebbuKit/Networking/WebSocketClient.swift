@@ -6,7 +6,7 @@
 //
 
 #if !os(Windows)
-import NIO
+import NIOCore
 @_exported import WebSocketKit
 import NIOWebSocket
 import Dispatch

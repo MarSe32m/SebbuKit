@@ -16,6 +16,10 @@ public struct NetworkUtils {
         let ip: String
     }
 
+    private struct HTTPBinJson: Codable {
+        let origin: String
+    }
+    
     private static let ipAddressProviders = ["https://api64.ipify.org/?format=json", 
                                              "https://api.ipify.org/?format=json",
                                              "http://myexternalip.com/json"]
@@ -37,17 +41,30 @@ public struct NetworkUtils {
                 print(error)
             }
         }
-        guard let url = URL(string: "http://checkip.amazonaws.com/") else {
-            return nil
-        }
-        do {
-            let ipAddress = try String(contentsOf: url)
-            if ipAddress.isIpAddress() {
-                return ipAddress
+        
+        if let url = URL(string: "http://checkip.amazonaws.com/") {
+            do {
+                let ipAddress = try String(contentsOf: url)
+                if ipAddress.isIpAddress() {
+                    return ipAddress
+                }
+            } catch let error {
+                print("Error retreiving IP address from: \(url)")
+                print(error)
             }
-        } catch let error {
-            print("Error retreiving IP address from: \(url)")
-            print(error)
+        }
+        
+        if let url = URL(string: "http://httbin.org/ip") {
+            do {
+                let data = try Data(contentsOf: url)
+                let ipAddress = try JSONDecoder().decode(HTTPBinJson.self, from: data).origin
+                if ipAddress.isIPAddress() {
+                    return ipAddress
+                }
+            } catch let error {
+                print("Error retrieving IP address from: \(url)")
+                print(error)
+            }
         }
         return nil
     }()
