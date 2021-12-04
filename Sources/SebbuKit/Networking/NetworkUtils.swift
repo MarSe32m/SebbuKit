@@ -58,7 +58,7 @@ public struct NetworkUtils {
             do {
                 let data = try Data(contentsOf: url)
                 let ipAddress = try JSONDecoder().decode(HTTPBinJson.self, from: data).origin
-                if ipAddress.isIPAddress() {
+                if ipAddress.isIpAddress() {
                     return ipAddress
                 }
             } catch let error {

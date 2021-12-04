@@ -7,7 +7,7 @@
 //TODO: Implement this to work on Windows aswell
 #if !os(Windows)
 public extension String {
-    func isIPAddress() -> Bool {
+    func isIpAddress() -> Bool {
         var ipv4Addr = in_addr()
         var ipv6Addr = in6_addr()
 
@@ -18,7 +18,6 @@ public extension String {
     }
 }
 #else
-
 //TODO: Remove
 public extension String {
     func isIPv4() -> Bool {
