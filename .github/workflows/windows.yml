@@ -11,14 +11,12 @@ jobs:
     runs-on: windows-latest
     continue-on-error: true
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
-         - tag: 5.5-RELEASE
-           branch: swift-5.5-release
-         #- tag: 5.5-DEVELOPMENT-SNAPSHOT-2021-09-06-a
-         #  branch: swift-5.5-branch
-         - tag: DEVELOPMENT-SNAPSHOT-2021-09-18-a
+         - tag: 5.5.1-RELEASE
+           branch: swift-5.5.1-release
+         - tag: DEVELOPMENT-SNAPSHOT-2021-11-20-a
            branch: development
            
     steps:
