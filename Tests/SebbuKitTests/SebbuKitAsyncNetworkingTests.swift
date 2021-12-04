@@ -11,8 +11,8 @@ import NIO
 import NIOHTTP1
 import SebbuKit
 
-let testData = (0..<1024 * 256).map { _ in UInt8.random(in: .min ... .max) }
-let testCount = 100
+let testData = (0..<1024 * 16).map { _ in UInt8.random(in: .min ... .max) }
+let testCount = 150
 final class SebbuKitAsyncNetworkingTests: XCTestCase {
     func testAsyncTCPClientServerConnection() async throws {
         let listener = AsyncTCPListener(numberOfThreads: System.coreCount)
