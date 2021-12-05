@@ -8,7 +8,8 @@ on:
 
 jobs:
   macOS-swift-latest:
-    runs-on: macos-latest
+    #runs-on: macos-latest
+    runs-on: macos-11
     continue-on-error: true
     strategy:
       matrix:
@@ -22,6 +23,7 @@ jobs:
       with:
         branch: ${{ matrix.branch }}
         tag: ${{ matrix.tag }}
+        
     - uses: actions/checkout@v2
     
     - name: Swift Version
