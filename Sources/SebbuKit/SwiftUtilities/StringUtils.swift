@@ -75,6 +75,16 @@ public extension String {
 }
 #endif
 
+public extension String {
+    func trimmed() -> String {
+        trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    mutating func trim() {
+        self = trimmed()
+    }
+}
+
 public extension Array where Element == UInt8 {
     var hexString: String {
         map { String(format: "%02.2hhx", $0) }.joined()
