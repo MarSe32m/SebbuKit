@@ -17,7 +17,7 @@ public enum RLimitError: Error {
     case getError(Int)
 }
 
-public func setFileDescriptorSoftLimit(_ count: Int) throws {
+public func setFileDescriptorSoftLimit(_ limit: Int) throws {
     var limit = rlimit()
     #if os(macOS)
     let rlimit_nofile = RLIMIT_NOFILE
@@ -28,14 +28,14 @@ public func setFileDescriptorSoftLimit(_ count: Int) throws {
     if getRLimitResult != 0 {
         throw RLimitError.getError(Int(getRLimitResult))
     }
-    limit.rlim_cur = rlim_t(count)
+    limit.rlim_cur = rlim_t(limit)
     let setRLimitResult = setrlimit(rlimit_nofile, &limit)
     if setRLimitResult != 0 {
         throw RLimitError.setError(Int(setRLimitResult))
     }
 }
 
-public func setFileDescriptorHardLimit(_ count: Int) throws {
+public func setFileDescriptorHardLimit(_ limit: Int) throws {
     var limit = rlimit()
     #if os(macOS)
     let rlimit_nofile = RLIMIT_NOFILE
@@ -46,7 +46,7 @@ public func setFileDescriptorHardLimit(_ count: Int) throws {
     if getRLimitResult != 0 {
         throw RLimitError.getError(Int(getRLimitResult))
     }
-    limit.rlim_max = rlim_t(count)
+    limit.rlim_max = rlim_t(limit)
     let setRLimitResult = setrlimit(rlimit_nofile, &limit)
     if setRLimitResult != 0 {
         throw RLimitError.setError(Int(setRLimitResult))

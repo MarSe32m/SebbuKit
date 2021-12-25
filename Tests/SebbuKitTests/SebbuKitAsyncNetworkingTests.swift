@@ -4,14 +4,14 @@
 //
 //  Created by Sebastian Toivonen on 3.12.2021.
 //
-#if canImport(TestDisabled)
+#if canImport(Foundation)
 import XCTest
 import Foundation
 import NIO
 import NIOHTTP1
 import SebbuKit
 
-let testData = (0..<1024 * 16).map { _ in UInt8.random(in: .min ... .max) }
+let testData = (0..<1024 * 128).map { _ in UInt8.random(in: .min ... .max) }
 let testCount = 150
 final class SebbuKitAsyncNetworkingTests: XCTestCase {
     func testAsyncTCPClientServerConnection() async throws {
@@ -85,6 +85,7 @@ final class SebbuKitAsyncNetworkingTests: XCTestCase {
                         fatalError("Failed...")
                     }
                     XCTAssert(data == testData)
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
                 }
                 
                 try await client.disconnect()
@@ -114,6 +115,38 @@ final class SebbuKitAsyncNetworkingTests: XCTestCase {
         }
         try await listener.shutdown()
         XCTAssert(totalSum == 0)
+        let lastClient = await listener.listen()
+        XCTAssert(lastClient == nil)
+    }
+    
+    func testConnection() async throws {
+        let listener = AsyncTCPListener(numberOfThreads: 1)
+        try await listener.startIPv4(port: 8890)
+        let client1 = AsyncTCPClient()
+        Task {
+            try await client1.connect(host: "localhost", port: 8890)
+        }
+        guard let client2 = await listener.listen() else {
+            XCTFail("Failed to listen for a connection...")
+            return
+        }
+        client1.send([1,2,3,4,5,6])
+        var recvData = await client2.receive(count: 6)!
+        XCTAssert(recvData.count == 6)
+        Task {
+            for _ in 0..<1024 * 1024 {
+                client2.send([UInt8](repeating: 0, count: 1024))
+            }
+        }
+        for i in 0..<1024 {
+            recvData = await client1.receive(count: 1024 * 1024)!
+            XCTAssert(recvData.count == 1024 * 1024)
+            print("Kek", i)
+        }
+        try await Task.sleep(nanoseconds: 10_000_000_000)
+        try await client1.disconnect()
+        try await client2.disconnect()
+        try await listener.shutdown()
         let lastClient = await listener.listen()
         XCTAssert(lastClient == nil)
     }

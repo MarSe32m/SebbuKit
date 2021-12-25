@@ -154,6 +154,11 @@ internal final class TCPReceiveHandler: ChannelInboundHandler {
         }
     }
     
+    func channelReadComplete(context: ChannelHandlerContext) {
+        context.flush()
+        context.fireChannelReadComplete()
+    }
+    
     func channelUnregistered(context: ChannelHandlerContext) {
         delegate?.disconnected()
     }

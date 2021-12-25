@@ -53,7 +53,10 @@ public final class AsyncTCPListener {
 
 extension AsyncTCPListener: TCPServerProtocol {
     public func connected(_ client: TCPClient) {
-        tcpClientContinuation.yield(AsyncTCPClient(client))
+        Task {
+            try await client.channel.setOption(ChannelOptions.autoRead, value: .init(false)).get()
+            tcpClientContinuation.yield(AsyncTCPClient(client))
+        }
     }
 }
 #endif
