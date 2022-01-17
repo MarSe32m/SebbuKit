@@ -73,6 +73,33 @@ public extension FixedWidthInteger {
 
         return 1 << ((Self.bitWidth - 1) - self.leadingZeroBitCount)
     }
+    
+    var lowestSetBit: Self {
+        self & ~(self &- 1)
+    }
+    
+    func powersOfTwo() -> PowersOfTwo<Self> {
+        PowersOfTwo(self)
+    }
+}
+
+public struct PowersOfTwo<T: FixedWidthInteger>: Sequence, IteratorProtocol {
+    internal var number: T
+    
+    public init(_ number: T) {
+        self.number = number
+    }
+    
+    public mutating func next() -> T? {
+        if number == 0 { return nil }
+        let lsb = number.lowestSetBit
+        number &= ~lsb
+        return lsb
+    }
+    
+    public func makeIterator() -> PowersOfTwo<T> {
+        self
+    }
 }
 
 public extension UInt16 {

@@ -26,4 +26,22 @@ final class SebbuKitTests: XCTestCase {
         XCTAssert(try BCrypt.verify(password, created: hash))
         XCTAssertFalse(try BCrypt.verify("This is some super secret password thats wrong", created: hash))
     }
+    
+    func testLowestSetBit() {
+        var int = 0
+        for i in 0..<64 {
+            int <<= i
+            XCTAssertEqual(int, int.lowestSetBit)
+        }
+        let powersOfTwo = (0..<64).map { i in 1 << i}
+        var result: [Int] = []
+        var number = ~0
+        while number != 0 {
+            let lsb = number.lowestSetBit
+            number &= ~lsb
+            result.append(lsb)
+        }
+        XCTAssertEqual(powersOfTwo, result)
+        XCTAssertEqual(powersOfTwo, (~0).powersOfTwo().map {$0})
+    }
 }
