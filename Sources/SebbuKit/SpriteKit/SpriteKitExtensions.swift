@@ -613,9 +613,13 @@ public class ThumbStickNode: SKSpriteNode {
         center = CGPoint(x: size.width / 2 - touchPadLength, y: size.height / 2 - touchPadLength)
         
         let touchPadSize = CGSize(width: touchPadLength, height: touchPadLength)
-        let path = Bundle.module.url(forResource: "control_pad", withExtension: "png")?.absoluteString
+        var path = Bundle.module.url(forResource: "control_pad", withExtension: "png")?.absoluteString
         if path == nil {
-            print("Failed to load control_pad texture")
+            if let mainPath = Bundle.main.url(forResource: "control_pad", withExtension: "png")?.absoluteString {
+                path = mainPath
+            } else {
+                print("Failed to load control_pad texture")
+            }
         }
         let touchPadTexture = SKTexture(image: UIImage(contentsOfFile: path ?? "control_pad.png") ?? UIImage())
         
