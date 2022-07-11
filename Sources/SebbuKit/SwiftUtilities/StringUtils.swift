@@ -32,6 +32,7 @@ public extension Array where Element == UInt8 {
 
 public extension StringProtocol {
     var hexBytes: [UInt8] { .init(hex) }
+    
     internal var hex: UnfoldSequence<UInt8, Index> {
         sequence(state: startIndex) { startIndex in
             guard startIndex < self.endIndex else { return nil }

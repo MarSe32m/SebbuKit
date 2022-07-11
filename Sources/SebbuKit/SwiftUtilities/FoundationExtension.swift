@@ -8,6 +8,15 @@
 #if canImport(Foundation)
 import Foundation
 
+public extension RunLoop {
+    /// Run the loop once, i.e. drain all of the items that are currently enqeued
+    func runOnce(mode: RunLoop.Mode = .default) {
+        // Date.distantPast results in a stack allocation, 
+        // more over it should be just a constant
+        _ = run(mode: mode, before: Date.distantPast)
+    }
+}
+
 public extension Data {
     var hexString: String {
         map { String(format: "%02.2hhx", $0) }.joined()

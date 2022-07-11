@@ -44,4 +44,13 @@ final class SebbuKitTests: XCTestCase {
         XCTAssertEqual(powersOfTwo, result)
         XCTAssertEqual(powersOfTwo, (~0).powersOfTwo().map {$0})
     }
+
+    func testRunLoopOnce() async {
+        let task = Task.detached { @MainActor in 
+            return 1
+        }
+        RunLoop.main.runOnce()
+        let value = await task.value
+        XCTAssertEqual(1, value)
+    }
 }
