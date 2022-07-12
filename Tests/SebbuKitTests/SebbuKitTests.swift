@@ -53,4 +53,15 @@ final class SebbuKitTests: XCTestCase {
         let value = await task.value
         XCTAssertEqual(1, value)
     }
+    
+    func testUTF8StringUtilities() {
+        let validUTF8: [UInt8] = [0x43, 0x61, 0x66, 0xC3, 0xA9]
+        let invalidUTF8: [UInt8] = [0x43, 0x61, 0x66, 0xC3]
+        
+        let validString = String(fromUtf8: validUTF8)
+        XCTAssertEqual(validString, "Café")
+        
+        let invalidString = String(fromUtf8: invalidUTF8)
+        XCTAssertEqual(invalidString, "Caf\u{FFFD}")
+    }
 }
