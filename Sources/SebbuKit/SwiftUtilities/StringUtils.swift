@@ -5,12 +5,24 @@
 //  Copyright © 2021 Sebastian Toivonen. All rights reserved.
 
 public extension String {
+    @inline(__always)
     func trimmed() -> String {
         trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+   
+    @inline(__always)
     mutating func trim() {
         self = trimmed()
+    }
+    
+    @inline(__always)
+    var utf8Bytes: [UInt8] {
+        [UInt8](self.utf8)
+    }
+    
+    @inline(__always)
+    init(fromUtf8 utf8Bytes: [UInt8]) {
+        self.init(decoding: utf8Bytes, as: Unicode.UTF8.self)
     }
 }
 
