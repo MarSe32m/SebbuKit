@@ -6,7 +6,7 @@ final class SebbuKitTests: XCTestCase {
     func testNetworkUtils() {
         let ipAddress = NetworkUtils.publicIP
         XCTAssert(ipAddress != nil, "IP Address was nil")
-        XCTAssert(ipAddress!.isIpAddress())
+        XCTAssert(ipAddress!.isIpAddress)
     }
     
     @available(iOS 13.2, *)

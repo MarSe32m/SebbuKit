@@ -11,19 +11,19 @@ let package = Package(
         .library(name: "SebbuKit", targets: ["SebbuKit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-nio.git", .branch("main")),
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", .branch("main")),
-        .package(url: "https://github.com/apple/swift-collections.git", .branch("main")),
-        .package(url: "https://github.com/apple/swift-nio-transport-services", .branch("main")),
+        .package(url: "https://github.com/apple/swift-nio.git", branch: "main"),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", branch: "main"),
+        .package(url: "https://github.com/apple/swift-collections.git", branch: "main"),
+        .package(url: "https://github.com/apple/swift-nio-transport-services", branch: "main"),
         
-        .package(url: "https://github.com/MarSe32m/GLMSwift.git", .branch("main")),
-        .package(url: "https://github.com/MarSe32m/sebbu-bitstream.git", .branch("main")),
-        .package(url: "https://github.com/MarSe32m/sebbu-ts-ds.git", .branch("main")),
-        .package(url: "https://github.com/MarSe32m/sebbu-networking.git", .branch("main")),
-        .package(url: "https://github.com/MarSe32m/sebbu-concurrency.git", .branch("main")),
-        .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", .branch("main")),
+        .package(url: "https://github.com/MarSe32m/GLMSwift.git", branch: "main"),
+        .package(url: "https://github.com/MarSe32m/sebbu-bitstream.git", branch: "main"),
+        .package(url: "https://github.com/MarSe32m/sebbu-ts-ds.git", branch: "main"),
+        .package(url: "https://github.com/MarSe32m/sebbu-networking.git", branch: "main"),
+        .package(url: "https://github.com/MarSe32m/sebbu-concurrency.git", branch: "main"),
+        .package(url: "https://github.com/MarSe32m/sebbu-cryptography.git", branch: "main"),
         
-        .package(url: "https://github.com/vapor/websocket-kit.git", .branch("main"))
+        .package(url: "https://github.com/vapor/websocket-kit.git", branch: "main")
     ],
     targets: [
         .target(name: "SebbuKit",
